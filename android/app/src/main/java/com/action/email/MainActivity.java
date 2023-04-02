@@ -1,4 +1,4 @@
-package com.emailaction;
+package com.action.email;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

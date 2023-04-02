@@ -1,4 +1,4 @@
-package com.emailaction;
+package com.action.email;
 
 import android.app.Application;
 import com.facebook.react.PackageList;
