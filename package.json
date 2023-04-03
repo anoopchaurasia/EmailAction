@@ -12,9 +12,12 @@
   "dependencies": {
     "@react-native-google-signin/google-signin": "^9.0.2",
     "googleapis": "^114.0.0",
+    "multipart": "^0.1.5",
+    "parse-multipart-data": "^1.5.0",
     "react": "18.2.0",
     "react-native": "0.71.5",
-    "readable-stream": "^4.3.0"
+    "readable-stream": "^4.3.0",
+    "realm": "^11.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
