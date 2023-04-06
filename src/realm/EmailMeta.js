@@ -31,7 +31,7 @@ const MessageService = {
                 realm.create('Message', message);
             });
         } catch(e) {
-            console.error(e);
+          //  console.error(e, message);
         }
     },
 
@@ -74,12 +74,19 @@ const MessageService = {
 
     getCountBySender: () => {
         const messages = realm.objects('Message');
-        const groups = messages.grouped('sender');
-        const countBySenderDomain = {};
-        for (const domain of Object.keys(groups)) {
-            countBySenderDomain[domain] = groups[domain].length;
+        let countSender = messages.reduce((acc, message) => {
+            const sender = message.sender;
+            if (!acc[sender]) {
+                acc[sender] = 0;
+            }
+            acc[sender]++;
+            return acc;
+        }, {});
+        let d = [];
+        for(let k in countSender) {
+            d.push({v: countSender[k], k})
         }
-        return countBySenderDomain;
+        return d;
     },
 };
 

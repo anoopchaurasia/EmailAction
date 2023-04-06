@@ -7,7 +7,7 @@ GoogleSignin.configure({
     offlineAccess: false, // if you want to access Google API on behalf of the user FROM YOUR SERVER
     //  hostedDomain: '', // specifies a hosted domain restriction
     //  forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
-    accountName: '', // [Android] specifies an account name on the device that should be used
+   // accountName: '', // [Android] specifies an account name on the device that should be used
     profileImageSize: 120, // 
   });
 
@@ -26,11 +26,6 @@ const MyComponent = () => {
       let loggedInUser = loggedInUser || ( await GoogleSignin.signIn());      
       setUser(loggedInUser.user);
       // Build the query parameters
-      const query = 'is:unread'; // Only get new messages
-      const limit = 99; // Only get 10 messages
-
-      // // Build the API endpoint URL with the query parameters
-      const apiUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=${limit}`;
       console.log(loggedInUser.user);
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
