@@ -1,106 +1,114 @@
+import Utility from "../utility/Utility";
 export default class Gmail {
 
-    static getMessageIds = async(accessToken, nextPageToken) =>{
+  static getMessageIds = async (accessToken, query, nextPageToken) => {
 
-          let apiUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?${new URLSearchParams({
-            maxResults: 10,
-            pageToken: nextPageToken || "",
-          })}`;
-      
-      
-          try {
-            let response = await fetch(apiUrl, {
-              headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-            });
-            if(response.status != 200) {
-                throw Error(response);
-            }
-            response = await response.json();
-            return {message_ids: response.messages.map(x => x.id), nextPageToken: response.nextPageToken}
-            
-          } catch (e) {
-            console.error(e, "Gmail.getMessageId");
-          }
+    let apiUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?${new URLSearchParams({
+      maxResults: 1,
+      q: query||"",
+      pageToken: nextPageToken || "",
+    })}`;
+    let response = await fetch(apiUrl, {
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    });
+    if (response.status != 200) {
+      throw Error(await response.text());
     }
+    response = await response.json();
+    return { message_ids: (response.messages||[]).map(x => x.id), nextPageToken: response.nextPageToken }
+  }
 
-    static createBatchRequest = async(message_ids) => {
-        return message_ids.map((messageId) => {
-            return {
-              id: messageId,
-              method: 'GET',
-              headers: {
-                "Accept-Type": "application/json"
-              },
-              path: `/gmail/v1/users/me/messages/${messageId}?format=metadata&metadataHeaders=Subject&metadataHeaders=from&metadataHeaders=to&metadataHeaders=date&metadataHeaders=lebelIds&metadataHeaders=snippet`,
-            };
-          });
+  static fetchAttachment = async(messageId, attachmentID, accessToken)=> {
+    let path = `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}/attachments/${attachmentID}`;
+    console.log(path);
+    let response = await fetch(path, {
+      headers: { Authorization: `Bearer ${accessToken}`},
+    });
+    if (response.status != 200) {
+      throw Error(await response.text());
     }
+    let res = await response.json();
+    return res.data.replace(/\-/g, '+').replace(/_/g, '/') + '=='.substring(0, (3*res.data.length)%4);
+  }
 
-    static callBatch = async(url, body, accessToken) =>{
-       return this.extractresponse(await fetch(url, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'multipart/mixed; boundary=batch_request',
-              "Accept-Type": "application/json"
-            },
-            body: body
-            .map((request) => {
-                return `--batch_request\nContent-Type: application/http\nContent-ID: ${request.id}\n\n${request.method} ${request.path} HTTP/1.1\nAuthorization: Bearer ${accessToken}\n\n`;
-            })
-              .join('') + '--batch_request--',
-          }));
-      
+  static getLabels = async(accessToken)=>{
+    let url = 'https://gmail.googleapis.com/gmail/v1/users/me/labels';
+    let response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    });
+    if (response.status != 200) {
+      throw Error(await response.text());
     }
-
-    // static extractresponse = (response) {
-    //     if (!response.ok) {
-    //         throw new Error('Unable to fetch email metadata.');
-    //       }
-    //       const contentType = response.headers.get('Content-Type');
-    //     if (contentType.includes('multipart/mixed')) {
-    //         const boundary = contentType.split(';')[1].split('=')[1];
-    //         const rawResponse = await response.text();
-      
-    //         const responses = rawResponse.split(`--${boundary}`);
-    //         const parsedResponses = responses.filter(r => r && r.trim() !== '').map(r => {
-    //           // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-    //           const parts = r.split('\r\n\r\n');
-    //           const headers = parts[0].split('\r\n');
-    //           //  console.log(parts[2])
-    //           return parts[2];
-      
-    //         });
-    //         let length = parsedResponses.filter(x => x).map(x => JSON.parse(x)).map(x => {
-    //           let headers = {};
-    //           try {
-    //             x.payload.headers.forEach(r => {
-    //               headers[r.name.toLowerCase()] = r.value;
-    //             });
-    //             let from = (headers.from || "aaa@erer.com").split(/<|>/)
-    //             let date = new Date(headers.date);
-    //             if (date + "" == "Invalid Date") {
-    //               date = Date.parseString(headers.date)
-    //               if (date + "" == "Invalid Date") {
-    //                 console.error(headers.date, "invalid date")
-    //               }
-    //             }
-    //             let sender = from.length === 1 ? from[0] : from[1].trim();
-    //             return { message_id: x.id, created_at: new Date, subject: headers.subject || "", date: date, sender: sender, sender_domain: sender.split("@")[1] };
-    //           } catch (e) {
-    //             console.error("extraction", e, x);
-    //             return {}
-    //           }
-      
-    //         }).map(x => MessageService.create(x)).length;
-    //         setCount(x => { return x + length });
-    //         saveData('pageToken', nextPageToken);
-    //           getList(nextPageToken);
-    //         // Do something with parsedResponses
-    //       } else {
-    //         // The response is not a multipart response, you can parse it as JSON or whatever format it is in.
-    //         const data = await response.json();
-    //         // Do something with data
-    //       }
     
+    let {labels} = await response.json();
+    return labels;
+  }
+
+  static createBatchRequest = async (message_ids, params, method = "GET", body) => {
+    return message_ids.map((messageId) => {
+      return {
+        method: method,
+        headers: {
+          "Accept-Type": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body),
+        path: `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}${params}`,
+      };
+    });
+  }
+
+  static callBatch = async (body, accessToken) => {
+    let boundary = 'batch_request';
+    const base_url = 'https://gmail.googleapis.com/batch';
+    return Utility.multipart(await fetch(base_url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': `multipart/mixed; boundary=${boundary}`,
+        "Accept-Type": "application/json"
+      },
+      body: body
+        .map((request) => {
+          let body = `--${boundary}\r\n`;
+          body += `Content-Type: application/http\r\n\r\n`;
+          body += `${request.method} ${request.path}\r\n`;
+          for (var header in request.headers) {
+            body += `${header}: ${request.headers[header]}\r\n`;
+          }
+          if (request.method.toLowerCase() == "post") body += `\r\n${request.body}\r\n`;
+          return body;
+        })
+        .join('') + '--batch_request--',
+    }));
+  }
+
+  static format = async (result) => {
+    return result.filter(x => x.body).map(({ body }) => {
+      let headers = {};
+      console.log("qwqwqwqwqwqwqwqwqwqw",JSON.stringify(body, null, 2), "wwwewewewewewewewewewewe");
+      try {
+        //if(body.error && body.error) throw new Error("failed to load data")
+        body.payload.headers.forEach(r => {
+          headers[r.name.toLowerCase()] = r.value;
+        });
+        let from = (headers.from || "aaa@erer.com").split(/<|>/)
+        let date = new Date(headers.date);
+        if (date + "" == "Invalid Date") {
+          date = Date.parseString(headers.date)
+          if (date + "" == "Invalid Date") {
+            console.error(headers.date, "invalid date")
+            return {};
+          }
+        }
+        let sender = from.length === 1 ? from[0] : from[1].trim();
+        return { labels: body.labelIds, message_id: body.id, created_at: new Date, subject: headers.subject || "", date: date, sender: sender, sender_domain: sender.split("@")[1] };
+      } catch (e) {
+        console.error("extraction", e, body);
+        return {}
+      }
+    }).filter(x => x.message_id);
+  }
+
+
 }

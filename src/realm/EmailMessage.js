@@ -11,6 +11,8 @@ const MessageSchema = {
         sender_domain: 'string',
         date: 'date',
         created_at: 'date',
+        labels: 'string[]',
+        attachements: "string[]",
     },
 };
 
@@ -20,7 +22,8 @@ const migrationFunction = (oldRealm, newRealm) => {
 
 // Create a new Realm instance with the Message schema
 const realm = new Realm({
-    schema: [MessageSchema], schemaVersion: 3, migration: migrationFunction,
+    path:"messagedata",
+    schema: [MessageSchema], schemaVersion: 5, migration: migrationFunction,
 });
 
 // Define CRUD methods for Message objects
@@ -31,8 +34,13 @@ const MessageService = {
                 realm.create('Message', message);
             });
         } catch(e) {
-          //  console.error(e, message);
+            console.error(e, message);
         }
+    },
+
+    readMessage: () => {
+        let messages = realm.objects('Message').sorted('date', true);
+        return messages.slice(0, 10);
     },
 
     readAll: () => {
@@ -53,6 +61,15 @@ const MessageService = {
         realm.write(() => {
             realm.delete(message);
         });
+    },
+
+    checkMessageId: function (message_id) {
+        let message = realm.objectForPrimaryKey('Message', message_id);
+        if (message) {
+            return true;
+        } else {
+            return false;
+        }
     },
 
     getCountBySenderDomain: () => {
@@ -77,17 +94,46 @@ const MessageService = {
         let countSender = messages.reduce((acc, message) => {
             const sender = message.sender;
             if (!acc[sender]) {
-                acc[sender] = 0;
+                acc[sender] = {c: 0, labels: {}};
             }
-            acc[sender]++;
+            acc[sender].c++;
+            message.labels.forEach(l=>{
+                if(!acc[sender].labels[l]) acc[sender].labels[l]=0
+                acc[sender].labels[l]++;
+            })
             return acc;
         }, {});
         let d = [];
         for(let k in countSender) {
-            d.push({v: countSender[k], k})
+            d.push({count: countSender[k].c, labels: countSender[k].labels, sender: k})
         }
         return d;
     },
+
+    getBySender: (sender) =>{
+        return realm.objects('Message').filtered('sender == $0', sender);
+    },
+
+    fetchMessageIdBySenders:  (senders) => {
+        // Open the realm with the Message schema
+    
+        // Create an empty array to store the results
+        let results = [];
+    
+        // Loop through the senders array
+        for (let sender of senders) {
+            // Query the realm for the messages with the current sender
+            let messages = realm.objects('Message').filtered('sender == $0', sender);
+    
+            // Loop through the messages and push their message_ids to the results array
+            for (let message of messages) {
+                results.push({id: message.message_id, labels: JSON.parse (JSON.stringify(message.labels||[])) });
+            }
+        }
+    
+        // Return the results array
+        return results;
+    }
 };
 
 export default MessageService;
