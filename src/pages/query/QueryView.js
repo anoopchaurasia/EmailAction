@@ -18,6 +18,7 @@ const AdvancedFilter = ({onClose}) => {
   //const [largerValue, setLargerValue] = React.useState('');
   const [afterValue, setAfterValue] = React.useState('');
   const [beforeValue, setBeforeValue] = React.useState('');
+  const [queryName, setQueryName] = React.useState('');
   // Declare a function to handle the search button press
 
   function setValue(key, value, raw_value) {
@@ -30,6 +31,7 @@ const AdvancedFilter = ({onClose}) => {
 
   const handleSearch = () => {
     console.log(afterValue, "afterValue", typeof afterValue);
+    if(!queryName) return console.error("Name is not provided");
     let query = [
         setValue("from", fromValue),
         setValue('to', toValue),
@@ -39,13 +41,22 @@ const AdvancedFilter = ({onClose}) => {
         setValue('has', hasAttachement?'attachment':"", true),
         setValue('after', afterValue && afterValue.toISOString().split("T")[0].replace(/-/igm, "/"), true),
         setValue('before',beforeValue && beforeValue.toISOString().split("T")[0].replace(/-/gm, "/"), true)].filter(x=>x).join (" ");
-        onClose(query);
+        onClose({query, name: queryName});
     
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Advanced Filter</Text>
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Save As</Text>
+        <TextInput
+          value={queryName}
+          onChangeText={setQueryName}
+          placeholder="Enter Query Name"
+          style={styles.input}
+        />
+      </View>
       <View style={styles.inputGroup}>
         <Text style={styles.label}>In:</Text>
         <TextInput

@@ -5,14 +5,16 @@ const QuerySchema = {
   primaryKey: "query",
   properties: {
     query: "string",
-    message_ids: "string[]"
+    name: "string",
+    message_ids: "string[]",
+    nextPageToken: 'string?'
   }
 };
 
 const QueryService = {
   realm: null,
   async init() {
-    this.realm = await Realm.open({path: "querymessage",schema: [QuerySchema], schemaVersion: 2});
+    this.realm = await Realm.open({path: "querymessage",schema: [QuerySchema], schemaVersion: 4});
   },
   async create(query) {
     try {
@@ -48,7 +50,7 @@ const QueryService = {
       return false;
     }
   },
-  async getAll() {
+  getAll() {
     try {
       let results = this.realm.objects("Query");
       return results.map((obj) => obj.toJSON());

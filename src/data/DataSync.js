@@ -42,7 +42,7 @@ export default class MyComponent {
         const accessToken = (await GoogleSignin.getTokens()).accessToken;
         const batchRequests = await Gmail.createBatchRequest(messageIds, '');
         const result = await Gmail.callBatch(batchRequests, accessToken);
-        return await Gmail.format(result);
+        return await Gmail.formatBody(result);
     }
 
     static getLabels = async () => {

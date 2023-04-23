@@ -18,14 +18,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 
-
 import ListEmail from './pages/list/List';
 import LoginView from './google/login'
 import EmailList from './google/emailList';
 import ListView from './pages/list/List';
 import FilterView from './pages/filter/SubjectView';
-import QueryView from './pages/query/QueryView';
-import AttachementView from './pages/query/AttachementView'
+import QueryListView from './pages/query/QueryListView';
+import AttachementView from './pages/query/EmailListView'
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -69,17 +68,18 @@ const App: () => Node = () => {
 
     const DrawerNavigation = () => {
         return <Drawer.Navigator  >
-            <Drawer.Screen name="AttachementView" component={AttachementView} />
+            <Drawer.Screen name="QueryListView" component={QueryListView} />
             <Drawer.Screen name="Home" component={ListView} />
             <Drawer.Screen name="EmailList" component={EmailList} />
+            <Drawer.Screen name="Login" component={LoginView} />
         </Drawer.Navigator>
     };
-
+    
     return (
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="DrawerNavigation" component={DrawerNavigation} /> 
-                <Stack.Screen name="Login" component={LoginView} />
+                <Stack.Screen name="AttachementView" component={AttachementView} />
                 {/* <Stack.Screen name="AttachementView" component={AttachementView} /> */}
             </Stack.Navigator>
         </NavigationContainer>

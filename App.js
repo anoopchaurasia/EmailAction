@@ -9,6 +9,7 @@ const MyComponent = () => {
   return (
     <>
       <StartView />
+      <KeepAwake />
     </>
   );
 };

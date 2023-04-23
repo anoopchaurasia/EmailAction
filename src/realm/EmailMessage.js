@@ -12,9 +12,19 @@ const MessageSchema = {
         date: 'date',
         created_at: 'date',
         labels: 'string[]',
-        attachements: "string[]",
+        attachments: "Attachment[]",
     },
 };
+
+
+const AttachmentSchemma = {
+    name: 'Attachment',
+    properties: {
+      id: 'string',
+      name: 'string',
+      size: 'int'
+    }
+  };
 
 const migrationFunction = (oldRealm, newRealm) => {
     // Migrate your data here
@@ -23,7 +33,7 @@ const migrationFunction = (oldRealm, newRealm) => {
 // Create a new Realm instance with the Message schema
 const realm = new Realm({
     path:"messagedata",
-    schema: [MessageSchema], schemaVersion: 5, migration: migrationFunction,
+    schema: [MessageSchema, AttachmentSchemma], schemaVersion: 7, migration: migrationFunction,
 });
 
 // Define CRUD methods for Message objects
@@ -112,6 +122,11 @@ const MessageService = {
 
     getBySender: (sender) =>{
         return realm.objects('Message').filtered('sender == $0', sender);
+    },
+
+    
+    getById : (message_id) =>{
+        return realm.objects('Message').filtered('message_id == $0', message_id)[0];;
     },
 
     fetchMessageIdBySenders:  (senders) => {

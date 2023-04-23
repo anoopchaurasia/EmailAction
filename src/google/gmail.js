@@ -4,8 +4,8 @@ export default class Gmail {
   static getMessageIds = async (accessToken, query, nextPageToken) => {
 
     let apiUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?${new URLSearchParams({
-      maxResults: 1,
-      q: query||"",
+      maxResults: 10,
+      q: query || "",
       pageToken: nextPageToken || "",
     })}`;
     let response = await fetch(apiUrl, {
@@ -15,23 +15,23 @@ export default class Gmail {
       throw Error(await response.text());
     }
     response = await response.json();
-    return { message_ids: (response.messages||[]).map(x => x.id), nextPageToken: response.nextPageToken }
+    return { message_ids: (response.messages || []).map(x => x.id), nextPageToken: response.nextPageToken }
   }
 
-  static fetchAttachment = async(messageId, attachmentID, accessToken)=> {
+  static fetchAttachment = async (messageId, attachmentID, accessToken) => {
     let path = `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}/attachments/${attachmentID}`;
     console.log(path);
     let response = await fetch(path, {
-      headers: { Authorization: `Bearer ${accessToken}`},
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
     if (response.status != 200) {
       throw Error(await response.text());
     }
     let res = await response.json();
-    return res.data.replace(/\-/g, '+').replace(/_/g, '/') + '=='.substring(0, (3*res.data.length)%4);
+    return res.data.replace(/\-/g, '+').replace(/_/g, '/') + '=='.substring(0, (3 * res.data.length) % 4);
   }
 
-  static getLabels = async(accessToken)=>{
+  static getLabels = async (accessToken) => {
     let url = 'https://gmail.googleapis.com/gmail/v1/users/me/labels';
     let response = await fetch(url, {
       headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
@@ -39,8 +39,8 @@ export default class Gmail {
     if (response.status != 200) {
       throw Error(await response.text());
     }
-    
-    let {labels} = await response.json();
+
+    let { labels } = await response.json();
     return labels;
   }
 
@@ -83,10 +83,9 @@ export default class Gmail {
     }));
   }
 
-  static format = async (result) => {
+  static formatBody = async (result) => {
     return result.filter(x => x.body).map(({ body }) => {
       let headers = {};
-      console.log("qwqwqwqwqwqwqwqwqwqw",JSON.stringify(body, null, 2), "wwwewewewewewewewewewewe");
       try {
         //if(body.error && body.error) throw new Error("failed to load data")
         body.payload.headers.forEach(r => {
@@ -101,13 +100,20 @@ export default class Gmail {
             return {};
           }
         }
+        let attachments = body.payload.parts.filter(x => x.body?.attachmentId).map(x => {
+          return { name: x.filename, id: x.body.attachmentId, size: x.body.size }
+        });
         let sender = from.length === 1 ? from[0] : from[1].trim();
-        return { labels: body.labelIds, message_id: body.id, created_at: new Date, subject: headers.subject || "", date: date, sender: sender, sender_domain: sender.split("@")[1] };
+        return { attachments, labels: body.labelIds, message_id: body.id, created_at: new Date, subject: headers.subject || "", date: date, sender: sender, sender_domain: sender.split("@")[1] };
       } catch (e) {
         console.error("extraction", e, body);
         return {}
       }
-    }).filter(x => x.message_id);
+    }).filter(x => x.message_id)
+  }
+
+  static format = async (result) => {
+    return this.formatBody(result);
   }
 
 
