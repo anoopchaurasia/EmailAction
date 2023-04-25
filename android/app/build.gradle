@@ -121,9 +121,9 @@ android {
         }
         release {
             storeFile file('email-action-release.keystore')
-            storePassword System.console().readLine("\nKeystore password:")
+            storePassword "Unique@Sushil1"
             keyAlias 'anoopsystem'
-            keyPassword System.console().readLine("\nAlias password: ")
+            keyPassword "Unique@Sushil1"
         }
     }
     buildTypes {

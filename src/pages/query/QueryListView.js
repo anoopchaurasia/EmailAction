@@ -4,10 +4,12 @@ import QueryService from '../../realm/QueryMessage';
 import QueryView from './QueryView';
 
 const renderItem = (item, navigation) => {
-  return <View >
-    <Text onPress={x=> navigation.navigate("AttachementView", {query: item})}>Name: {item.name}</Text>
-    <Text>Query: {item.query}</Text>
-    <Button title="Delete" onPress={x=> QueryService.delete(item.query)} />
+  return <View style={{flexDirection:"row", padding: 10, margin:2, borderColor:"#ddd", borderWidth:1}}>
+    <Text onPress={x=> navigation.navigate("AttachementView", {query: item})} style={{flex:1}}>
+      <Text >Name: {item.name}</Text>
+      <Text> Query: {item.query}</Text>
+    </Text>
+    <Button style={{width:50}} title="Delete" onPress={x=> QueryService.delete(item.query)} />
   </View>
 };
 
@@ -41,7 +43,9 @@ const App = ({navigation}) => {
                 <QueryView onClose={query=> {
                     console.log('Query', query);
                     setQuery(query);
+                    query.message_ids=[];
                     QueryService.update(query);
+                    setList(cl=> {cl.push(query); return cl;})
                     setOpenSearch(false);
                 }} />
             </Modal>

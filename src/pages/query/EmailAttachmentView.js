@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import {View,  StyleSheet, Dimensions, Button} from 'react-native';
+import {View,  StyleSheet, Dimensions, Button, Text} from 'react-native';
 import MessageService from "../../realm/EmailMessage";
 import QueryService from '../../realm/QueryMessage';
 
 import DataSync from '../../data/DataSync';
 import PDFView from 'react-native-pdf';
 
-export default AttachementView = ({selectedEmail, getNext}) => {
+export default AttachementView = ({selectedEmail, password, getNext, getPrev, onClose}) => {
     let [selected, setSelected] = useState(selectedEmail);
 
     let [PDFContent, setPDFContent] = useState(''); 
@@ -18,8 +18,12 @@ export default AttachementView = ({selectedEmail, getNext}) => {
         })()
     }, [selected.message_id]);
 
-    function gotToNext() {
+    function goToNext() {
         setSelected(getNext())
+    }
+
+    function goToPrev() {
+        setSelected(getPrev())
     }
 
     async function fetchBody(message_ids) {
@@ -27,14 +31,24 @@ export default AttachementView = ({selectedEmail, getNext}) => {
         console.log(data);
         data.map(x=> MessageService.update(x));
     }
-
+    console.log(selected)
     return (
-        <View style={{ flex: 1, flexDirection: "column" }}>
-            
+        <View style={{ flex: 1, flexDirection: "column", backgroundColor:'white' }}>
+            <View>
+                <Text>
+                    {selected.subject}
+                </Text>
+                <Text>
+                    {selected.sender}
+                </Text>
+                <Text>
+                    {selected.date.toISOString()}
+                </Text>
+            </View>
            {PDFContent ? <PDFView
           fadeInDuration={250.0}
             style={styles.pdf}
-            password = 'ANOO04DEC'
+            password = {password|| 'ANOO04DEC'}
            
             source={{uri:`data:application/pdf;base64,${PDFContent}`}}
             onLoadComplete={(numberOfPages,filePath) => {
@@ -52,8 +66,10 @@ export default AttachementView = ({selectedEmail, getNext}) => {
            
             />: "" }
 
-            <View>
-                <Button title="Next" onPress={gotToNext}/>
+            <View style={{flexDirection:"row", width:"100%"}}>
+                <Button style={{flex:1, margin: 10}} title="Prev" onPress={goToPrev}/>
+                <Button style={{flex:1, margin: 10}} title="Next" onPress={goToNext}/> 
+                <Button style={{flex:1, margin: 10}} title="Close" onPress={onClose}/>
             </View>
           
         </View>

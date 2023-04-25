@@ -7,7 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import ChangeLabel from '../../google/changeLabel';
 import Label from '../../realm/Label'
 import BottomBar from './bottombar'
-import ActivityModel from './../../realm/Activity';
+import ActivityModel from '../../realm/Activity';
 
 export default ListView = ({navigation}) => {
     let [list, setList] = useState([]);
@@ -79,7 +79,7 @@ export default ListView = ({navigation}) => {
                     }
                 />
                 <View style={{ flexDirection: "column", flex: 1 }}>
-                    <Text onPress={x =>navigation.navigate("Details", {sender: item.sender}) } style={{ flex: 1 }}>{item.sender} </Text>
+                    <Text onPress={x =>navigation.navigate("EmailListView", {sender: item.sender}) } style={{ flex: 1 }}>{item.sender} </Text>
 
                     {/* <Text style={{ fontSize: 9 }}>
                     {item.labels.map(x => x.id).map(id => <Text style={{ borderColor: "#ccc", backgroundColor: "#ccc", margin: 10 }} key={id}>{Label.getById(id).name} </Text>)}

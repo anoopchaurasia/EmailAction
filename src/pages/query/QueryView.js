@@ -8,8 +8,8 @@ registerTranslation('en', en);
 
 const AdvancedFilter = ({onClose}) => {
   // Declare state variables for each input field
-  const [inValue, setInValue] = React.useState('');
   const [fromValue, setFromValue] = React.useState('');
+  const [password, setPassword] = React.useState('');
   const [toValue, setToValue] = React.useState('');
   const [subjectValue, setSubjectValue] = React.useState('');
   const [notHasValue, setNotHasValue] = React.useState('');
@@ -32,6 +32,7 @@ const AdvancedFilter = ({onClose}) => {
   const handleSearch = () => {
     console.log(afterValue, "afterValue", typeof afterValue);
     if(!queryName) return console.error("Name is not provided");
+
     let query = [
         setValue("from", fromValue),
         setValue('to', toValue),
@@ -41,7 +42,7 @@ const AdvancedFilter = ({onClose}) => {
         setValue('has', hasAttachement?'attachment':"", true),
         setValue('after', afterValue && afterValue.toISOString().split("T")[0].replace(/-/igm, "/"), true),
         setValue('before',beforeValue && beforeValue.toISOString().split("T")[0].replace(/-/gm, "/"), true)].filter(x=>x).join (" ");
-        onClose({query, name: queryName});
+        onClose({query, name: queryName, pdf_password: password});
     
   };
 
@@ -58,11 +59,11 @@ const AdvancedFilter = ({onClose}) => {
         />
       </View>
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>In:</Text>
+        <Text style={styles.label}>password:</Text>
         <TextInput
-          value={inValue}
-          onChangeText={setInValue}
-          placeholder="Enter folder name"
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Enter PDF Password"
           style={styles.input}
         />
       </View>

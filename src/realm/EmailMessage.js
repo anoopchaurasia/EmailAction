@@ -120,8 +120,10 @@ const MessageService = {
         return d;
     },
 
-    getBySender: (sender) =>{
-        return realm.objects('Message').filtered('sender == $0', sender);
+    getBySender: (sender, page, pageSize) =>{
+        const offset = (page - 1) * pageSize;
+        const limit = offset + pageSize;
+        return realm.objects('Message').filtered('sender == $0', sender).slice(offset, limit);
     },
 
     

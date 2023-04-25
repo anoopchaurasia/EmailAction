@@ -6,6 +6,7 @@ const QuerySchema = {
   properties: {
     query: "string",
     name: "string",
+    pdf_password: "string?",
     message_ids: "string[]",
     nextPageToken: 'string?'
   }
@@ -14,7 +15,7 @@ const QuerySchema = {
 const QueryService = {
   realm: null,
   async init() {
-    this.realm = await Realm.open({path: "querymessage",schema: [QuerySchema], schemaVersion: 4});
+    this.realm = await Realm.open({path: "querymessage",schema: [QuerySchema], schemaVersion: 5});
   },
   async create(query) {
     try {

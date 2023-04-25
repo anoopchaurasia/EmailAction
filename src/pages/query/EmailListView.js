@@ -15,7 +15,7 @@ export default AttachementView = ({navigation, route}) => {
     let [currentIndex, setCurrentIndex] = useState(0);
     let [selectedEmail, setSelectedEamil] = useState(null);
     useEffect( x => {
-      //  loaddata();
+        query.message_ids.length ==0&& loaddata();
         return x=> {};
     }, [query.query]);
 
@@ -51,14 +51,25 @@ export default AttachementView = ({navigation, route}) => {
         let data =  await DataSync.fetchData(message_ids);
         console.log(data);
         data.map(x=> MessageService.update(x));
+        let messages =  message_ids.map(message_id=> MessageService.getById(message_id)).filter(x=>x && x.attachments && (x.attachments.filter(r=>r.name.match(/pdf$/i)).length) ) ;
+        setList(msgs=> {msgs.push(...messages); return msgs});
     }
 
     function getNext() {
         ++selectedEmail;
-        if(selectedEmail+2> list.length){
+        if(!list[selectedEmail]) {
             loaddata();
+            return list[--selectedEmail];
         }
         return list[selectedEmail];
+    }
+
+    function getPrev(){
+        --selectedEmail;
+        if(!list[selectedEmail]) {
+            return list[0];
+        }
+        return list[selectedEmail];   
     }
 
     console.log(list, "list");
@@ -81,7 +92,7 @@ export default AttachementView = ({navigation, route}) => {
                     setOpenSearch(false);
                 }}
             >
-                <EmailAttachmentView selectedEmail={list[selectedEmail]} getNext={getNext} />
+                <EmailAttachmentView onClose={x=> setOpenSearch(false)} password={query.pdf_password} selectedEmail={list[selectedEmail]} getNext={getNext} getPrev={getPrev}/>
             </Modal>
         </View>
     )
@@ -93,8 +104,9 @@ function RenderItem({ item, openModal, index }) {
     return (
 
         <View style={{ flexDirection: "row", borderBottomWidth: .2, borderBottomColor: "#eee", margin: 5, margintop: 10 }}>
-            <View style={{ flexDirection: "column", flex: 1 }}>
-                <Text onPress={openModal} style={{ flex: 1 }}>{item.sender} </Text>
+            <View  style={{ flexDirection: "column", flex: 1 }}>
+                <Text onPress={openModal} style={{ flex: 1 }}>{item.sender}  </Text>
+                <Text >{item.date.toISOString()}</Text>
             </View>
             <Text>
                 {item.count}
