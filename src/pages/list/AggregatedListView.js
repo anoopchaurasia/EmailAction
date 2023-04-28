@@ -9,58 +9,60 @@ import Label from '../../realm/Label'
 import BottomBar from './bottombar'
 import ActivityModel from '../../realm/Activity';
 
+
+
 export default ListView = ({navigation}) => {
     let [list, setList] = useState([]);
-    let [total, setTotal] = useState(0);
     let [selected, setSelected] = useState({});
     useEffect(x => {
-
-        let list = MessageAggregateService.readMessage().slice(0, 20);
-        let total = list.map(x => x.count).reduce((a, b) => a * 1 + b * 1, 0);
-        setTotal(total);
-        setList(list);
+       refershData()
     }, []);
 
+    function refershData() {
+        let list = MessageAggregateService.readMessage().slice(0, 300);
+        setList(list);
+        console.log("refresshed")
+    };
 
     async function moveToTrash() {
         console.log('moving to trash', Object.values(selected).map(x => x.sender));
         
         let data = await MessageService.fetchMessageIdBySenders(Object.values(selected).map(x => x.sender));
-        data = data.filter(({ labels }) => labels.includes("TRASH") == false);
+        data = data.filter(({ labels }) => labels.includes("TRASH") == false).map(x=> x.message_id);
+        ActivityModel.createObject({
+            message_ids: data,
+            to_label: 'trash',
+            is_reverted: false,
+            has_rule: false
+        });
         let result = await ChangeLabel.trash(data, function (result) {
             console.log(result.length, "result");
             (result || []).forEach(x => MessageService.update(x));
-            ActivityModel.createObject({
-                message_ids: '',
-                to_label: 'trash',
-                is_reverted: false,
-                has_rule: false
-            })
+            
         });
+        Object.values(selected).map(x => x.sender).forEach(sender=>{
+        
+            let newAggregate = MessageService.getCountBySender(sender);
+            newAggregate = newAggregate.map(sender => {
+                let labels = [];
+                for (let k in sender.labels) {
+                    labels.push({
+                        count: sender.labels[k],
+                        id: k,
+                        name: k
+                    })
+                }
+                return {
+                    ...sender,
+                    labels: labels
+                }
+            });
+            newAggregate.forEach(x => MessageAggregateService.update(x));
+        })
+        refershData();
     }
 
-    async function aggregate() {
-        console.log("aggregation started")
-        let senders = MessageService.getCountBySender();
-        MessageAggregateService.deleteAll()
-        senders = senders.map(sender => {
-            let labels = [];
-            for (let k in sender.labels) {
-                labels.push({
-                    count: sender.labels[k],
-                    id: k,
-                    name: k
-                })
-            }
-            return {
-                ...sender,
-                labels: labels
-            }
-        });
-        console.log("data ready", senders.length);
-        senders.forEach(x => MessageAggregateService.create(x));
-        console.log("completed");
-    }
+   
 
 
     function RenderItem({ item, checked, onPress }) {
@@ -121,7 +123,7 @@ export default ListView = ({navigation}) => {
             />
             <BottomBar
                 onDelete={x => console.log("onDelete")}
-                onMove={x => console.log('onMove')}
+                onMove={x => refershData()}
                 onTrash={x => moveToTrash()} />
         </View>
     )

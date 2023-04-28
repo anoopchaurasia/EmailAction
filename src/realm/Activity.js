@@ -24,12 +24,13 @@ const ActivitySchema = {
     is_reverted: 'bool',
     has_rule: 'bool',
     rule: 'Rule?',
+    completed: 'bool',
   },
   primaryKey: 'id', // Set the id as the primary key
 };
 
 // Create a realm instance with the schemas
-const realm = new Realm({ schema: [RuleSchema, ActivitySchema],  schemaVersion: 6, path:"activity"  });
+const realm = new Realm({ schema: [RuleSchema, ActivitySchema],  schemaVersion: 7, path:"activity"  });
 
 // Create an object to store the methods
 const ActivityMethods = {

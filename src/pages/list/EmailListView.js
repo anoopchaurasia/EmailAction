@@ -75,6 +75,7 @@ const EmailList = ({ route }) => {
             onEndReachedThreshold={0.1}
             ListFooterComponent={renderFooter}
         />
+        
     );
 };
 

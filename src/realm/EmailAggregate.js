@@ -58,6 +58,7 @@ const MessageAggregateService = {
         return realm.objectForPrimaryKey('MessageAggregate', sender);
     },
     update: (sender) => {
+        console.log(sender);
         realm.write(() => {
             realm.create('MessageAggregate', sender, true);
         });

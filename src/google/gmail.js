@@ -4,7 +4,7 @@ export default class Gmail {
   static getMessageIds = async (accessToken, query, nextPageToken) => {
 
     let apiUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?${new URLSearchParams({
-      maxResults: 10,
+      maxResults: 100,
       q: query || "",
       pageToken: nextPageToken || "",
     })}`;
@@ -20,7 +20,6 @@ export default class Gmail {
 
   static fetchAttachment = async (messageId, attachmentID, accessToken) => {
     let path = `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}/attachments/${attachmentID}`;
-    console.log(path);
     let response = await fetch(path, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
@@ -100,11 +99,13 @@ export default class Gmail {
             return {};
           }
         }
-        // let attachments = body.payload.parts && (body.payload.parts).filter(x => x.body?.attachmentId).map(x => {
-        //   return { name: x.filename, id: x.body.attachmentId, size: x.body.size }
-        // });
+        let attachments = body.payload.parts && (body.payload.parts).filter(x => x.body?.attachmentId).map(x => {
+          return { name: x.filename, id: x.body.attachmentId, size: x.body.size }
+        });
         let sender = from.length === 1 ? from[0] : from[1].trim();
-        return {  labels: body.labelIds, message_id: body.id, created_at: new Date, subject: headers.subject || "", date: date, sender: sender, sender_domain: sender.split("@")[1] };
+        let r = { labels: body.labelIds, message_id: body.id, created_at: new Date, subject: headers.subject || "", date: date, sender: sender, sender_domain: sender.split("@")[1] };
+        attachments && (r.attachments=attachments);
+        return r;
       } catch (e) {
         console.error("extraction", e, body);
         return {}

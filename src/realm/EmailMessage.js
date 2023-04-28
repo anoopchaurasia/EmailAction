@@ -99,8 +99,9 @@ const MessageService = {
         return d;
     },
 
-    getCountBySender: () => {
-        const messages = realm.objects('Message');
+    getCountBySender: (sender) => {
+        let messages = realm.objects('Message');
+        if(sender) messages = messages.filtered('sender == $0', sender);
         let countSender = messages.reduce((acc, message) => {
             const sender = message.sender;
             if (!acc[sender]) {
@@ -110,6 +111,7 @@ const MessageService = {
             message.labels.forEach(l=>{
                 if(!acc[sender].labels[l]) acc[sender].labels[l]=0
                 acc[sender].labels[l]++;
+                if(l==="TRASH") acc[sender].c--;
             })
             return acc;
         }, {});
@@ -144,13 +146,20 @@ const MessageService = {
     
             // Loop through the messages and push their message_ids to the results array
             for (let message of messages) {
-                results.push({id: message.message_id, labels: JSON.parse (JSON.stringify(message.labels||[])) });
+                results.push({message_id: message.message_id, labels: JSON.parse (JSON.stringify(message.labels||[])) });
             }
         }
     
         // Return the results array
         return results;
-    }
+    },
+
+    deleteAll: () => {
+        realm.write(() => {
+            realm.delete(realm.objects("Message"));
+          });
+    },
+
 };
 
 export default MessageService;

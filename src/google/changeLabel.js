@@ -15,7 +15,7 @@ export default class Label {
             result = result.filter(r=> r.body).map(x=>({message_id: x.body.id, labels: x.body.labelIds}));
             result = result.filter(x=>x.message_id);
             processCB(result);
-            await pause(10*1000);
+            await pause(1*1000);
         } 
         console.log("completed", result.length);
         return result
