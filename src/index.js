@@ -1,6 +1,6 @@
 /**
  * Sample React Native App
- * https://github.com/facebook/react-native
+ * https:
  *
  * @format
  * @flow strict-local
@@ -26,6 +26,7 @@ import QueryListView from './pages/query/QueryListView';
 import AttachementView from './pages/query/EmailListView'
 import EmailListView from './pages/list/EmailListView';
 
+
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 const theme = {
@@ -37,35 +38,11 @@ const theme = {
     },
 };
 
-// function ListViewBottomTabNavigator() {
-//     return (
-//       <Tab.Navigator>
-//         <Tab.Screen name="Home" component={ListView} />
-//       </Tab.Navigator>
-//     );
-//   }
-
-
 LogBox.ignoreLogs([
     'Non-serializable values were found in the navigation state',
 ]);
 
-{/* <LoginView />
-<EmailList />
-<ListView/> */}
-
-
-function CustomDrawerContent(props) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Custom Drawer Content</Text>
-        <Button title="Close drawer" onPress={() => props.navigation.closeDrawer()} />
-      </View>
-    );
-  }
-
 const App: () => Node = () => {
-
     const DrawerNavigation = () => {
         return <Drawer.Navigator  >
             <Drawer.Screen name="QueryListView" component={QueryListView} />

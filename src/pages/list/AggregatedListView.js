@@ -4,8 +4,6 @@ import MessageService from "../../realm/EmailMessage";
 import MessageAggregateService from "../../realm/EmailAggregate";
 import { TextInput, Checkbox } from 'react-native-paper';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import ChangeLabel from '../../google/changeLabel';
-import Label from '../../realm/Label'
 import BottomBar from './bottombar'
 import ActivityModel from '../../realm/Activity';
 
@@ -19,47 +17,37 @@ export default ListView = ({navigation}) => {
     }, []);
 
     function refershData() {
-        let list = MessageAggregateService.readMessage().slice(0, 300);
+        let list = MessageAggregateService.readMessage().slice(190, 250);
         setList(list);
         console.log("refresshed")
     };
 
     async function moveToTrash() {
+        console.log(ActivityModel.getAll().length)
         console.log('moving to trash', Object.values(selected).map(x => x.sender));
-        
-        let data = await MessageService.fetchMessageIdBySenders(Object.values(selected).map(x => x.sender));
-        data = data.filter(({ labels }) => labels.includes("TRASH") == false).map(x=> x.message_id);
-        ActivityModel.createObject({
-            message_ids: data,
-            to_label: 'trash',
-            is_reverted: false,
-            has_rule: false
-        });
-        let result = await ChangeLabel.trash(data, function (result) {
-            console.log(result.length, "result");
-            (result || []).forEach(x => MessageService.update(x));
-            
-        });
-        Object.values(selected).map(x => x.sender).forEach(sender=>{
-        
-            let newAggregate = MessageService.getCountBySender(sender);
-            newAggregate = newAggregate.map(sender => {
-                let labels = [];
-                for (let k in sender.labels) {
-                    labels.push({
-                        count: sender.labels[k],
-                        id: k,
-                        name: k
-                    })
-                }
-                return {
-                    ...sender,
-                    labels: labels
-                }
+        let senders = Object.values(selected).map(x => x.sender);
+        senders.forEach( async sender=> {
+            let data = await MessageService.fetchMessageIdBySenders([sender]);
+            data = data.filter(({ labels }) => labels.includes("TRASH") == false).map(x=> x.message_id);
+         
+            ActivityModel.createObject({
+                message_ids: data,
+                to_label: 'trash',
+                is_reverted: false,
+                has_rule: false,
+                created_at: new Date,
+                completed: false,
             });
-            newAggregate.forEach(x => MessageAggregateService.update(x));
-        })
-        refershData();
+
+
+
+
+
+
+        });
+        
+       
+       // refershData();
     }
 
    

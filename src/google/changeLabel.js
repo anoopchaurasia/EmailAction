@@ -8,7 +8,7 @@ export default class Label {
         let result =[];
         for(let i=0; i<messages.length; i+=30) {
             let send = messages.slice(i, i+30);
-            let batchRequests = await Gmail.createBatchRequest(send.map(x=>x.id), "/trash", "POST", {});
+            let batchRequests = await Gmail.createBatchRequest(send, "/trash", "POST", {});
             const accessToken = (await GoogleSignin.getTokens()).accessToken;
             result = await Gmail.callBatch(batchRequests, accessToken)
             console.log(result.filter(r=> r.body && r.body.error).map(r=>r.body.error));

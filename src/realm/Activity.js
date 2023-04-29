@@ -24,19 +24,21 @@ const ActivitySchema = {
     is_reverted: 'bool',
     has_rule: 'bool',
     rule: 'Rule?',
-    completed: 'bool',
+    created_at:'date',
+    completed: {type:"bool", index: true},
   },
   primaryKey: 'id', // Set the id as the primary key
 };
 
 // Create a realm instance with the schemas
-const realm = new Realm({ schema: [RuleSchema, ActivitySchema],  schemaVersion: 7, path:"activity"  });
+const realm = new Realm({ schema: [RuleSchema, ActivitySchema],  schemaVersion: 10, path:"activity"  });
 
 // Create an object to store the methods
 const ActivityMethods = {
   // Define a method to create a new object in the realm
   createObject(data) {
     data.id = Math.random().toString(36).slice(2);
+    console.log(data);
     try {
       realm.write(() => {
         realm.create('Activity', data);
@@ -44,6 +46,10 @@ const ActivityMethods = {
     } catch (error) {
       console.error(error);
     }
+  },
+
+  getNoCompleted() {
+    return realm.objects('Activity').filtered('completed == $0', false);
   },
 
   // Define a method to delete an object from the realm by id
@@ -74,7 +80,7 @@ const ActivityMethods = {
     }
   },
   getAll() {
-      const activities = realm.objects('Activity');
+      return realm.objects('Activity');
     }
 };
 
