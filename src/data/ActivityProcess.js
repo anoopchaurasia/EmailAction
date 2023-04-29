@@ -10,8 +10,8 @@ let Activity = {
             let task = pendingTasks[i];
             switch(task.to_label) {
                 case 'trash': {
-                    await ActivityService.updateObjectById(task.id, {completed: true});
                     Activity.trash(task);
+                    await ActivityService.updateObjectById(task.id, {completed: true});
                 }
             }
         }
@@ -26,25 +26,6 @@ let Activity = {
         await ChangeLabel.trash(task.message_ids, function (result) {
             (result || []).forEach(x => MessageService.update(x));
         });
-        // Object.values(selected).map(x => x.sender).forEach(sender=>{
-        
-        //     let newAggregate = MessageService.getCountBySender(sender);
-        //     newAggregate = newAggregate.map(sender => {
-        //         let labels = [];
-        //         for (let k in sender.labels) {
-        //             labels.push({
-        //                 count: sender.labels[k],
-        //                 id: k,
-        //                 name: k
-        //             })
-        //         }
-        //         return {
-        //             ...sender,
-        //             labels: labels
-        //         }
-        //     });
-        //     newAggregate.forEach(x => MessageAggregateService.update(x));
-        // })
     }
 };
 
