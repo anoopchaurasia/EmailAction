@@ -25,6 +25,7 @@ import FilterView from './pages/filter/SubjectView';
 import QueryListView from './pages/query/QueryListView';
 import AttachementView from './pages/query/EmailListView'
 import EmailListView from './pages/list/EmailListView';
+import ActivityView from './pages/activity/ActivityView';
 
 
 const Stack = createNativeStackNavigator();
@@ -49,6 +50,7 @@ const App: () => Node = () => {
             <Drawer.Screen name="Home" component={AggregatedListView} />
             <Drawer.Screen name="EmailList" component={EmailList} />
             <Drawer.Screen name="Login" component={LoginView} />
+            <Drawer.Screen name="ActivityView" component={ActivityView} />
         </Drawer.Navigator>
     };
     

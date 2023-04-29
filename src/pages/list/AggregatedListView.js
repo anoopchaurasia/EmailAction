@@ -2,12 +2,9 @@ import React, { useEffect, useState } from "react";
 import { FlatList, Text, View, Button } from 'react-native';
 import MessageService from "../../realm/EmailMessage";
 import MessageAggregateService from "../../realm/EmailAggregate";
-import { TextInput, Checkbox } from 'react-native-paper';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { Checkbox } from 'react-native-paper';
 import BottomBar from './bottombar'
 import ActivityModel from '../../realm/Activity';
-
-
 
 export default ListView = ({navigation}) => {
     let [list, setList] = useState([]);
@@ -17,7 +14,7 @@ export default ListView = ({navigation}) => {
     }, []);
 
     function refershData() {
-        let list = MessageAggregateService.readMessage().slice(190, 250);
+        let list = MessageAggregateService.readMessage().slice(180, 200);
         setList(list);
         console.log("refresshed")
     };
@@ -26,10 +23,12 @@ export default ListView = ({navigation}) => {
         console.log(ActivityModel.getAll().length)
         console.log('moving to trash', Object.values(selected).map(x => x.sender));
         let senders = Object.values(selected).map(x => x.sender);
-        senders.forEach( async sender=> {
+        let newlist = list.map(x=>x);
+
+        for(let i=0; i< senders.length; i++) {
+            let sender = senders[i];
             let data = await MessageService.fetchMessageIdBySenders([sender]);
             data = data.filter(({ labels }) => labels.includes("TRASH") == false).map(x=> x.message_id);
-         
             ActivityModel.createObject({
                 message_ids: data,
                 to_label: 'trash',
@@ -38,15 +37,16 @@ export default ListView = ({navigation}) => {
                 created_at: new Date,
                 completed: false,
             });
+            MessageAggregateService.deleteBySender(sender);
+            let index = newlist.indexOf(selected[sender]);
+            delete selected[sender];
+            console.log(newlist.length);
+            index != -1 && newlist.splice(index, 1);
+            console.log(index, selected, newlist.length);
+        }
+        setList(newlist);
+        setSelected({});
 
-
-
-
-
-
-        });
-        
-       
        // refershData();
     }
 

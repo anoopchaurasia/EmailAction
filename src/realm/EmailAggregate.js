@@ -46,8 +46,15 @@ const MessageAggregateService = {
           });
     },
 
+    deleteBySender: (sender)=> {
+        sender = MessageAggregateService.readBySender(sender);
+        realm.write(() => {
+            realm.delete(sender);
+        });
+    },
+
     readMessage: () => {
-        return realm.objects('MessageAggregate').filtered('labels.id == "INBOX"').sorted('count', true);
+        return realm.objects('MessageAggregate').filtered('labels.id == "INBOX"').sorted('count', true).toJSON();
     },
 
     readAll: () => {

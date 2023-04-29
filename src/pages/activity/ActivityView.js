@@ -8,19 +8,7 @@ import ActivityModel from './../../realm/Activity';
 const renderItem = ({ item }) => {
   return (
     <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' }}>
-      <Text>Message ids: {item.message_ids.join(', ')}</Text>
-      <Text>From label: {item.from_label}</Text>
-      <Text>To label: {item.to_label}</Text>
-      <Text>Is reverted: {item.is_reverted ? 'Yes' : 'No'}</Text>
-      <Text>Has rule: {item.has_rule ? 'Yes' : 'No'}</Text>
-      {item.rule && (
-        <View style={{ marginLeft: 10 }}>
-          <Text>Rule sender: {item.rule.sender}</Text>
-          <Text>Rule domain: {item.rule.domain}</Text>
-          <Text>Rule subject: {item.rule.subject}</Text>
-          <Text>Rule subject regex: {item.rule.subject_regex}</Text>
-        </View>
-      )}
+      <Text>To {item.to_label},  completed: {item.completed ? 'Yes' : 'No'}, {item.created_at.toISOString()}</Text>
     </View>
   );
 };

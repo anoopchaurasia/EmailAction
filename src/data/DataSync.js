@@ -29,6 +29,7 @@ export default class MyComponent {
             let length = message_ids.length;
             message_ids = message_ids.filter(message_id => MessageService.checkMessageId(message_id) == false);
             if(full_sync === false && length!==message_ids.length) nextPageToken= undefined;
+            console.log(length, message_ids.length, full_sync);
             cb && cb(length, message_ids.length);
             await Utility.saveData("nextPageToken_list", nextPageToken);
             if (message_ids.length) {
@@ -43,6 +44,10 @@ export default class MyComponent {
                 nextPageToken && nextPageToken != 'done' && MyComponent.getList(query, nextPageToken, full_sync);
             }, 500);
         }
+    };
+
+    static partial_aggregate = async (sender, message) => {
+
     };
 
 
