@@ -11,7 +11,7 @@ export default class Label {
             let batchRequests = await Gmail.createBatchRequest(send, "/trash", "POST", {});
             const accessToken = (await GoogleSignin.getTokens()).accessToken;
             result = await Gmail.callBatch(batchRequests, accessToken)
-            console.log(result.filter(r=> r.body && r.body.error).map(r=>r.body.error));
+            console.log(result, 'result', result.filter(r=> r.body && r.body.error).map(r=>r.body.error));
             result = result.filter(r=> r.body).map(x=>({message_id: x.body.id, labels: x.body.labelIds}));
             result = result.filter(x=>x.message_id);
             processCB(result);

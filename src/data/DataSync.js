@@ -7,20 +7,20 @@ export default class MyComponent {
 
     static fetchMessages = async (query, nextPageToken) => {
         try {
-            await GoogleSignin.signInSilently();
+            let account = await GoogleSignin.signInSilently();
             let accessToken = await GoogleSignin.getTokens();
-            let { message_ids, nextPageToken: pageToken } = await Gmail.getMessageIds(accessToken.accessToken, query, nextPageToken).catch(e => {
-                console.log("failed: did not receive message", e);
-                return setTimeout(x => MyComponent.fetchMessages(query, nextPageToken), 10000);
-            });
-            if (!message_ids) return;
-            if (message_ids.length === 0 && !pageToken) return console.log("no result")
+            let { message_ids, nextPageToken: pageToken } = await Gmail.getMessageIds(accessToken.accessToken, query, nextPageToken)
+            if (message_ids.length === 0 && !pageToken) {
+                console.log("no result")
+                return {message_ids: [], nextPageToken: undefined};
+            }
             return { message_ids, nextPageToken: pageToken };
         } catch (e) {
-            console.error(e, "error");
+            console.log("failed: did not receive message", e);
+            await Utility.sleep(10000);
+            return MyComponent.fetchMessages(query, nextPageToken);
         }
     };
-
 
     static getList = async (query, pageToken = null, full_sync=false, cb) => {
         try {

@@ -25,6 +25,12 @@ export default class Utility {
         }
     }
 
+    static sleep= async(duration)=> {
+        return new Promise((r)=>{
+            setTimeout(x=> r(), duration);
+        })
+    }
+
     static saveData = async function (key, value = "done") {
         try {
             await AsyncStorage.setItem(key, value);

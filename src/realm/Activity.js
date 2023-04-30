@@ -1,37 +1,23 @@
 import Realm from 'realm';
 
-// Define the Rule schema
-const RuleSchema = {
-  name: 'Rule',
-  properties: {
-    id: 'string', // Add an id attribute
-    sender: 'string',
-    domain: 'string',
-    subject: 'string',
-    subject_regex: 'string',
-  },
-  primaryKey: 'id', // Set the id as the primary key
-};
-
 // Define the Activity schema
 const ActivitySchema = {
   name: 'Activity',
   properties: {
     id: 'string', // Add an id attribute
-    message_ids: 'string[]',
-    from_label: 'string?',
-    to_label: 'string?',
-    is_reverted: 'bool',
-    has_rule: 'bool',
-    rule: 'Rule?',
-    created_at:'date',
+    from: {type:'string[]', index:1},
+    to: {type: 'string[]', index:1},
+    subject: {type: "string?", index: 1},
+    created_at:{type:'date', index: 1},
+    body: {type: "string?", index: 1},
+    delete_at: 'date?',
     completed: {type:"bool", index: true},
   },
   primaryKey: 'id', // Set the id as the primary key
 };
 
 // Create a realm instance with the schemas
-const realm = new Realm({ schema: [RuleSchema, ActivitySchema],  schemaVersion: 10, path:"activity"  });
+const realm = new Realm({ schema: [ActivitySchema],  schemaVersion: 14, path:"activity"  });
 
 // Create an object to store the methods
 const ActivityMethods = {

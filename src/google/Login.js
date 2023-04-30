@@ -9,7 +9,10 @@ GoogleSignin.configure({
     //  forceCodeForRefreshToken: true, // [Android] related to `serverAuthCode`, read the docs link below *.
    // accountName: '', // [Android] specifies an account name on the device that should be used
     profileImageSize: 120, // 
+    forceCodeForRefreshToken: true,
   });
+  GoogleSignin.signInSilently()
+
 
 const MyComponent = () => {
     const [user, setUser] = useState(null);
