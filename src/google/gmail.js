@@ -99,11 +99,14 @@ export default class Gmail {
             return {};
           }
         }
+        if(body.labelIds && body.labelIds.includes("CHAT")) {
+          return {};
+        }
         let attachments = body.payload.parts && (body.payload.parts).filter(x => x.body?.attachmentId).map(x => {
           return { name: x.filename, id: x.body.attachmentId, size: x.body.size }
         });
         let sender = from.length === 1 ? from[0] : from[1].trim();
-        let r = { labels: body.labelIds, message_id: body.id, created_at: new Date, subject: headers.subject || "", date: date, sender: sender, sender_domain: sender.split("@")[1] };
+        let r = { labels: body.labelIds || [], message_id: body.id, created_at: new Date, subject: headers.subject || "", date: date, sender: sender, sender_domain: sender.split("@")[1] };
         attachments && (r.attachments=attachments);
         return r;
       } catch (e) {

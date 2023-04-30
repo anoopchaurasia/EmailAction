@@ -23,10 +23,10 @@ export default AttachementView = ({navigation, route}) => {
     async function loaddata() {
         let nextPageToken;
         if(query && query.query) {
-            
             do {
                 console.log(nextPageToken, "nextPageToken Attachment")
-                let {message_ids, nextPageToken: pageToken} =  await DataSync.getList(query.query, query.nextPageToken);
+                //TODO: hanlde own loop for data fetch
+                let {message_ids, nextPageToken: pageToken} =  await DataSync.getList({query: query.query, nextPageToken: query.nextPageToken});
                 nextPageToken = pageToken;
                 setQuery(z=> {
                     z.message_ids.push(...message_ids);

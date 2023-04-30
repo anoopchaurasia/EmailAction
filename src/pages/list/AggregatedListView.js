@@ -1,13 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, View, Button } from 'react-native';
+import { FlatList, Text, View, Button, TextInput } from 'react-native';
 import MessageAggregateService from "../../realm/EmailAggregate";
 import { Checkbox } from 'react-native-paper';
 import BottomBar from './bottombar'
 import Helper from './_Helper';
 
+
 export default ListView = ({navigation}) => {
     let [list, setList] = useState([]);
     let [selected, setSelected] = useState({});
+     // Declare a state variable to store the text input value
+    const [text, setText] = useState('');
+
+    // Define a function to handle text change
+    const handleChangeText = (value) => {
+        // Update the state variable with the new value
+        setText(value);
+    };
     useEffect(x => {
        refershData()
     }, []);
@@ -67,7 +76,15 @@ export default ListView = ({navigation}) => {
         let next = newlist[index];
         next && navigation.navigate("EmailListView",{sender: next.sender, onGoback: function(data) {onGoback(data, next)}});
     }
-
+    const filterItems = (value) => {
+        // If the value is empty, return all items
+        if (value === '') {
+          return list;
+        }
+        value = value.toLowerCase();
+        // Otherwise, return only the list that match the value
+        return list.filter((item) => item.sender.toLowerCase().includes(value));
+      };
     function RenderItem({ item, checked, onPress, onGoback }) {
         let [s, setS] = useState(checked || false);
         return (
@@ -100,11 +117,13 @@ export default ListView = ({navigation}) => {
 
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>
-            {/* <Text>{total}  {list.length}</Text> */}
-            {/* <Button label="Trash" title="Trash" onPress={x => moveToTrash()}></Button>
-            <Button label="Aggregate" title="Aggregate" onPress={x => aggregate()}></Button> */}
+            <TextInput
+                style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                onChangeText={handleChangeText}
+                value={text}
+            />
             <FlatList
-                data={list}
+                data={filterItems(text)}
                 initialNumToRender={20}
                 style={{ flex: 1, marginBottom: 10 }}
                 renderItem={({ item }) => <RenderItem

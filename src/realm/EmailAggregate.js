@@ -14,10 +14,10 @@ const MessageAggregateSchema = {
 const LabelSchema = {
     name: 'Label',
     properties: {
-      count: 'int',
-      id:"string"
+        count: 'int',
+        id: "string"
     }
-  };
+};
 
 const migrationFunction = (oldRealm, newRealm) => {
     // Migrate your data here
@@ -31,11 +31,11 @@ const realm = new Realm({
 
 const MessageAggregateService = {
     create: (sender) => {
-        try{
+        try {
             realm.write(() => {
                 realm.create('MessageAggregate', sender);
             });
-        } catch(e) {
+        } catch (e) {
             console.error(e, sender);
         }
     },
@@ -43,10 +43,10 @@ const MessageAggregateService = {
     deleteAll: () => {
         realm.write(() => {
             realm.delete(realm.objects("MessageAggregate"));
-          });
+        });
     },
 
-    deleteBySender: (sender)=> {
+    deleteBySender: (sender) => {
         sender = MessageAggregateService.readBySender(sender);
         realm.write(() => {
             realm.delete(sender);
@@ -69,6 +69,25 @@ const MessageAggregateService = {
         realm.write(() => {
             realm.create('MessageAggregate', sender, true);
         });
+    },
+    updateCount: (newData)=> {
+        let messageAggregate = realm.objectForPrimaryKey('MessageAggregate', newData.sender);
+        if(!messageAggregate) {
+            return realm.write(() => {
+                return realm.create('MessageAggregate', newData);
+            });
+        }
+        realm.write(() => {
+            messageAggregate.count += newData.count;
+        });
+
+        newData.labels.forEach(label => {
+            realm.write(() => {
+                let labelObject = realm.create('Label', { id: label.id, count:0 }, Realm.UpdateMode.Modified);
+                labelObject.count += label.count;
+            });
+        });
+        return messageAggregate;
     }
 }
 

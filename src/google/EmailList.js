@@ -4,41 +4,44 @@ import MessageService from '../realm/EmailMessage';
 import MessageAggregateService from './../realm/EmailAggregate';
 import MyDate from '../utility/MyDate';
 import DataSync from './../data/DataSync';
+import Activity from '../data/ActivityProcess';
+
 const MyComponent = () => {
   let [count, setCount] = useState(MessageService.readAll().length);
   let [saveCount, setSavedCount] = useState(0);
 
 
-  const getList = async (query, pageToken=null) => {
-    DataSync.getList(query, pageToken, true, (total, filtered_total)=> {
-      setCount(c=>c+total);
-      setSavedCount(c=>c+filtered_total);
-    });
-  };
+  const getList = async (query, pageToken = null) => {
+      DataSync.resumeSync(Activity.aggregate, (c, cc) => {
+        setCount(t => t + c);
+        setSavedCount(t => t + cc);
+      });
 
+  };
+  
   async function aggregate() {
 
     console.log("aggregation started", MessageService.readAll().length);
     let senders = MessageService.getCountBySender();
     MessageAggregateService.deleteAll()
     senders = senders.map(sender => {
-        let labels = [];
-        for (let k in sender.labels) {
-            labels.push({
-                count: sender.labels[k],
-                id: k,
-                name: k
-            })
-        }
-        return {
-            ...sender,
-            labels: labels
-        }
+      let labels = [];
+      for (let k in sender.labels) {
+        labels.push({
+          count: sender.labels[k],
+          id: k,
+          name: k
+        })
+      }
+      return {
+        ...sender,
+        labels: labels
+      }
     });
     console.log("data ready", senders.length);
     senders.forEach(x => MessageAggregateService.create(x));
     console.log("completed");
-}
+  }
 
   return (
     <View>

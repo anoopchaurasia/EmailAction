@@ -10,6 +10,7 @@ const MessageSchema = {
         sender: 'string',
         sender_domain: 'string',
         date: 'date',
+       // keep: {type:Boolean, index:true, },
         created_at: 'date',
         labels: 'string[]',
         attachments: "Attachment[]",

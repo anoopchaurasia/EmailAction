@@ -5,11 +5,11 @@ const ActivitySchema = {
   name: 'Activity',
   properties: {
     id: 'string', // Add an id attribute
-    from: {type:'string[]', index:1},
-    to: {type: 'string[]', index:1},
-    subject: {type: "string?", index: 1},
-    created_at:{type:'date', index: 1},
-    body: {type: "string?", index: 1},
+    from: {type:'string[]', index:true},
+    to: {type: 'string[]', index:true},
+    subject: {type: "string?", index: true},
+    created_at:{type:'date', index: true},
+    body: {type: "string?", index: true},
     delete_at: 'date?',
     completed: {type:"bool", index: true},
   },
@@ -66,7 +66,7 @@ const ActivityMethods = {
     }
   },
   getAll() {
-      return realm.objects('Activity');
+      return realm.objects('Activity').toJSON();
     }
 };
 

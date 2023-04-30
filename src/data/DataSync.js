@@ -22,34 +22,33 @@ export default class MyComponent {
         }
     };
 
-    static getList = async (query, pageToken = null, full_sync=false, cb) => {
-        try {
-            if (pageToken == 'done') return console.info("Done getList");
-            let { message_ids, nextPageToken } = await MyComponent.fetchMessages(query, pageToken);
-            let length = message_ids.length;
-            message_ids = message_ids.filter(message_id => MessageService.checkMessageId(message_id) == false);
-            if(full_sync === false && length!==message_ids.length) nextPageToken= undefined;
-            console.log(length, message_ids.length, full_sync);
-            cb && cb(length, message_ids.length);
-            await Utility.saveData("nextPageToken_list", nextPageToken);
-            if (message_ids.length) {
-                let messages = await MyComponent.fetchMessageMeta(message_ids);
-                messages.map(x => MessageService.update(x));
-            }
-        } catch (e) {
-            console.error(e, "get list");
-        } finally {
-            setTimeout(async x => {
-                let nextPageToken = await Utility.getData('nextPageToken_list');
-                nextPageToken && nextPageToken != 'done' && MyComponent.getList(query, nextPageToken, full_sync);
-            }, 500);
+    static resumeSync = async function(aggregate, streamData) {
+        if((await Utility.getData('sync_completed'))=="yes") return console.log("sync completed");
+        do {
+            var {nextPageToken, messages} =  await MyComponent.getList({pageToken: await Utility.getData('full_sync_token'), full_sync: true}, streamData || ((c,cc)=> console.log(c, cc)) );
+            aggregate(messages);
+            await Utility.saveData('full_sync_token', nextPageToken);
+            await Utility.sleep(500);
+        } while(nextPageToken);
+        await Utility.saveData('sync_completed', 'yes');
+    }
+
+    static getList = async ({query, pageToken = null, full_sync=false}, cb) => {
+        if (pageToken == 'done') return console.info("Done getList");
+        let { message_ids, nextPageToken } = await MyComponent.fetchMessages(query, pageToken);
+        let length = message_ids.length;
+        message_ids = message_ids.filter(message_id => MessageService.checkMessageId(message_id) == false);
+        if(full_sync === false && length!==message_ids.length) nextPageToken= undefined;
+        console.log(length, message_ids.length, full_sync);
+        var messages = [];
+        if (message_ids.length) {
+            messages = await MyComponent.fetchMessageMeta(message_ids);
+            messages.map(x => MessageService.update(x));
+        } else {
         }
+        cb && await cb(length, message_ids.length, messages);
+        return {nextPageToken, messages};
     };
-
-    static partial_aggregate = async (sender, message) => {
-
-    };
-
 
     static loadAttachment = async (message_id, attachmentId) => {
         let accessToken = await GoogleSignin.getTokens();
