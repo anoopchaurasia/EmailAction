@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, View, Button } from 'react-native';
-import MessageService from "../../realm/EmailMessage";
 import MessageAggregateService from "../../realm/EmailAggregate";
 import { Checkbox } from 'react-native-paper';
 import BottomBar from './bottombar'
-import ActivityModel from '../../realm/Activity';
+import Helper from './_Helper';
 
 export default ListView = ({navigation}) => {
     let [list, setList] = useState([]);
@@ -14,29 +13,19 @@ export default ListView = ({navigation}) => {
     }, []);
 
     function refershData() {
-        let list = MessageAggregateService.readMessage().slice(180, 200);
+        let list = MessageAggregateService.readMessage().slice(0, 200);
         setList(list);
         console.log("refresshed")
     };
 
     async function moveToTrash() {
-        console.log(ActivityModel.getAll().length)
         console.log('moving to trash', Object.values(selected).map(x => x.sender));
         let senders = Object.values(selected).map(x => x.sender);
         let newlist = list.map(x=>x);
 
         for(let i=0; i< senders.length; i++) {
             let sender = senders[i];
-            let data = await MessageService.fetchMessageIdBySenders([sender]);
-            data = data.filter(({ labels }) => labels.includes("TRASH") == false).map(x=> x.message_id);
-            ActivityModel.createObject({
-                message_ids: data,
-                to_label: 'trash',
-                is_reverted: false,
-                has_rule: false,
-                created_at: new Date,
-                completed: false,
-            });
+            await Helper.trashForSenderEmail(sender);
             MessageAggregateService.deleteBySender(sender);
             let index = newlist.indexOf(selected[sender]);
             delete selected[sender];
@@ -46,14 +35,40 @@ export default ListView = ({navigation}) => {
         }
         setList(newlist);
         setSelected({});
-
-       // refershData();
     }
 
-   
+    async function onGoback(data, item) {
+        let index = list.indexOf(item);
+        console.log(index, data, item, "index, data, item");
+        if(data?.action=="next") {
+            let next = list[index+1];
+            next && navigation.navigate("EmailListView",{sender: next.sender, onGoback: function(data) {onGoback(data, next)}});
+            return
+        }
+        if(data?.action=="prev") {
+            let next = list[index-1];
+            next && navigation.navigate("EmailListView",{sender: next.sender, onGoback: function(data) {onGoback(data, next)}});
+            return
+        }
+        if(data?.action!="trash") {
+            return
+        }
+        let newlist = list.map(x=>x);
+        let sender = data.sender;
+        await Helper.trashForSenderEmail(sender);
+        MessageAggregateService.deleteBySender(sender);
 
+        delete selected[sender];
+        console.log(newlist.length);
+        index != -1 && newlist.splice(index, 1);
+        console.log(index, selected, newlist.length);
+        setList(newlist);
+        setSelected({...selected});
+        let next = newlist[index];
+        next && navigation.navigate("EmailListView",{sender: next.sender, onGoback: function(data) {onGoback(data, next)}});
+    }
 
-    function RenderItem({ item, checked, onPress }) {
+    function RenderItem({ item, checked, onPress, onGoback }) {
         let [s, setS] = useState(checked || false);
         return (
 
@@ -69,7 +84,7 @@ export default ListView = ({navigation}) => {
                     }
                 />
                 <View style={{ flexDirection: "column", flex: 1 }}>
-                    <Text onPress={x =>navigation.navigate("EmailListView", {sender: item.sender}) } style={{ flex: 1 }}>{item.sender} </Text>
+                    <Text onPress={x =>navigation.navigate("EmailListView", {sender: item.sender, onGoback}) } style={{ flex: 1 }}>{item.sender} </Text>
 
                     {/* <Text style={{ fontSize: 9 }}>
                     {item.labels.map(x => x.id).map(id => <Text style={{ borderColor: "#ccc", backgroundColor: "#ccc", margin: 10 }} key={id}>{Label.getById(id).name} </Text>)}
@@ -83,7 +98,6 @@ export default ListView = ({navigation}) => {
         )
     }
 
-
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>
             {/* <Text>{total}  {list.length}</Text> */}
@@ -91,9 +105,11 @@ export default ListView = ({navigation}) => {
             <Button label="Aggregate" title="Aggregate" onPress={x => aggregate()}></Button> */}
             <FlatList
                 data={list}
+                initialNumToRender={20}
                 style={{ flex: 1, marginBottom: 10 }}
                 renderItem={({ item }) => <RenderItem
                     checked={!!selected[item.sender]}
+                    onGoback={x=> onGoback(x, item)}
                     onPress={checked =>
                         setSelected(r => {
                             if (checked) {

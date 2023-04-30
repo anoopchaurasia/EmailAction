@@ -8,12 +8,10 @@
 
 import React, { Node } from 'react';
 import {
-    LogBox, View, Text, Button
+    LogBox
 } from 'react-native';
 
 import { MD3LightTheme as DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
-
-
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -21,7 +19,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import LoginView from './google/login'
 import EmailList from './google/emailList';
 import AggregatedListView from './pages/list/AggregatedListView';
-import FilterView from './pages/filter/SubjectView';
+import SubjectView from './pages/filter/SubjectView';
 import QueryListView from './pages/query/QueryListView';
 import AttachementView from './pages/query/EmailListView'
 import EmailListView from './pages/list/EmailListView';
@@ -40,27 +38,27 @@ const theme = {
 };
 
 LogBox.ignoreLogs([
-    'Non-serializable values were found in the navigation state',
+    'Non-serializable valures were found in the navigation state',
 ]);
 
 const App: () => Node = () => {
     const DrawerNavigation = () => {
         return <Drawer.Navigator  >
-            <Drawer.Screen name="QueryListView" component={QueryListView} />
             <Drawer.Screen name="Home" component={AggregatedListView} />
+            <Drawer.Screen name="QueryListView" component={QueryListView} />
             <Drawer.Screen name="EmailList" component={EmailList} />
             <Drawer.Screen name="Login" component={LoginView} />
             <Drawer.Screen name="ActivityView" component={ActivityView} />
         </Drawer.Navigator>
     };
-    
+
     return (
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="DrawerNavigation" component={DrawerNavigation} /> 
                 <Stack.Screen name="AttachementView" component={AttachementView} />
                 <Stack.Screen name="EmailListView" component={EmailListView} />
-                {/* <Stack.Screen name="AttachementView" component={AttachementView} /> */}
+                <Stack.Screen name="SubjectView" component={SubjectView} />
             </Stack.Navigator>
         </NavigationContainer>
     );

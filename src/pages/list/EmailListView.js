@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator } from 'react-native';
-
+import BottomBar from './bottombar';
 
 import MessageService from '../../realm/EmailMessage';
 
@@ -37,11 +37,26 @@ const renderItem = ({ item }) => {
 
 
 // The main component that takes an array of email data as a prop
-const EmailList = ({ route }) => {
+const EmailList = ({ route, navigation }) => {
+    console.log(route,"route");
     const [page, setPage] = useState(1);
     let [list, setList] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    function moveToTrash() {
+        route.params.onGoback({action: "trash", sender: route.params.sender});
+        navigation.goBack()
+    }
+
+    function gotoPrev() {
+        navigation.goBack()
+        route.params.onGoback({action: "prev", sender: route.params.sender});
+    }
+
+    function goToNext() {
+        navigation.goBack()
+        route.params.onGoback({action: "next", sender: route.params.sender});
+    }
 
     useEffect(x => {
         // Set the loading status to true
@@ -67,6 +82,7 @@ const EmailList = ({ route }) => {
         setPage((prevPage) => prevPage + 1);
     };
     return (
+        <>
         <FlatList
             data={list}
             renderItem={renderItem}
@@ -75,7 +91,12 @@ const EmailList = ({ route }) => {
             onEndReachedThreshold={0.1}
             ListFooterComponent={renderFooter}
         />
-        
+        <BottomBar
+            onTrash={x => moveToTrash()}
+            onDelete={x=> gotoPrev()} 
+            onMove={x=> goToNext()} 
+        />
+        </>
     );
 };
 
