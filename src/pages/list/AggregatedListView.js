@@ -1,22 +1,64 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, View, Button, TextInput } from 'react-native';
+import { FlatList, Text, View, Button, TextInput, Modal } from 'react-native';
 import MessageAggregateService from "../../realm/EmailAggregateService";
 import { Checkbox } from 'react-native-paper';
-import BottomBar from './bottombar'
+import BottomBar from '../component/BottomBarView'
+import MoveToLabelView from './../component/MoveToLabelView'
 import Helper from './_Helper';
+
 
 
 export default ListView = ({navigation}) => {
     let [list, setList] = useState([]);
     let [selected, setSelected] = useState({});
+    let [openLabelSelect, setOpenLabelSelect] = useState(false);
      // Declare a state variable to store the text input value
     const [text, setText] = useState('');
+    const bottomList = [
+        {
+            name: 'Trash',
+            icon: "delete-restore",
+            action: moveToTrash
+        },
+        {
+            name: 'Move',
+            icon: "file-move",
+            action: moveToFoldeer
+        }
+    ]
 
+    function moveToFoldeer(){
+        if(Object.values(selected).length==0) return console.log("no selection");
+        setOpenLabelSelect(true);
+    }
     // Define a function to handle text change
     const handleChangeText = (value) => {
         // Update the state variable with the new value
         setText(value);
     };
+
+    async function setSelectedLabel(label) {
+        setOpenLabelSelect(false);
+        console.log(label, "label");
+        if(Object.values(selected).length==0) return console.log("no selection");
+        console.log('moving to ', label.name, Object.values(selected).map(x => x.sender));
+        let senders = Object.values(selected).map(x => x.sender);
+        let newlist = list.map(x=>x);
+
+        for(let i=0; i< senders.length; i++) {
+            let sender = senders[i];
+            await Helper.mooveToFolder(label, sender);
+            MessageAggregateService.deleteBySender(sender);
+            let index = newlist.indexOf(selected[sender]);
+            delete selected[sender];
+            console.log(newlist.length);
+            index != -1 && newlist.splice(index, 1);
+            console.log(index, selected, newlist.length);
+        }
+        setList(newlist);
+        setSelected({});
+    }
+
     useEffect(x => {
        refershData()
     }, []);
@@ -28,6 +70,7 @@ export default ListView = ({navigation}) => {
     };
 
     async function moveToTrash() {
+        if(Object.values(selected).length==0) return console.log("no selection");
         console.log('moving to trash', Object.values(selected).map(x => x.sender));
         let senders = Object.values(selected).map(x => x.sender);
         let newlist = list.map(x=>x);
@@ -144,10 +187,18 @@ export default ListView = ({navigation}) => {
                 contentContainerStyle={{ marginBottom: 50, margintop: 10 }}
 
             />
+             <Modal
+                animationType="slide"
+                transparent={false}
+                visible={openLabelSelect}
+                onRequestClose={() => {
+                    setOpenLabelSelect(false);
+                }}
+            >
+                <MoveToLabelView setSelectedLabel={setSelectedLabel} onClose={x=> setOpenLabelSelect(false)}/>
+            </Modal>
             <BottomBar
-                onDelete={x => console.log("onDelete")}
-                onMove={x => refershData()}
-                onTrash={x => moveToTrash()} />
+                list={bottomList}/>
         </View>
     )
 

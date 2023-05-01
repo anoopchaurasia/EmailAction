@@ -1,5 +1,5 @@
 import ActivityService from '../realm/ActivityService';
-import ChangeLabel from '../google/changeLabel';
+import ChangeLabel from '../google/Label';
 import MessageService from '../realm/EmailMessageService';
 import DataSync from './DataSync';
 import MessageAggregateService from '../realm/EmailAggregateService';
@@ -8,9 +8,18 @@ let Activity = {
         let pendingTasks = await ActivityService.getNoCompleted();
         for(let i=0; i< pendingTasks.length; i++) {
             let task = pendingTasks[i].toJSON();
-            if(task.to.includes('trash')) {
+            if(task.from.length<1) {
+                console.error("filter is not present, it should contain atleast one sender email")
+                break;
+            }            
+            if(task.to_label ==='trash') {
                 await Activity.trash(task);
                 await ActivityService.updateObjectById(task.id, {completed: true});
+            } else if(task.from_label && task.to_label) {
+                console.log(task, "task to change folder");
+                await Activity.moveToFolder(task);
+                await ActivityService.updateObjectById(task.id, {completed: true});
+
             }
         }
         if(pendingTasks.length==0) console.log("nothing pending");
@@ -81,15 +90,27 @@ let Activity = {
             (result || []).forEach(x => MessageService.update(x));
         });
         console.log(message_ids, nextPageToken, "message_ids, nextPageToken");
-        nextPageToken && Activity.sync(task, nextPageToken);
+        nextPageToken && Activity.trash(task, nextPageToken);
+    },
+
+    moveToFolder: async function(task, pageToken) {
+        let str = setValue('from', task.from.join(","));
+        console.log(str);
+        let {message_ids, nextPageToken}= await DataSync.fetchMessages(str, pageToken);
+        console.log(message_ids, nextPageToken);
+        await ChangeLabel.moveToFolder(task, message_ids, function (result) {
+            (result || []).forEach(x => MessageService.update(x));
+        });
+        nextPageToken && Activity.moveToFolder(task, nextPageToken);
     }
+
 };
 
 function matchQuery(fromlist, message) {
     let temp = fromlist[message.sender];
     if(temp) return {
         message_id: message.message_id,
-        action: temp.to.includes('trash') ? 'trash': ''
+        action: temp.to_label=='trash' ? 'trash': ''
     }
 }
 

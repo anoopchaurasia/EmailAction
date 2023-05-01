@@ -1,5 +1,4 @@
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import Gmail from './../google/gmail';
+import Gmail from '../google/Gmail';
 import Label from '../realm/LabelService';
 import MessageService from '../realm/EmailMessageService';
 import Utility from './../utility/Utility';
@@ -7,11 +6,8 @@ export default class MyComponent {
 
     static fetchMessages = async (query, nextPageToken) => {
         try {
-            if (!GoogleSignin.isSignedIn()) {
-                await GoogleSignin.signInSilently();
-            }
-            let accessToken = await GoogleSignin.getTokens();
-            let { message_ids, nextPageToken: pageToken } = await Gmail.getMessageIds(accessToken.accessToken, query, nextPageToken)
+           
+            let { message_ids, nextPageToken: pageToken } = await Gmail.getMessageIds(query, nextPageToken)
             if (message_ids.length === 0 && !pageToken) {
                 console.log("no result")
                 return { message_ids: [], nextPageToken: undefined };
@@ -55,42 +51,37 @@ export default class MyComponent {
     };
 
     static loadAttachment = async (message_id, attachmentId) => {
-        let accessToken = await GoogleSignin.getTokens();
-        return await Gmail.fetchAttachment(message_id, attachmentId, accessToken.accessToken);
+        return await Gmail.fetchAttachment(message_id, attachmentId);
 
     }
 
     static fetchMessageMeta = async (messageIds) => {
-        const accessToken = (await GoogleSignin.getTokens()).accessToken;
         let params = '?format=metadata&metadataHeaders=Subject&metadataHeaders=from&metadataHeaders=to&metadataHeaders=date&metadataHeaders=lebelIds&metadataHeaders=snippet'
         const batchRequests = await Gmail.createBatchRequest(messageIds, params);
-        const result = await Gmail.callBatch(batchRequests, accessToken);
+        const result = await Gmail.callBatch(batchRequests);
         return await Gmail.format(result);
     }
 
     static fetchData = async (messageIds) => {
-        if (!GoogleSignin.isSignedIn()) {
-            await GoogleSignin.signInSilently();
-        }
-        const accessToken = (await GoogleSignin.getTokens()).accessToken;
         const batchRequests = await Gmail.createBatchRequest(messageIds, '');
-        const result = await Gmail.callBatch(batchRequests, accessToken);
+        const result = await Gmail.callBatch(batchRequests);
         return await Gmail.formatBody(result);
     }
 
-    static getLabels = async () => {
-        const accessToken = (await GoogleSignin.getTokens()).accessToken;
-        let labels = await Gmail.getLabels(accessToken);
-        console.log(labels.length, "Labels length", Label.create)
+    static getLabels = async (fresh_sync=false) => {
+        if((await Utility.getData('label_loaded')) == 'yes' && fresh_sync==false) return;
+        Label.deleteAll();
+        let labels = await Gmail.getLabels();
         labels.forEach(l => { Label.create(l) });
+        Utility.saveData('label_loaded', 'yes');
     }
 
     static getTotalEmails = async () => {
-        if (!GoogleSignin.isSignedIn()) {
-            await GoogleSignin.signInSilently();
-        }
-        const accessToken = (await GoogleSignin.getTokens()).accessToken;
-        return Gmail.getTotal(accessToken);
+        return Gmail.getTotal();
+    }
+
+    static createLabel = async(name)=>{
+        return await Gmail.createLabel(name);
     }
 
     // Add your code to retrieve the message list here

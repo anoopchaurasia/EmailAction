@@ -16,7 +16,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 
-import LoginView from './google/login'
+import LoginView from './google/LoginView'
 import EmailList from './google/EmailList';
 import AggregatedListView from './pages/list/AggregatedListView';
 import SubjectView from './pages/filter/SubjectView';

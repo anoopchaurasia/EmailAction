@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator } from 'react-native';
-import BottomBar from './bottombar';
+import BottomBar from '../component/BottomBarView';
 
 import MessageService from '../../realm/EmailMessageService';
 
@@ -42,6 +42,24 @@ const EmailList = ({ route, navigation }) => {
     const [page, setPage] = useState(1);
     let [list, setList] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    const bottomList = [
+        {
+            name: 'Prev',
+            icon: "chevron-left",
+            action: gotoPrev
+        },
+        {
+            name: 'Trash',
+            icon: "delete-restore",
+            action: moveToTrash
+        },
+        {
+            name: 'Next',
+            icon: "chevron-right",
+            action: goToNext
+        }
+    ]
 
     function moveToTrash() {
         route.params.onGoback({action: "trash", sender: route.params.sender});
@@ -92,9 +110,7 @@ const EmailList = ({ route, navigation }) => {
             ListFooterComponent={renderFooter}
         />
         <BottomBar
-            onTrash={x => moveToTrash()}
-            onDelete={x=> gotoPrev()} 
-            onMove={x=> goToNext()} 
+            list={bottomList}
         />
         </>
     );

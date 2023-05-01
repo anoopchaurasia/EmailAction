@@ -17,6 +17,7 @@ export default function Home(){
     
     useEffect(x=>{
             DataSync.getTotalEmails().then(data=> {
+                console.log(data);
                 setInboxInfo(data);
                 count && data.messagesTotal && setProgressPer(count/data.messagesTotal);
                 let fetchedCount = count;
@@ -28,6 +29,8 @@ export default function Home(){
                     
                 });
             });
+
+            DataSync.getLabels(true);
             
             setTotalActivity({total: ActivityService.getAll().length, pending: ActivityService.getNoCompleted().length})
     },[]);

@@ -35,7 +35,13 @@ export default  Label ={
     readAll : () => {
         let labels = realm.objects('Label');
         return labels;
-    }
+    },
+
+    deleteAll: () => {
+        realm.write(() => {
+            realm.delete(realm.objects("Label"));
+        });
+    },
 }
 
 // Define the schema for the Label model with the new properties
@@ -47,8 +53,9 @@ const LabelSchema = {
         messagesTotal: 'int?',
         messagesUnread: 'int?',
         id: 'string'
-    }
+    },
+    primaryKey: 'id',
 };
 
 // Create a new Realm instance with the Label schema
-const realm = new Realm({path: "labels",  schemaVersion: 5,  schema: [LabelSchema] });
+const realm = new Realm({path: "labels",  schemaVersion: 8,  schema: [LabelSchema] });

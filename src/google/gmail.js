@@ -1,15 +1,28 @@
 import Utility from "../utility/Utility";
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
+const base_gmail_url = "https://gmail.googleapis.com/gmail/v1/users/me/"
 export default class Gmail {
+  static gmailFetch = async function (url, options) {
+    options.headers.Authorization = `Bearer ${(await GoogleSignin.getTokens()).accessToken}`
+    return fetch(url, options).then(async x => {
+      if (x.status == '401') {
+        await GoogleSignin.clearCachedAccessToken((await GoogleSignin.getTokens()).accessToken);
+        return Gmail.gmailFetch(url, options);
+      }
+      return x;
+    });
+  }
 
-  static getMessageIds = async (accessToken, query, nextPageToken) => {
+  static getMessageIds = async (query, nextPageToken) => {
 
-    let apiUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?${new URLSearchParams({
+    let apiUrl = `${base_gmail_url}messages?${new URLSearchParams({
       maxResults: 100,
       q: query || "",
       pageToken: nextPageToken || "",
     })}`;
-    let response = await fetch(apiUrl, {
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    let response = await Gmail.gmailFetch(apiUrl, {
+      headers: { 'Content-Type': 'application/json' },
     });
     if (response.status != 200) {
       throw Error(await response.text());
@@ -18,10 +31,10 @@ export default class Gmail {
     return { message_ids: (response.messages || []).map(x => x.id), nextPageToken: response.nextPageToken }
   }
 
-  static fetchAttachment = async (messageId, attachmentID, accessToken) => {
-    let path = `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}/attachments/${attachmentID}`;
-    let response = await fetch(path, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+  static fetchAttachment = async (messageId, attachmentID) => {
+    let path = `${base_gmail_url}messages/${messageId}/attachments/${attachmentID}`;
+    let response = await Gmail.gmailFetch(path, {
+      headers: {},
     });
     if (response.status != 200) {
       throw Error(await response.text());
@@ -30,10 +43,10 @@ export default class Gmail {
     return res.data.replace(/\-/g, '+').replace(/_/g, '/') + '=='.substring(0, (3 * res.data.length) % 4);
   }
 
-  static getLabels = async (accessToken) => {
-    let url = 'https://gmail.googleapis.com/gmail/v1/users/me/labels';
-    let response = await fetch(url, {
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+  static getLabels = async () => {
+    let url = `${base_gmail_url}labels`;
+    let response = await Gmail.gmailFetch(url, {
+      headers: { 'Content-Type': 'application/json' },
     });
     if (response.status != 200) {
       throw Error(await response.text());
@@ -52,18 +65,18 @@ export default class Gmail {
           "Content-Type": "application/json"
         },
         body: JSON.stringify(body),
-        path: `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}${params}`,
+        path: `${base_gmail_url}messages/${messageId}${params}`,
       };
     });
   }
 
-  static callBatch = async (body, accessToken) => {
+  static callBatch = async (body) => {
     let boundary = 'batch_request';
     const base_url = 'https://gmail.googleapis.com/batch';
-    return Utility.multipart(await fetch(base_url, {
+    return Utility.multipart(await Gmail.gmailFetch(base_url, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+
         'Content-Type': `multipart/mixed; boundary=${boundary}`,
         "Accept-Type": "application/json"
       },
@@ -99,7 +112,7 @@ export default class Gmail {
             return {};
           }
         }
-        if(body.labelIds && body.labelIds.includes("CHAT")) {
+        if (body.labelIds && body.labelIds.includes("CHAT")) {
           return {};
         }
         let attachments = body.payload.parts && (body.payload.parts).filter(x => x.body?.attachmentId).map(x => {
@@ -107,7 +120,7 @@ export default class Gmail {
         });
         let sender = from.length === 1 ? from[0] : from[1].trim();
         let r = { labels: body.labelIds || [], message_id: body.id, created_at: new Date, subject: headers.subject || "", date: date, sender: sender, sender_domain: sender.split("@")[1] };
-        attachments && (r.attachments=attachments);
+        attachments && (r.attachments = attachments);
         return r;
       } catch (e) {
         console.error("extraction", e, body);
@@ -116,18 +129,31 @@ export default class Gmail {
     }).filter(x => x.message_id)
   }
 
-  static getTotal = async (accessToken)=>{
-    return fetch('https://gmail.googleapis.com/gmail/v1/users/me/profile',{
+  static getTotal = async () => {
+    return Gmail.gmailFetch(`${base_gmail_url}profile`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+
         "Accept-Type": "application/json"
       },
-    }).then(async x=>await x.json());
+    }).then(async x => await x.json());
   }
 
   static format = async (result) => {
     return this.formatBody(result);
   }
 
-
+  static createLabel = async (name) => {
+    const label = {
+      name: name,
+      labelListVisibility: 'labelShow',
+    };
+    return Gmail.gmailFetch(
+      `${base_gmail_url}labels`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      body: JSON.stringify(label),
+    });
+  }
 }

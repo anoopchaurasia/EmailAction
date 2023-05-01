@@ -10,6 +10,8 @@ const ActivitySchema = {
     subject: {type: "string?", index: true},
     created_at:{type:'date', index: true},
     body: {type: "string?", index: true},
+    from_label: "string?",
+    to_label: "string?",
     delete_at: 'date?',
     completed: {type:"bool", index: true},
   },
@@ -17,7 +19,7 @@ const ActivitySchema = {
 };
 
 // Create a realm instance with the schemas
-const realm = new Realm({ schema: [ActivitySchema],  schemaVersion: 14, path:"activity"  });
+const realm = new Realm({ schema: [ActivitySchema],  schemaVersion: 15, path:"activity"  });
 
 // Create an object to store the methods
 const ActivityMethods = {
