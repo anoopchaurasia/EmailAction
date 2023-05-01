@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, View, Button, TextInput } from 'react-native';
-import MessageAggregateService from "../../realm/EmailAggregate";
+import MessageAggregateService from "../../realm/EmailAggregateService";
 import { Checkbox } from 'react-native-paper';
 import BottomBar from './bottombar'
 import Helper from './_Helper';

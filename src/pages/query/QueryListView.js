@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, Text, View, Modal, Button, } from 'react-native';
-import QueryService from '../../realm/QueryMessage';
+import QueryService from '../../realm/QueryMessageService';
 import QueryView from './QueryView';
 
 const renderItem = (item, navigation) => {

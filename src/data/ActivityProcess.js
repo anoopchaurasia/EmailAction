@@ -1,10 +1,10 @@
-import ActivityService from './../realm/Activity';
+import ActivityService from '../realm/ActivityService';
 import ChangeLabel from '../google/changeLabel';
-import MessageService from '../realm/EmailMessage';
+import MessageService from '../realm/EmailMessageService';
 import DataSync from './DataSync';
-import MessageAggregateService from '../realm/EmailAggregate';
+import MessageAggregateService from '../realm/EmailAggregateService';
 let Activity = {
-    proessremaining: async function() {
+    proessremaining: async function(syncCB) {
         let pendingTasks = await ActivityService.getNoCompleted();
         for(let i=0; i< pendingTasks.length; i++) {
             let task = pendingTasks[i].toJSON();
@@ -14,7 +14,7 @@ let Activity = {
             }
         }
         if(pendingTasks.length==0) console.log("nothing pending");
-        await DataSync.resumeSync(Activity.aggregate);
+        await DataSync.resumeSync(Activity.aggregate, syncCB);
        await Activity.sync(await ActivityService.getAll());
     },
 

@@ -1,18 +1,20 @@
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import Gmail from './../google/gmail';
-import Label from './../realm/Label';
-import MessageService from './../realm/EmailMessage';
+import Label from '../realm/LabelService';
+import MessageService from '../realm/EmailMessageService';
 import Utility from './../utility/Utility';
 export default class MyComponent {
 
     static fetchMessages = async (query, nextPageToken) => {
         try {
-            let account = await GoogleSignin.signInSilently();
+            if (!GoogleSignin.isSignedIn()) {
+                await GoogleSignin.signInSilently();
+            }
             let accessToken = await GoogleSignin.getTokens();
             let { message_ids, nextPageToken: pageToken } = await Gmail.getMessageIds(accessToken.accessToken, query, nextPageToken)
             if (message_ids.length === 0 && !pageToken) {
                 console.log("no result")
-                return {message_ids: [], nextPageToken: undefined};
+                return { message_ids: [], nextPageToken: undefined };
             }
             return { message_ids, nextPageToken: pageToken };
         } catch (e) {
@@ -22,32 +24,34 @@ export default class MyComponent {
         }
     };
 
-    static resumeSync = async function(aggregate, streamData) {
-        if((await Utility.getData('sync_completed'))=="yes") return console.log("sync completed");
+    static resumeSync = async function (aggregate, streamData) {
+        if ((await Utility.getData('sync_completed')) == "yes") return console.log("sync completed");
         do {
-            var {nextPageToken, messages} =  await MyComponent.getList({pageToken: await Utility.getData('full_sync_token'), full_sync: true}, streamData || ((c,cc)=> console.log(c, cc)) );
+            var { nextPageToken, messages } = await MyComponent.getList({ query:"-in:chats", pageToken: await Utility.getData('full_sync_token'), full_sync: true }, streamData || ((c, cc) => console.log(c, cc)));
             aggregate(messages);
             await Utility.saveData('full_sync_token', nextPageToken);
             await Utility.sleep(500);
-        } while(nextPageToken);
+        } while (nextPageToken);
         await Utility.saveData('sync_completed', 'yes');
     }
 
-    static getList = async ({query, pageToken = null, full_sync=false}, cb) => {
-        if (pageToken == 'done') return console.info("Done getList");
+    static getList = async ({ query, pageToken = null, full_sync = false }, cb) => {
+        if (pageToken == 'done') {
+            console.info("Done getList");
+            return {};
+        }
         let { message_ids, nextPageToken } = await MyComponent.fetchMessages(query, pageToken);
         let length = message_ids.length;
         message_ids = message_ids.filter(message_id => MessageService.checkMessageId(message_id) == false);
-        if(full_sync === false && length!==message_ids.length) nextPageToken= undefined;
+        if (full_sync === false && length !== message_ids.length) nextPageToken = undefined;
         console.log(length, message_ids.length, full_sync);
         var messages = [];
         if (message_ids.length) {
             messages = await MyComponent.fetchMessageMeta(message_ids);
             messages.map(x => MessageService.update(x));
-        } else {
         }
         cb && await cb(length, message_ids.length, messages);
-        return {nextPageToken, messages};
+        return { nextPageToken, messages };
     };
 
     static loadAttachment = async (message_id, attachmentId) => {
@@ -65,7 +69,9 @@ export default class MyComponent {
     }
 
     static fetchData = async (messageIds) => {
-        await GoogleSignin.signInSilently();
+        if (!GoogleSignin.isSignedIn()) {
+            await GoogleSignin.signInSilently();
+        }
         const accessToken = (await GoogleSignin.getTokens()).accessToken;
         const batchRequests = await Gmail.createBatchRequest(messageIds, '');
         const result = await Gmail.callBatch(batchRequests, accessToken);
@@ -77,6 +83,14 @@ export default class MyComponent {
         let labels = await Gmail.getLabels(accessToken);
         console.log(labels.length, "Labels length", Label.create)
         labels.forEach(l => { Label.create(l) });
+    }
+
+    static getTotalEmails = async () => {
+        if (!GoogleSignin.isSignedIn()) {
+            await GoogleSignin.signInSilently();
+        }
+        const accessToken = (await GoogleSignin.getTokens()).accessToken;
+        return Gmail.getTotal(accessToken);
     }
 
     // Add your code to retrieve the message list here

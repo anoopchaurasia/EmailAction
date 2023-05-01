@@ -17,13 +17,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import LoginView from './google/login'
-import EmailList from './google/emailList';
+import EmailList from './google/EmailList';
 import AggregatedListView from './pages/list/AggregatedListView';
 import SubjectView from './pages/filter/SubjectView';
 import QueryListView from './pages/query/QueryListView';
 import AttachementView from './pages/query/EmailListView'
 import EmailListView from './pages/list/EmailListView';
 import ActivityView from './pages/activity/ActivityView';
+import Home from './pages/home/HomeView';
 
 
 const Stack = createNativeStackNavigator();
@@ -44,7 +45,8 @@ LogBox.ignoreLogs([
 const App: () => Node = () => {
     const DrawerNavigation = () => {
         return <Drawer.Navigator  >
-            <Drawer.Screen name="Home" component={AggregatedListView} />
+            <Drawer.Screen name="Home" component={Home} />
+            <Drawer.Screen name="Home-old" component={AggregatedListView} />
             <Drawer.Screen name="QueryListView" component={QueryListView} />
             <Drawer.Screen name="EmailList" component={EmailList} />
             <Drawer.Screen name="Login" component={LoginView} />

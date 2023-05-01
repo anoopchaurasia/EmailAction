@@ -116,6 +116,15 @@ export default class Gmail {
     }).filter(x => x.message_id)
   }
 
+  static getTotal = async (accessToken)=>{
+    return fetch('https://gmail.googleapis.com/gmail/v1/users/me/profile',{
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Accept-Type": "application/json"
+      },
+    }).then(async x=>await x.json());
+  }
+
   static format = async (result) => {
     return this.formatBody(result);
   }

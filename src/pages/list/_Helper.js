@@ -1,5 +1,5 @@
-import MessageService from "../../realm/EmailMessage";
-import ActivityModel from "../../realm/Activity";
+import MessageService from "../../realm/EmailMessageService";
+import ActivityModel from "../../realm/ActivityService";
 
 export default class Helper {
     static trashForSenderEmail = async (sender) =>{

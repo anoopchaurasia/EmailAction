@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
-import EmailMeta from '../../realm/EmailMessage';
+import EmailMeta from '../../realm/EmailMessageService';
 
 
 const SubjectView = ({route:{params}}) => {

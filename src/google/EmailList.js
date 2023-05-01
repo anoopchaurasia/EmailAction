@@ -1,20 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Text, View } from 'react-native';
-import MessageService from '../realm/EmailMessage';
-import MessageAggregateService from './../realm/EmailAggregate';
+import MessageService from '../realm/EmailMessageService';
+import MessageAggregateService from '../realm/EmailAggregateService';
 import MyDate from '../utility/MyDate';
 import DataSync from './../data/DataSync';
 import Activity from '../data/ActivityProcess';
+import ReactNativeForegroundService from "@supersami/rn-foreground-service";
 
 const MyComponent = () => {
   let [count, setCount] = useState(MessageService.readAll().length);
   let [saveCount, setSavedCount] = useState(0);
-
+  function update(a,b,c) {
+    console.log(a,b,c);
+  }
+  ReactNativeForegroundService.add_task((a,b,c) => update(a,b,c), {
+    delay: 7000,
+    onLoop: true,
+    taskId: "taskid",
+    onError: (e) => console.log(`Error logging:`, e),
+  });
 
   const getList = async (query, pageToken = null) => {
+    ReactNativeForegroundService.start({
+      id: 1244,
+      title: "Foreground Service",
+      message: "We are live World",
+      icon: "ic_launcher",
+      button: true,
+      button2: true,
+      buttonText: "Button",
+      button2Text: "Anther Button",
+      buttonOnPress: "cray",
+      setOnlyAlertOnce: true,
+      color: "#000000",
+      progress: {
+        max: 100,
+        curr: 10,
+      },
+    });
       DataSync.resumeSync(Activity.aggregate, (c, cc) => {
         setCount(t => t + c);
         setSavedCount(t => t + cc);
+        ReactNativeForegroundService.update({progress:{max: 100, curr: 40}})
       });
 
   };

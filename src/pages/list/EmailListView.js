@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import BottomBar from './bottombar';
 
-import MessageService from '../../realm/EmailMessage';
+import MessageService from '../../realm/EmailMessageService';
 
 // Assuming Attachment is a custom component that renders an attachment
 //import Attachment from './Attachment';

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { View, Text, FlatList } from 'react-native';
-import ActivityModel from './../../realm/Activity';
+import ActivityModel from '../../realm/ActivityService';
 // Create a realm instance with the schemas
 
 // Define a function to render each item in the flat list

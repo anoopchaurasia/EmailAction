@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, View,  StyleSheet, Dimensions, Modal} from 'react-native';
-import MessageService from "../../realm/EmailMessage";
-import QueryService from '../../realm/QueryMessage';
+import MessageService from "../../realm/EmailMessageService";
+import QueryService from '../../realm/QueryMessageService';
 
 import DataSync from '../../data/DataSync';
 import EmailAttachmentView from "./EmailAttachmentView";
