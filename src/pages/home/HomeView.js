@@ -18,17 +18,14 @@ export default function Home() {
     let [taskProcessStatus, setTaskProcessStatus] = useState("");
 
 
-    function update(a, b, c) {
-        a && console.log(a, b, c);
-    }
-
     useEffect(x => {
         DataSync.getTotalEmails().then(data => {
             console.log(data);
             setInboxInfo(data);
             count && data.messagesTotal && setProgressPer(count / data.messagesTotal);
             let fetchedCount = count;
-            ActivityProcess.proessremaining((c, cc) => {
+            console.log(ActivityProcess, ActivityProcess.processNew, "ActivityProcess, ActivityProcess.processNew");
+            ActivityProcess.processNew((c, cc) => {
                 setCount(t => t + c);
                 fetchedCount += c;
                 console.log(fetchedCount, data.messagesTotal, "data.messagesTotal");
@@ -37,7 +34,7 @@ export default function Home() {
             });
         }).catch(x => {
             console.log("GetTotal failed", x)
-            ActivityProcess.proessremaining((c, cc) => {
+            ActivityProcess.processNew((c, cc) => {
                 setCount(t => t + c);
             });
         });
@@ -106,7 +103,6 @@ function handleEvent(e) {
                     </Text>
                 </View>
             </View>
-            <Button title="clean" onPress={clean} />
         </View>
     )
 }

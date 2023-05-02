@@ -10,7 +10,7 @@ const ActivitySchema = {
     subject: {type: "string?", indexed: true},
     created_at:{type:'date', indexed: true},
     body: {type: "string?", indexed: true},
-    delay: 'int',
+    delay: {type: 'int', default: 0},
     action: "string",
     from_label: "string?",
     to_label: "string?",

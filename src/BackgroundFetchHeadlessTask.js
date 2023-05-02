@@ -55,7 +55,7 @@ BackgroundFetch.scheduleTask({
 const onCustomTask = async (taskId) => {
   console.log("[BackgroundFetch HeadlessTask] Custom task received: ", taskId, new Date);
   console.log(taskId);
-  await ActivityProcess.proessremaining();
+  await ActivityProcess.processNew();
   BackgroundFetch.finish(taskId);
 };
 

@@ -74,7 +74,7 @@ export default ProcessRules = {
     takeAction: async function (messages) {
 
         let fromlist = {};
-        tasks.filter(x => x.from).forEach(x => x.from.forEach(r => fromlist[r] = x));
+        ActivityService.getAll().filter(x => x.from).forEach(x => x.from.forEach(r => fromlist[r] = x));
         for(let i=0; i<messages.length; i++) {
             let {task, message_id} = matchQuery(fromlist, messages[i]);
             if(!task) continue;

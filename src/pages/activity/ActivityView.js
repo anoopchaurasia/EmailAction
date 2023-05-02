@@ -20,7 +20,7 @@ function handlePress() {
 const renderItem = (item, onPlay, onDelete ) => {
   return (
     <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', flexDirection:"row" }}>
-      <Text style={{flex: 1}}>Move to {(item.to_label||"").toString()} from {item.to.toString()} {item.from.toString()}</Text>
+      <Text style={{flex: 1}}>{item.action} to {(item.to_label||"").toString()} from {item.to.toString()} {item.from.toString()}</Text>
       {item.completed ? MyIcon(item, "play", onPlay) : MyIcon(item, "circle-outline", handlePress)}
       {MyIcon(item, "delete", onDelete)}
     </View>
@@ -34,7 +34,7 @@ const ActivityView = () => {
 
     useEffect(x=>{
       let all = ActivityModel.getAll();
-        all.forEach(task=>{
+        all.filter(x=>!x.action).forEach(task=>{
           if (task.to_label === 'trash') {
           ActivityModel.updateObjectById(task.id, {action:'trash'});
         } else if (task.from_label && task.to_label) {

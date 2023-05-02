@@ -3,11 +3,11 @@ import AggregateData from './AggregateData';
 import ProcessRules from './ProcessRules';
 
 
-let in_progress= false;
-let Activity = {
-    proessremaining: async function(syncCB) {
-        try{
-            if(in_progress) return console.log("in progress return");
+let in_progress = false;
+export default Activity = {
+    processNew: async function () {
+        try {
+            if (in_progress) return console.log("in progress return");
             in_progress = true;
             await DataSync.getLabels(true);
             await ProcessRules.process();
@@ -16,23 +16,20 @@ let Activity = {
             console.log("starting  sync")
             await Activity.sync();
             console.log("completed the process");
-        in_progress = false;
-        } finally{
+            in_progress = false;
+        } finally {
         }
     },
 
-    sync: async function() {
+    sync: async function () {
         do {
-            var {messages, nextPageToken} = await DataSync.getList({full_sync: false});
+            var { messages, nextPageToken } = await DataSync.getList({ full_sync: false });
             await Activity.newMessages(messages);
-        } while(nextPageToken);
+        } while (nextPageToken);
     },
 
-    newMessages: async function(messages) {
+    newMessages: async function (messages) {
         await ProcessRules.takeAction(messages);
         await AggregateData.aggregate(messages);
     },
-
-    
-
 };
