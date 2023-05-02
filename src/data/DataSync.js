@@ -20,18 +20,20 @@ export default class MyComponent {
         }
     };
 
-    static resumeSync = async function (aggregate, streamData) {
+    static resumeSync = async function (aggregate) {
         if ((await Utility.getData('sync_completed')) == "yes") return console.log("sync completed");
         do {
-            var { nextPageToken, messages } = await MyComponent.getList({ query:"-in:chats", pageToken: await Utility.getData('full_sync_token'), full_sync: true }, streamData || ((c, cc) => console.log(c, cc)));
+            var { nextPageToken, messages } = await MyComponent
+                .getList({ query:"-in:chats", pageToken: await Utility.getData('full_sync_token'), full_sync: true }).catch(e=>console.error(e, "resume sync issue"));
             aggregate(messages);
             await Utility.saveData('full_sync_token', nextPageToken);
             await Utility.sleep(500);
+            console.log("completed loop", nextPageToken);
         } while (nextPageToken);
         await Utility.saveData('sync_completed', 'yes');
     }
 
-    static getList = async ({ query, pageToken = null, full_sync = false }, cb) => {
+    static getList = async ({ query, pageToken = null, full_sync = false }) => {
         if (pageToken == 'done') {
             console.info("Done getList");
             return {};
@@ -40,13 +42,11 @@ export default class MyComponent {
         let length = message_ids.length;
         message_ids = message_ids.filter(message_id => MessageService.checkMessageId(message_id) == false);
         if (full_sync === false && length !== message_ids.length) nextPageToken = undefined;
-        console.log(length, message_ids.length, full_sync);
         var messages = [];
         if (message_ids.length) {
             messages = await MyComponent.fetchMessageMeta(message_ids);
-            messages.map(x => MessageService.update(x));
+            messages.map(x => {try {MessageService.update(x)} catch(e){console.error(e, "update failed getList", x)} });
         }
-        cb && await cb(length, message_ids.length, messages);
         return { nextPageToken, messages };
     };
 
@@ -83,6 +83,14 @@ export default class MyComponent {
     static createLabel = async(name)=>{
         return await Gmail.createLabel(name);
     }
+
+    static moveToFolder = async() => {
+        requestBody = {
+            addLabelIds: [ORDER_LABEL_ID], // Add the order label ID
+            removeLabelIds: ['INBOX'], // Remove the inbox label ID
+        };
+    }
+
 
     // Add your code to retrieve the message list here
 };

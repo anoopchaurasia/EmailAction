@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import ActivityModel from '../../realm/ActivityService';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -20,7 +20,7 @@ function handlePress() {
 const renderItem = (item, onPlay, onDelete ) => {
   return (
     <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', flexDirection:"row" }}>
-      <Text style={{flex: 1}}>Move to {(item.to_label||item.to||"").toString()} from {item.from.toString()}</Text>
+      <Text style={{flex: 1}}>Move to {(item.to_label||"").toString()} from {item.to.toString()} {item.from.toString()}</Text>
       {item.completed ? MyIcon(item, "play", onPlay) : MyIcon(item, "circle-outline", handlePress)}
       {MyIcon(item, "delete", onDelete)}
     </View>
@@ -29,9 +29,29 @@ const renderItem = (item, onPlay, onDelete ) => {
 
 const ActivityView = () => {
   // Get all the activities from the realm
-    let activities = ActivityModel.getAll();
+  
+    let [activities, setActivities] = useState([]);
+
+    useEffect(x=>{
+      let all = ActivityModel.getAll();
+        all.forEach(task=>{
+          if (task.to_label === 'trash') {
+          ActivityModel.updateObjectById(task.id, {action:'trash'});
+        } else if (task.from_label && task.to_label) {
+          ActivityModel.updateObjectById(task.id, {action:'move'});
+        } else if(task.to_label) { ////copy if we are not removing existing labels
+          ActivityModel.updateObjectById(task.id, {action:'copy'});
+        }
+      })
+      setActivities(all);
+      return (() => setActivities([]))
+    }, []);
   async function onPlay(item) {
     ActivityModel.updateObjectById(item.id, {completed: false});
+    let index = activities.indexOf(item);
+    item.completed= false;
+    index!=-1 && activities.splice(index, 1, {...item});
+    setActivities(c=>[...c]);
   }
 
   async function onDelete() {

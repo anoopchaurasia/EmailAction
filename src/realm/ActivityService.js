@@ -5,21 +5,23 @@ const ActivitySchema = {
   name: 'Activity',
   properties: {
     id: 'string', // Add an id attribute
-    from: {type:'string[]', index:true},
-    to: {type: 'string[]', index:true},
-    subject: {type: "string?", index: true},
-    created_at:{type:'date', index: true},
-    body: {type: "string?", index: true},
+    from: {type:'string[]'},
+    to: {type: 'string[]'},
+    subject: {type: "string?", indexed: true},
+    created_at:{type:'date', indexed: true},
+    body: {type: "string?", indexed: true},
+    delay: 'int',
+    action: "string",
     from_label: "string?",
     to_label: "string?",
     delete_at: 'date?',
-    completed: {type:"bool", index: true},
+    completed: {type:"bool", indexed: true},
   },
   primaryKey: 'id', // Set the id as the primary key
 };
 
 // Create a realm instance with the schemas
-const realm = new Realm({ schema: [ActivitySchema],  schemaVersion: 15, path:"activity"  });
+const realm = new Realm({ schema: [ActivitySchema],  schemaVersion: 17, path:"activity"  });
 
 // Create an object to store the methods
 const ActivityMethods = {

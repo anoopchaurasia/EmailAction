@@ -4,14 +4,27 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 const base_gmail_url = "https://gmail.googleapis.com/gmail/v1/users/me/"
 export default class Gmail {
   static gmailFetch = async function (url, options) {
-    options.headers.Authorization = `Bearer ${(await GoogleSignin.getTokens()).accessToken}`
-    return fetch(url, options).then(async x => {
-      if (x.status == '401') {
-        await GoogleSignin.clearCachedAccessToken((await GoogleSignin.getTokens()).accessToken);
-        return Gmail.gmailFetch(url, options);
-      }
-      return x;
-    });
+    console.log(url);
+    let accessToken = (await GoogleSignin.getTokens()).accessToken;
+    options.headers.Authorization = `Bearer ${accessToken}`
+    try {
+        return fetch(url, options).then(async x => {
+          if (x.status == '401') {
+            await GoogleSignin.clearCachedAccessToken(accessToken);
+            console.log(x, x.status, "re trying");
+            return Gmail.gmailFetch(url, options);
+          }
+          if(x.status!==200) {
+            console.log(x, x.status, "re trying");
+          } else {
+            console.log("got response");
+          }
+          return x;
+        });
+    } catch(e) {
+      console.error(e);
+      throw new Error(e);
+    }
   }
 
   static getMessageIds = async (query, nextPageToken) => {

@@ -11,20 +11,15 @@ GoogleSignin.configure({
     profileImageSize: 120, // 
     forceCodeForRefreshToken: true,
   });
-  if(!GoogleSignin.isSignedIn()) {
-    GoogleSignin.signInSilently();
-}
- 
+
 
 const MyComponent = () => {
     const [user, setUser] = useState(null);
     useEffect(x=>{
-      if(!GoogleSignin.isSignedIn()) {
         GoogleSignin.signInSilently().then(user=>{
             setUser(user.user);
             console.log(user.user);
         });
-    }
     }, [])
 
   const signIn = async () => {

@@ -7,12 +7,12 @@ const MessageSchema = {
     properties: {
         message_id: 'string',
         subject: 'string',
-        sender: 'string',
-        sender_domain: 'string',
-        date: 'date',
-       // keep: {type:Boolean, index:true, },
+        sender: {type:'string', indexed: true},
+        sender_domain: {type:'string', indexed: true},
+        date: {type: 'date', indexed: true},
+       // keep: {type:Boolean, indexed:true, },
         created_at: 'date',
-        labels: 'string[]',
+        labels: {type:'string[]'},
         attachments: "Attachment[]",
     },
 };
@@ -34,7 +34,7 @@ const migrationFunction = (oldRealm, newRealm) => {
 // Create a new Realm instance with the Message schema
 const realm = new Realm({
     path:"messagedata",
-    schema: [MessageSchema, AttachmentSchemma], schemaVersion: 7, migration: migrationFunction,
+    schema: [MessageSchema, AttachmentSchemma], schemaVersion: 9, migration: migrationFunction,
 });
 
 // Define CRUD methods for Message objects
@@ -55,7 +55,7 @@ const MessageService = {
     },
 
     readAll: () => {
-        return realm.objects('Message');
+        return realm.objects('Message').filtered('NOT labels == "TRASH"');
     },
 
     readById: (id) => {
@@ -84,7 +84,7 @@ const MessageService = {
     },
 
     getCountBySenderDomain: () => {
-        const messages = realm.objects('Message');
+        const messages = realm.objects('Message').filtered('labels == "INBOX"');
         const countBySenderDomain = messages.reduce((acc, message) => {
             const domain = message.sender_domain;
             if (!acc[domain]) {
@@ -101,7 +101,7 @@ const MessageService = {
     },
 
     getCountBySender: (sender) => {
-        let messages = realm.objects('Message');
+        let messages = realm.objects('Message').filtered('labels == "INBOX"');
         if(sender) messages = messages.filtered('sender == $0', sender);
         let countSender = messages.reduce((acc, message) => {
             const sender = message.sender;
@@ -126,7 +126,7 @@ const MessageService = {
     getBySender: (sender, page, pageSize) =>{
         const offset = (page - 1) * pageSize;
         const limit = offset + pageSize;
-        return realm.objects('Message').filtered('sender == $0', sender).slice(offset, limit);
+        return realm.objects('Message').filtered('sender == $0', sender).filtered('labels == "INBOX"').slice(offset, limit);
     },
 
     

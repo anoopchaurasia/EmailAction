@@ -3,6 +3,7 @@ import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import BottomBar from '../component/BottomBarView';
 
 import MessageService from '../../realm/EmailMessageService';
+import MessageEvent from '../../event/MessageEvent';
 
 // Assuming Attachment is a custom component that renders an attachment
 //import Attachment from './Attachment';
@@ -38,7 +39,6 @@ const renderItem = ({ item }) => {
 
 // The main component that takes an array of email data as a prop
 const EmailList = ({ route, navigation }) => {
-    console.log(route,"route");
     const [page, setPage] = useState(1);
     let [list, setList] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -62,18 +62,20 @@ const EmailList = ({ route, navigation }) => {
     ]
 
     function moveToTrash() {
-        route.params.onGoback({action: "trash", sender: route.params.sender});
         navigation.goBack()
+        MessageEvent.emit('goto_next_sender', {sender: route.params.sender})
+        MessageEvent.emit('trash_the_sender', {sender: route.params.sender});
     }
 
     function gotoPrev() {
         navigation.goBack()
-        route.params.onGoback({action: "prev", sender: route.params.sender});
+        MessageEvent.emit('goto_prev_sender', {sender: route.params.sender})
     }
-
+    
     function goToNext() {
         navigation.goBack()
-        route.params.onGoback({action: "next", sender: route.params.sender});
+        MessageEvent.emit('goto_next_sender', {sender: route.params.sender})
+       
     }
 
     useEffect(x => {
@@ -81,7 +83,6 @@ const EmailList = ({ route, navigation }) => {
         setLoading(true);
         let ll = MessageService.getBySender(route.params.sender, page, 10);
         setList(l => { l.push(...ll); return l; });
-        console.log(page, list.length);
         setLoading(false);
     }, [page]);
 

@@ -4,20 +4,22 @@ import ActivityModel from "../../realm/ActivityService";
 export default class Helper {
     static trashForSenderEmail = async (sender) =>{
         ActivityModel.createObject({
-            to_label: ['trash'],
+            to_label: 'trash',
             from: [sender],
             created_at: new Date,
+            action:"trash",
             completed: false,
         });
     }
 
 
-    static mooveToFolder = async (label, sender) => {
+    static moveToFolder = async (label, sender) => {
         ActivityModel.createObject({
             from: [sender],
             created_at: new Date,
             completed: false,
             from_label:"INBOX",
+            action:"move",
             to_label: label.id
         });
     }

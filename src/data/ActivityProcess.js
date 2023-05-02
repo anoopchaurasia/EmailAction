@@ -1,126 +1,38 @@
-import ActivityService from '../realm/ActivityService';
-import ChangeLabel from '../google/Label';
-import MessageService from '../realm/EmailMessageService';
 import DataSync from './DataSync';
-import MessageAggregateService from '../realm/EmailAggregateService';
+import AggregateData from './AggregateData';
+import ProcessRules from './ProcessRules';
+
+
+let in_progress= false;
 let Activity = {
     proessremaining: async function(syncCB) {
-        let pendingTasks = await ActivityService.getNoCompleted();
-        for(let i=0; i< pendingTasks.length; i++) {
-            let task = pendingTasks[i].toJSON();
-            if(task.from.length<1) {
-                console.error("filter is not present, it should contain atleast one sender email")
-                break;
-            }            
-            if(task.to_label ==='trash') {
-                await Activity.trash(task);
-                await ActivityService.updateObjectById(task.id, {completed: true});
-            } else if(task.from_label && task.to_label) {
-                console.log(task, "task to change folder");
-                await Activity.moveToFolder(task);
-                await ActivityService.updateObjectById(task.id, {completed: true});
-
-            }
+        try{
+            if(in_progress) return console.log("in progress return");
+            in_progress = true;
+            await DataSync.getLabels(true);
+            await ProcessRules.process();
+            console.log("starting resume sync")
+            await DataSync.resumeSync(Activity.newMessages);
+            console.log("starting  sync")
+            await Activity.sync();
+            console.log("completed the process");
+        in_progress = false;
+        } finally{
         }
-        if(pendingTasks.length==0) console.log("nothing pending");
-        await DataSync.resumeSync(Activity.aggregate, syncCB);
-       await Activity.sync(await ActivityService.getAll());
     },
 
-    sync: async function(tasks) {
-        let fromlist= {};
-        tasks.filter(x=>x.from).forEach(x=> x.from.forEach(r=> fromlist[r]=x));
-        console.log(Object.keys(fromlist), 'fromlist');
-        ///TODO: handle more than 100 new emials as get list only support on time sync
-        return await DataSync.getList({full_sync: false}, async (c, t_c, messages)=> {
-            console.log(c, t_c);
-            let actions = messages.map(message=>{
-                return matchQuery(fromlist, message);
-            }).filter(x=>x && x.action);
-            let trash_message_ids = actions.filter(x=>x.action=="trash").map(x=>x.message_id);
-            console.log("trashing following", trash_message_ids);
-            await ChangeLabel.trash(trash_message_ids, function (result) {
-                (result || []).forEach(x => MessageService.update(x));
-            });
-            Activity.aggregate(messages);
-        });
+    sync: async function() {
+        do {
+            var {messages, nextPageToken} = await DataSync.getList({full_sync: false});
+            await Activity.newMessages(messages);
+        } while(nextPageToken);
     },
 
-    aggregate: async function(messages) {
-        let countSender = messages.reduce((acc, message) => {
-            const sender = message.sender;
-            if (!acc[sender]) {
-                acc[sender] = {c: 0, labels: {}};
-            }
-            acc[sender].c++;
-            message.labels.forEach(l=>{
-                if(!acc[sender].labels[l]) acc[sender].labels[l]=0
-                acc[sender].labels[l]++;
-                if(l==="TRASH") acc[sender].c--;
-            })
-            return acc;
-        }, {});
-        let d = [];
-        for(let k in countSender) {
-            d.push({count: countSender[k].c, labels: countSender[k].labels, sender: k})
-        }
-        d.map(sender => {
-            let labels = [];
-            for (let k in sender.labels) {
-                labels.push({
-                    count: sender.labels[k],
-                    id: k,
-                    name: k
-                })
-            }
-            return MessageAggregateService.updateCount({
-                ...sender,
-                labels: labels
-            })
-        });
-        return d; 
+    newMessages: async function(messages) {
+        await ProcessRules.takeAction(messages);
+        await AggregateData.aggregate(messages);
     },
 
-    trash: async function(task, pageToken){
-        let str = setValue('from', task.from.join(","));
-        console.log(str);
-        let {message_ids, nextPageToken}= await DataSync.fetchMessages(str, pageToken);
-        console.log(message_ids, nextPageToken);
-        await ChangeLabel.trash(message_ids, function (result) {
-            (result || []).forEach(x => MessageService.update(x));
-        });
-        console.log(message_ids, nextPageToken, "message_ids, nextPageToken");
-        nextPageToken && Activity.trash(task, nextPageToken);
-    },
-
-    moveToFolder: async function(task, pageToken) {
-        let str = setValue('from', task.from.join(","));
-        console.log(str);
-        let {message_ids, nextPageToken}= await DataSync.fetchMessages(str, pageToken);
-        console.log(message_ids, nextPageToken);
-        await ChangeLabel.moveToFolder(task, message_ids, function (result) {
-            (result || []).forEach(x => MessageService.update(x));
-        });
-        nextPageToken && Activity.moveToFolder(task, nextPageToken);
-    }
+    
 
 };
-
-function matchQuery(fromlist, message) {
-    let temp = fromlist[message.sender];
-    if(temp) return {
-        message_id: message.message_id,
-        action: temp.to_label=='trash' ? 'trash': ''
-    }
-}
-
-
-function setValue(key, value, raw_value) {
-    if(value==undefined || value=='') return "";
-    if(raw_value) {
-        return `${key}:${value}`
-    }
-    return `${key}:(${value})`;
-  }
-
-export default Activity;

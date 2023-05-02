@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, View, Button, TextInput, Modal } from 'react-native';
+import { FlatList, Text, View, TextInput, Modal } from 'react-native';
 import MessageAggregateService from "../../realm/EmailAggregateService";
 import { Checkbox } from 'react-native-paper';
 import BottomBar from '../component/BottomBarView'
 import MoveToLabelView from './../component/MoveToLabelView'
 import Helper from './_Helper';
+import MessageEvent from "../../event/MessageEvent";
 
 
-
-export default ListView = ({navigation}) => {
+export default ListView = ({ navigation }) => {
     let [list, setList] = useState([]);
     let [selected, setSelected] = useState({});
     let [openLabelSelect, setOpenLabelSelect] = useState(false);
-     // Declare a state variable to store the text input value
+    // Declare a state variable to store the text input value
     const [text, setText] = useState('');
     const bottomList = [
         {
@@ -27,8 +27,8 @@ export default ListView = ({navigation}) => {
         }
     ]
 
-    function moveToFoldeer(){
-        if(Object.values(selected).length==0) return console.log("no selection");
+    function moveToFoldeer() {
+        if (Object.values(selected).length == 0) return console.log("no selection");
         setOpenLabelSelect(true);
     }
     // Define a function to handle text change
@@ -40,14 +40,14 @@ export default ListView = ({navigation}) => {
     async function setSelectedLabel(label) {
         setOpenLabelSelect(false);
         console.log(label, "label");
-        if(Object.values(selected).length==0) return console.log("no selection");
+        if (Object.values(selected).length == 0) return console.log("no selection");
         console.log('moving to ', label.name, Object.values(selected).map(x => x.sender));
         let senders = Object.values(selected).map(x => x.sender);
-        let newlist = list.map(x=>x);
+        let newlist = list.map(x => x);
 
-        for(let i=0; i< senders.length; i++) {
+        for (let i = 0; i < senders.length; i++) {
             let sender = senders[i];
-            await Helper.mooveToFolder(label, sender);
+            await Helper.moveToFolder(label, sender);
             MessageAggregateService.deleteBySender(sender);
             let index = newlist.indexOf(selected[sender]);
             delete selected[sender];
@@ -60,8 +60,39 @@ export default ListView = ({navigation}) => {
     }
 
     useEffect(x => {
-       refershData()
+        refershData();
     }, []);
+
+    function getItemFromSender(sender) {
+        let item = list.find(l => l.sender == sender);
+        let index = list.indexOf(item);
+        console.log('next', sender, item, index, list.length);
+        return { item, index };
+    }
+
+    function trashBySender(x) {
+        let item = list.find(l => l.sender == x.sender);
+        selected[x.sender] = item;
+        moveToTrash();
+    }
+
+    function goToNext(x) {
+        let { item, index } = getItemFromSender(x.sender);
+        list[index + 1] && navigation.navigate("EmailListView", { sender: list[index + 1].sender })
+    }
+
+    function goToPrev(x) {
+        let item = list.find(l => l.sender == x.sender);
+        let index = list.indexOf(item);
+        list[index - 1] && navigation.navigate("EmailListView", { sender: list[index - 1].sender })
+    }
+
+    useEffect(x => {
+        let remove1 = MessageEvent.on('trash_the_sender', trashBySender);
+        let remove2 = MessageEvent.on('goto_next_sender', goToNext);
+        let remove3 = MessageEvent.on('goto_prev_sender', goToPrev);
+        return (x => { remove1(); remove2(); remove3(); console.log("removed") });
+    }, [list, selected])
 
     function refershData() {
         let list = MessageAggregateService.readMessage().slice(0, 200);
@@ -70,12 +101,12 @@ export default ListView = ({navigation}) => {
     };
 
     async function moveToTrash() {
-        if(Object.values(selected).length==0) return console.log("no selection");
+        if (Object.values(selected).length == 0) return console.log("no selection");
         console.log('moving to trash', Object.values(selected).map(x => x.sender));
         let senders = Object.values(selected).map(x => x.sender);
-        let newlist = list.map(x=>x);
+        let newlist = list.map(x => x);
 
-        for(let i=0; i< senders.length; i++) {
+        for (let i = 0; i < senders.length; i++) {
             let sender = senders[i];
             await Helper.trashForSenderEmail(sender);
             MessageAggregateService.deleteBySender(sender);
@@ -89,46 +120,16 @@ export default ListView = ({navigation}) => {
         setSelected({});
     }
 
-    async function onGoback(data, item) {
-        let index = list.indexOf(item);
-        console.log(index, data, item, "index, data, item");
-        if(data?.action=="next") {
-            let next = list[index+1];
-            next && navigation.navigate("EmailListView",{sender: next.sender, onGoback: function(data) {onGoback(data, next)}});
-            return
-        }
-        if(data?.action=="prev") {
-            let next = list[index-1];
-            next && navigation.navigate("EmailListView",{sender: next.sender, onGoback: function(data) {onGoback(data, next)}});
-            return
-        }
-        if(data?.action!="trash") {
-            return
-        }
-        let newlist = list.map(x=>x);
-        let sender = data.sender;
-        await Helper.trashForSenderEmail(sender);
-        MessageAggregateService.deleteBySender(sender);
-
-        delete selected[sender];
-        console.log(newlist.length);
-        index != -1 && newlist.splice(index, 1);
-        console.log(index, selected, newlist.length);
-        setList(newlist);
-        setSelected({...selected});
-        let next = newlist[index];
-        next && navigation.navigate("EmailListView",{sender: next.sender, onGoback: function(data) {onGoback(data, next)}});
-    }
     const filterItems = (value) => {
         // If the value is empty, return all items
         if (value === '') {
-          return list;
+            return list;
         }
         value = value.toLowerCase();
         // Otherwise, return only the list that match the value
         return list.filter((item) => item.sender.toLowerCase().includes(value));
-      };
-    function RenderItem({ item, checked, onPress, onGoback }) {
+    };
+    function RenderItem({ item, checked, onPress }) {
         let [s, setS] = useState(checked || false);
         return (
 
@@ -144,7 +145,7 @@ export default ListView = ({navigation}) => {
                     }
                 />
                 <View style={{ flexDirection: "column", flex: 1 }}>
-                    <Text onPress={x =>navigation.navigate("EmailListView", {sender: item.sender, onGoback}) } style={{ flex: 1 }}>{item.sender} </Text>
+                    <Text onPress={x => navigation.navigate("EmailListView", { sender: item.sender })} style={{ flex: 1 }}>{item.sender} </Text>
 
                     {/* <Text style={{ fontSize: 9 }}>
                     {item.labels.map(x => x.id).map(id => <Text style={{ borderColor: "#ccc", backgroundColor: "#ccc", margin: 10 }} key={id}>{Label.getById(id).name} </Text>)}
@@ -171,7 +172,6 @@ export default ListView = ({navigation}) => {
                 style={{ flex: 1, marginBottom: 10 }}
                 renderItem={({ item }) => <RenderItem
                     checked={!!selected[item.sender]}
-                    onGoback={x=> onGoback(x, item)}
                     onPress={checked =>
                         setSelected(r => {
                             if (checked) {
@@ -187,7 +187,7 @@ export default ListView = ({navigation}) => {
                 contentContainerStyle={{ marginBottom: 50, margintop: 10 }}
 
             />
-             <Modal
+            <Modal
                 animationType="slide"
                 transparent={false}
                 visible={openLabelSelect}
@@ -195,10 +195,10 @@ export default ListView = ({navigation}) => {
                     setOpenLabelSelect(false);
                 }}
             >
-                <MoveToLabelView setSelectedLabel={setSelectedLabel} onClose={x=> setOpenLabelSelect(false)}/>
+                <MoveToLabelView setSelectedLabel={setSelectedLabel} onClose={x => setOpenLabelSelect(false)} />
             </Modal>
             <BottomBar
-                list={bottomList}/>
+                list={bottomList} />
         </View>
     )
 
