@@ -17,7 +17,10 @@ export default Activity = {
             await Activity.sync();
             console.log("completed the process");
             in_progress = false;
-        } finally {
+        } catch(e) {
+            console.error(e);
+        }
+         finally {
         }
     },
 

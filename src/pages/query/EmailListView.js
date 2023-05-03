@@ -7,9 +7,7 @@ import DataSync from '../../data/DataSync';
 import EmailAttachmentView from "./EmailAttachmentView";
 
 export default AttachementView = ({navigation, route}) => {
-    console.log(route);
     let [list, setList] = useState([]);
-    
     let [query, setQuery] = useState(route.params.query);
     let [openSearch, setOpenSearch] = useState(false);
     let [currentIndex, setCurrentIndex] = useState(0);
@@ -21,12 +19,13 @@ export default AttachementView = ({navigation, route}) => {
 
 
     async function loaddata() {
+        try{
         let nextPageToken;
         if(query && query.query) {
             do {
                 console.log(nextPageToken, "nextPageToken Attachment")
                 //TODO: hanlde own loop for data fetch
-                let {message_ids, nextPageToken: pageToken} =  await DataSync.getList({query: query.query, nextPageToken: query.nextPageToken});
+                let {message_ids, nextPageToken: pageToken} =  await DataSync.fetchMessages(query.query, query.nextPageToken);
                 nextPageToken = pageToken;
                 setQuery(z=> {
                     z.message_ids.push(...message_ids);
@@ -40,16 +39,20 @@ export default AttachementView = ({navigation, route}) => {
                 return;
             } while(nextPageToken)
         }
+    }catch(e) {
+        console.error(e);
+    }
     }
 
     useEffect(x=> {
         let messages =  query.message_ids.map(message_id=> MessageService.getById(message_id)).filter(x=>x && x.attachments && (x.attachments.filter(r=>r.name.match(/pdf$/i)).length) ) ;
         setList(msgs=> {msgs.push(...messages); return msgs});
+        console.log(messages);
     }, []);
 
     async function fetchBody(message_ids) {
+        console.log("data", message_ids);
         let data =  await DataSync.fetchData(message_ids);
-        console.log(data);
         data.map(x=> MessageService.update(x));
         let messages =  message_ids.map(message_id=> MessageService.getById(message_id)).filter(x=>x && x.attachments && (x.attachments.filter(r=>r.name.match(/pdf$/i)).length) ) ;
         setList(msgs=> {msgs.push(...messages); return msgs});

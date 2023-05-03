@@ -13,13 +13,14 @@ export default class Helper {
     }
 
 
-    static moveToFolder = async (label, sender) => {
+    static moveToFolder = async (label, sender, action) => {
+        if(!action || !sender || !label) throw "no action provide"
         ActivityModel.createObject({
             from: [sender],
             created_at: new Date,
             completed: false,
             from_label:"INBOX",
-            action:"move",
+            action:action,
             to_label: label.id
         });
     }

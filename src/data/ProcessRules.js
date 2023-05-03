@@ -1,6 +1,8 @@
 
 import ActivityService from './../realm/ActivityService';
 import ChangeLabel from './../google/Label';
+import DataSync from './DataSync';
+import MessageService from './../realm/EmailMessageService'
 
 export default ProcessRules = {
 
@@ -12,17 +14,17 @@ export default ProcessRules = {
                 console.error("filter is not present, it should contain atleast one sender email")
                 break;
             }
-            console.log('moving', task.from_label, task.to_label, task.from);
+            console.log(task.action, task.from_label, task.to_label, task.from);
             if (task.action === 'trash') {
                 await ProcessRules.trash(task);
-                await ActivityService.updateObjectById(task.id, { completed: true });
-            } else if (task.action=="move") {
+                 await ActivityService.updateObjectById(task.id, { completed: true });
+            } else if (task.action == "move") {
                 await ProcessRules.moveToFolder(task);
-                await ActivityService.updateObjectById(task.id, { completed: true });
-            } else if (task.action=="copy") {
+                  await ActivityService.updateObjectById(task.id, { completed: true });
+            } else if (task.action == "copy") {
                 await ProcessRules.copyToFolder(task);
-                await ActivityService.updateObjectById(task.id, { completed: true });
-            }  else {
+                   await ActivityService.updateObjectById(task.id, { completed: true });
+            } else {
                 console.log("no action defined", task);
             }
         }
@@ -40,13 +42,18 @@ export default ProcessRules = {
     },
 
     getMessageIds: async function (task, process, message_ids) {
-        if(message_ids && message_ids.length) return await process(message_ids);
+        if (message_ids && message_ids.length) return await process(message_ids);
+
         let c = 0;
         do {
-            let str = setValue('from', task.from.join(",")) + setValue(" in", 'inbox', true);
-            var { message_ids, nextPageToken } = await DataSync.fetchMessages(str, pageToken).catch(e => console.error(e, "Folder change ActiveProcess", task));
-            c += message_ids.length;
-            await process(message_ids, c);
+            try {
+                let str = setValue('from', task.from.join(",")) + setValue(" in", 'inbox', true);
+                var { message_ids, nextPageToken } = await DataSync.fetchMessages(str, nextPageToken).catch(e => console.error(e, "Folder change ActiveProcess", task));
+                c += message_ids.length;
+                await process(message_ids, c);
+            } catch (e) {
+                console.error(e);
+            }
         } while (nextPageToken);
 
     },
@@ -75,14 +82,14 @@ export default ProcessRules = {
 
         let fromlist = {};
         ActivityService.getAll().filter(x => x.from).forEach(x => x.from.forEach(r => fromlist[r] = x));
-        for(let i=0; i<messages.length; i++) {
-            let {task, message_id} = matchQuery(fromlist, messages[i]);
-            if(!task) continue;
+        for (let i = 0; i < messages.length; i++) {
+            let { task, message_id } = matchQuery(fromlist, messages[i]);
+            if (!task) continue;
             if (task.action === 'trash') {
                 await ProcessRules.trash(task, [message_id]);
-            } else if (task.action=="move") {
+            } else if (task.action == "move") {
                 await ProcessRules.moveToFolder(task, [message_id]);
-            } else if(task.action=="copy") { ////copy if we are not removing existing labels
+            } else if (task.action == "copy") { ////copy if we are not removing existing labels
                 await ProcessRules.copyToFolder(task, [message_id]);
             }
         }

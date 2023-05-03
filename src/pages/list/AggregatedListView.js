@@ -12,6 +12,7 @@ export default ListView = ({ navigation }) => {
     let [list, setList] = useState([]);
     let [selected, setSelected] = useState({});
     let [openLabelSelect, setOpenLabelSelect] = useState(false);
+    let [selectedAction, setSelectedAction] = useState("");
     // Declare a state variable to store the text input value
     const [text, setText] = useState('');
     const bottomList = [
@@ -21,14 +22,25 @@ export default ListView = ({ navigation }) => {
             action: moveToTrash
         },
         {
+            name: 'Copy',
+            icon: "content-copy",
+            action: copyToFolder
+        },
+        {
             name: 'Move',
             icon: "file-move",
             action: moveToFoldeer
         }
     ]
 
+    function copyToFolder() {
+        if (Object.values(selected).length == 0) return console.log("no selection");
+        setSelectedAction('copy');
+        setOpenLabelSelect(true);
+    }
     function moveToFoldeer() {
         if (Object.values(selected).length == 0) return console.log("no selection");
+        setSelectedAction('move');
         setOpenLabelSelect(true);
     }
     // Define a function to handle text change
@@ -38,16 +50,19 @@ export default ListView = ({ navigation }) => {
     };
 
     async function setSelectedLabel(label) {
+        await commonAction(async sender=> await Helper.moveToFolder(label, sender, selectedAction));
+        setSelectedAction('');
         setOpenLabelSelect(false);
-        console.log(label, "label");
+    }
+
+    async function commonAction(action) {
         if (Object.values(selected).length == 0) return console.log("no selection");
-        console.log('moving to ', label.name, Object.values(selected).map(x => x.sender));
+        console.log('action', Object.values(selected).map(x => x.sender));
         let senders = Object.values(selected).map(x => x.sender);
         let newlist = list.map(x => x);
-
         for (let i = 0; i < senders.length; i++) {
             let sender = senders[i];
-            await Helper.moveToFolder(label, sender);
+            await action(sender);
             MessageAggregateService.deleteBySender(sender);
             let index = newlist.indexOf(selected[sender]);
             delete selected[sender];
@@ -57,6 +72,10 @@ export default ListView = ({ navigation }) => {
         }
         setList(newlist);
         setSelected({});
+    }
+
+    async function moveToTrash() {
+        await commonAction(Helper.trashForSenderEmail) 
     }
 
     useEffect(x => {
@@ -100,25 +119,7 @@ export default ListView = ({ navigation }) => {
         console.log("refresshed")
     };
 
-    async function moveToTrash() {
-        if (Object.values(selected).length == 0) return console.log("no selection");
-        console.log('moving to trash', Object.values(selected).map(x => x.sender));
-        let senders = Object.values(selected).map(x => x.sender);
-        let newlist = list.map(x => x);
-
-        for (let i = 0; i < senders.length; i++) {
-            let sender = senders[i];
-            await Helper.trashForSenderEmail(sender);
-            MessageAggregateService.deleteBySender(sender);
-            let index = newlist.indexOf(selected[sender]);
-            delete selected[sender];
-            console.log(newlist.length);
-            index != -1 && newlist.splice(index, 1);
-            console.log(index, selected, newlist.length);
-        }
-        setList(newlist);
-        setSelected({});
-    }
+    
 
     const filterItems = (value) => {
         // If the value is empty, return all items
@@ -187,7 +188,7 @@ export default ListView = ({ navigation }) => {
                 contentContainerStyle={{ marginBottom: 50, margintop: 10 }}
 
             />
-            <Modal
+               <Modal
                 animationType="slide"
                 transparent={false}
                 visible={openLabelSelect}
@@ -197,6 +198,7 @@ export default ListView = ({ navigation }) => {
             >
                 <MoveToLabelView setSelectedLabel={setSelectedLabel} onClose={x => setOpenLabelSelect(false)} />
             </Modal>
+
             <BottomBar
                 list={bottomList} />
         </View>
