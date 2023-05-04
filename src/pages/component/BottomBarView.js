@@ -2,8 +2,10 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need to install this library for icons
 
-const BottomBar = ({list}) => {
-
+const BottomBar = ({list, visible}) => {
+  if(!visible) {
+    return null;
+  }
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', height: 50, backgroundColor: '#f0f0f0' }}>
       

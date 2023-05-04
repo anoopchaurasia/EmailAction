@@ -45,6 +45,7 @@ export default class MyComponent {
         var messages = [];
         if (message_ids.length) {
             messages = await MyComponent.fetchMessageMeta(message_ids);
+            console.log(messages[0]);
             messages.map(x => {try {MessageService.update(x)} catch(e){console.error(e, "update failed getList", x)} });
         }
         return { nextPageToken, messages };
@@ -89,6 +90,10 @@ export default class MyComponent {
             addLabelIds: [ORDER_LABEL_ID], // Add the order label ID
             removeLabelIds: ['INBOX'], // Remove the inbox label ID
         };
+    }
+
+    static getMessagebById = async (message_id) => {
+        return await Gmail.getMessagebById(message_id);
     }
 
 

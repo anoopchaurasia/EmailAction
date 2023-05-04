@@ -1,13 +1,17 @@
 import DataSync from './DataSync';
 import AggregateData from './AggregateData';
 import ProcessRules from './ProcessRules';
+import Utility from '../utility/Utility';
 
 
 let in_progress = false;
 export default Activity = {
     processNew: async function () {
         try {
+            let date = new Date();
+            in_progress && Utility.saveData("ProcessAlreadyInProgress", date.toISOString());
             if (in_progress) return console.log("in progress return");
+            Utility.saveData("ProcessStarted", date.toISOString());
             in_progress = true;
             await DataSync.getLabels(true);
             await ProcessRules.process();
@@ -21,6 +25,9 @@ export default Activity = {
             console.error(e);
         }
          finally {
+            let date = new Date();
+            in_progress = false;
+            Utility.saveData("ProcessEnded", date.toISOString());
         }
     },
 

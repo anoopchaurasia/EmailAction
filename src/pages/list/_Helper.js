@@ -1,5 +1,6 @@
 import MessageService from "../../realm/EmailMessageService";
 import ActivityModel from "../../realm/ActivityService";
+///create unit test case for this file 
 
 export default class Helper {
     static trashForSenderEmail = async (sender) =>{

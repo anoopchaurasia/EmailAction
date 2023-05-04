@@ -7,6 +7,7 @@ const MessageSchema = {
     properties: {
         message_id: 'string',
         subject: 'string',
+        sender_name: {type:'string'},
         sender: {type:'string', indexed: true},
         sender_domain: {type:'string', indexed: true},
         date: {type: 'date', indexed: true},
@@ -34,7 +35,7 @@ const migrationFunction = (oldRealm, newRealm) => {
 // Create a new Realm instance with the Message schema
 const realm = new Realm({
     path:"messagedata",
-    schema: [MessageSchema, AttachmentSchemma], schemaVersion: 9, migration: migrationFunction,
+    schema: [MessageSchema, AttachmentSchemma], schemaVersion: 10, migration: migrationFunction,
 });
 
 // Define CRUD methods for Message objects
@@ -126,7 +127,7 @@ const MessageService = {
     getBySender: (sender, page, pageSize) =>{
         const offset = (page - 1) * pageSize;
         const limit = offset + pageSize;
-        return realm.objects('Message').filtered('sender == $0', sender).filtered('labels == "INBOX"').slice(offset, limit);
+        return realm.objects('Message').filtered('sender == $0', sender).filtered('labels == "INBOX"').sorted('date', true).slice(offset, limit);
     },
 
     
@@ -153,6 +154,12 @@ const MessageService = {
     
         // Return the results array
         return results;
+    },
+
+    getLatestMessages: (page, pageSize) => {
+        const offset = (page - 1) * pageSize;
+        const limit = offset + pageSize;
+        return realm.objects('Message').filtered('labels == "INBOX"').sorted('date', true).slice(offset, limit);
     },
 
     deleteAll: () => {

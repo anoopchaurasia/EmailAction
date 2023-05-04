@@ -71,7 +71,11 @@ const ActivityMethods = {
   },
   getAll() {
       return realm.objects('Activity').toJSON();
-    }
+    },
+    getBySender(sender) {
+      return realm.objects('Activity').filtered('from CONTAINS $0', sender);
+    } 
+    
 };
 
 

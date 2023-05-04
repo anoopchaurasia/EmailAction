@@ -1,3 +1,7 @@
+/// <reference path="../../../../typings/globals/react-native/index.d.ts" />
+// Path: src/pages/list/EmailListView.js
+
+// Import the necessary modules
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import BottomBar from '../component/BottomBarView';
@@ -16,24 +20,6 @@ const formatDate = (date) => {
 
 
 
-// A function that renders a single email item
-const renderItem = ({ item }) => {
-    return (
-        <View style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
-            <Text style={{ fontWeight: 'bold' }}>{item.subject}</Text>
-            <Text>{item.sender} ({item.sender_domain})</Text>
-            <Text>{formatDate(item.date)}</Text>
-            <Text>{item.labels.join(', ')}</Text>
-            {/* {item.attachments.length > 0 && (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          {item.attachments.map((attachment) => (
-            <Attachment key={attachment.id} attachment={attachment} />
-          ))}
-        </View>
-      )} */}
-        </View>
-    );
-};
 
 
 
@@ -63,19 +49,19 @@ const EmailList = ({ route, navigation }) => {
 
     function moveToTrash() {
         navigation.goBack()
-        MessageEvent.emit('goto_next_sender', {sender: route.params.sender})
-        MessageEvent.emit('trash_the_sender', {sender: route.params.sender});
+        MessageEvent.emit('goto_next_sender', { sender: route.params.sender })
+        MessageEvent.emit('trash_the_sender', { sender: route.params.sender });
     }
 
     function gotoPrev() {
         navigation.goBack()
-        MessageEvent.emit('goto_prev_sender', {sender: route.params.sender})
+        MessageEvent.emit('goto_prev_sender', { sender: route.params.sender })
     }
-    
+
     function goToNext() {
         navigation.goBack()
-        MessageEvent.emit('goto_next_sender', {sender: route.params.sender})
-       
+        MessageEvent.emit('goto_next_sender', { sender: route.params.sender })
+
     }
 
     useEffect(x => {
@@ -100,19 +86,42 @@ const EmailList = ({ route, navigation }) => {
         // Increment the page number by one
         setPage((prevPage) => prevPage + 1);
     };
+
+
+
+    // A function that renders a single email item
+    const renderItem = ({ item }) => {
+        return (
+            <View style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
+                <Text onPress={x=> navigation.navigate("BySenderView", {message_id: item.message_id})} style={{ fontWeight: 'bold' }}>{item.subject}</Text>
+                <Text>{item.sender} ({item.sender_domain})</Text>
+                <Text>{formatDate(item.date)}</Text>
+                <Text>{item.labels.join(', ')}</Text>
+                {/* {item.attachments.length > 0 && (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+            {item.attachments.map((attachment) => (
+                <Attachment key={attachment.id} attachment={attachment} />
+            ))}
+            </View>
+        )} */}
+            </View>
+        );
+    };
+
     return (
         <>
-        <FlatList
-            data={list}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.message_id}
-            onEndReached={handleEndReached}
-            onEndReachedThreshold={0.1}
-            ListFooterComponent={renderFooter}
-        />
-        <BottomBar
-            list={bottomList}
-        />
+            <FlatList
+                data={list}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.message_id}
+                onEndReached={handleEndReached}
+                onEndReachedThreshold={0.1}
+                ListFooterComponent={renderFooter}
+            />
+            <BottomBar
+                visible={route.params.show_bottom_bar || false}
+                list={bottomList}
+            />
         </>
     );
 };

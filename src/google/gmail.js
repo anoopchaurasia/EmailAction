@@ -1,8 +1,9 @@
 import Utility from "../utility/Utility";
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import Email from "../email/Email";
 
 const base_gmail_url = "https://gmail.googleapis.com/gmail/v1/users/me/"
-export default class Gmail {
+export default class Gmail extends Email{
   static gmailFetch = async function (url, options) {
     console.log(url);
     let accessToken = (await GoogleSignin.getTokens()).accessToken;
@@ -83,6 +84,19 @@ export default class Gmail {
     });
   }
 
+  static getMessagebById = async (messageId) => {
+    let url = `${base_gmail_url}messages/${messageId}`;
+    let response = await Gmail.gmailFetch(url, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (response.status != 200) { 
+      throw Error(await response.text());
+    }
+    let { payload } = await response.json();
+    return payload;
+  }
+
+
   static callBatch = async (body) => {
     let boundary = 'batch_request';
     const base_url = 'https://gmail.googleapis.com/batch';
@@ -108,39 +122,7 @@ export default class Gmail {
     }));
   }
 
-  static formatBody = async (result) => {
-    return result.filter(x => x.body).map(({ body }) => {
-      let headers = {};
-      try {
-        //if(body.error && body.error) throw new Error("failed to load data")
-        body.payload.headers.forEach(r => {
-          headers[r.name.toLowerCase()] = r.value;
-        });
-        let from = (headers.from || "aaa@erer.com").split(/<|>/)
-        let date = new Date(headers.date);
-        if (date + "" == "Invalid Date") {
-          date = Date.parseString(headers.date)
-          if (date + "" == "Invalid Date") {
-            console.error(headers.date, "invalid date")
-            return {};
-          }
-        }
-        if (body.labelIds && body.labelIds.includes("CHAT")) {
-          return {};
-        }
-        let attachments = body.payload.parts && (body.payload.parts).filter(x => x.body?.attachmentId).map(x => {
-          return { name: x.filename, id: x.body.attachmentId, size: x.body.size }
-        });
-        let sender = from.length === 1 ? from[0] : from[1].trim();
-        let r = { labels: body.labelIds || [], message_id: body.id, created_at: new Date, subject: headers.subject || "", date: date, sender: sender, sender_domain: sender.split("@")[1] };
-        attachments && (r.attachments = attachments);
-        return r;
-      } catch (e) {
-        console.error("extraction", e, body);
-        return {}
-      }
-    }).filter(x => x.message_id)
-  }
+  
 
   static getTotal = async () => {
     return Gmail.gmailFetch(`${base_gmail_url}profile`, {
@@ -149,10 +131,6 @@ export default class Gmail {
         "Accept-Type": "application/json"
       },
     }).then(async x => await x.json());
-  }
-
-  static format = async (result) => {
-    return this.formatBody(result);
   }
 
   static createLabel = async (name) => {

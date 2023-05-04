@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import ActivityModel from '../../realm/ActivityService';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 // Create a realm instance with the schemas
@@ -16,6 +16,8 @@ let MyIcon = (item, name, handlePress, size=30, color="#900") => {
 function handlePress() {
   console.log("pressedddd");
 }
+
+
 // Define a function to render each item in the flat list
 const renderItem = (item, onPlay, onDelete ) => {
   return (
@@ -31,6 +33,7 @@ const ActivityView = () => {
   // Get all the activities from the realm
   
     let [activities, setActivities] = useState([]);
+    let [text, setText] = useState('');
 
     useEffect(x=>{
       let all = ActivityModel.getAll();
@@ -53,14 +56,25 @@ const ActivityView = () => {
     index!=-1 && activities.splice(index, 1, {...item});
     setActivities(c=>[...c]);
   }
-
+  const filterItems = (value) => {
+    if (value === '') {
+        return activities;
+    }
+    value = value.toLowerCase();
+    return activities.filter((item) => item.from.filter(email=> email.toLowerCase().includes(value)).length>0 );
+};
   async function onDelete() {
 
   };
   return (
     <View style={{ flex: 1 }}>
+       <TextInput
+                style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                onChangeText={value=> setText(value)}
+                value={text}
+            />
       <FlatList
-        data={activities}
+        data={filterItems(text)}
         renderItem={({item})=> renderItem(item, onPlay, onDelete)}
         keyExtractor={(item) => item.id}
       />

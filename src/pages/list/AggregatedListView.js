@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, View, TextInput, Modal } from 'react-native';
+import { FlatList, Text, View, TextInput, Modal, Alert } from 'react-native';
 import MessageAggregateService from "../../realm/EmailAggregateService";
 import { Checkbox } from 'react-native-paper';
 import BottomBar from '../component/BottomBarView'
 import MoveToLabelView from './../component/MoveToLabelView'
 import Helper from './_Helper';
 import MessageEvent from "../../event/MessageEvent";
+import ProcessRules from "../../data/ProcessRules";
 
 
 export default ListView = ({ navigation }) => {
     let [list, setList] = useState([]);
+    let [page, setPage] = useState(1);
     let [selected, setSelected] = useState({});
     let [openLabelSelect, setOpenLabelSelect] = useState(false);
     let [selectedAction, setSelectedAction] = useState("");
@@ -50,7 +52,9 @@ export default ListView = ({ navigation }) => {
     };
 
     async function setSelectedLabel(label) {
-        await commonAction(async sender=> await Helper.moveToFolder(label, sender, selectedAction));
+        await commonAction(async sender=> await ProcessRules.createNewRule(label, sender, selectedAction)).catch(e=>{
+            if(e.message == 'rule already exist') return Alert.alert('Rule already exist', "There is already a rule for this sender. Please delete the rule and try again.");
+        });
         setSelectedAction('');
         setOpenLabelSelect(false);
     }
@@ -75,12 +79,20 @@ export default ListView = ({ navigation }) => {
     }
 
     async function moveToTrash() {
-        await commonAction(Helper.trashForSenderEmail) 
+        await commonAction(async sender=> await ProcessRules.createNewRule({to_label:"trash"}, sender, 'trash')).catch(e=>{
+            if(e.message == 'rule already exist') return Alert.alert('Rule already exist', "There is already a rule for this sender. Please delete the rule and try again.");
+        });
     }
 
     useEffect(x => {
         refershData();
     }, []);
+
+      // A function that handles the end reached event of the FlatList
+    const handleEndReached = () => {
+        // Increment the page number by one
+        setPage((prevPage) => prevPage + 1);
+    };
 
     function getItemFromSender(sender) {
         let item = list.find(l => l.sender == sender);
@@ -97,13 +109,13 @@ export default ListView = ({ navigation }) => {
 
     function goToNext(x) {
         let { item, index } = getItemFromSender(x.sender);
-        list[index + 1] && navigation.navigate("EmailListView", { sender: list[index + 1].sender })
+        list[index + 1] && navigation.navigate("EmailListView", { sender: list[index + 1].sender, show_bottom_bar: true })
     }
 
     function goToPrev(x) {
         let item = list.find(l => l.sender == x.sender);
         let index = list.indexOf(item);
-        list[index - 1] && navigation.navigate("EmailListView", { sender: list[index - 1].sender })
+        list[index - 1] && navigation.navigate("EmailListView", { sender: list[index - 1].sender, show_bottom_bar: true })
     }
 
     useEffect(x => {
@@ -114,21 +126,17 @@ export default ListView = ({ navigation }) => {
     }, [list, selected])
 
     function refershData() {
-        let list = MessageAggregateService.readMessage().slice(0, 200);
+        let list = MessageAggregateService.readMessage();
         setList(list);
-        console.log("refresshed")
     };
 
-    
 
     const filterItems = (value) => {
-        // If the value is empty, return all items
         if (value === '') {
-            return list;
+            return list.slice(0, page*20);
         }
         value = value.toLowerCase();
-        // Otherwise, return only the list that match the value
-        return list.filter((item) => item.sender.toLowerCase().includes(value));
+        return list.filter((item) => item.sender.toLowerCase().includes(value)).slice(0, page*20);
     };
     function RenderItem({ item, checked, onPress }) {
         let [s, setS] = useState(checked || false);
@@ -146,7 +154,7 @@ export default ListView = ({ navigation }) => {
                     }
                 />
                 <View style={{ flexDirection: "column", flex: 1 }}>
-                    <Text onPress={x => navigation.navigate("EmailListView", { sender: item.sender })} style={{ flex: 1 }}>{item.sender} </Text>
+                    <Text onPress={x => navigation.navigate("EmailListView", { sender: item.sender, show_bottom_bar: true })} style={{ flex: 1 }}>{item.sender_name} </Text>
 
                     {/* <Text style={{ fontSize: 9 }}>
                     {item.labels.map(x => x.id).map(id => <Text style={{ borderColor: "#ccc", backgroundColor: "#ccc", margin: 10 }} key={id}>{Label.getById(id).name} </Text>)}
@@ -170,6 +178,8 @@ export default ListView = ({ navigation }) => {
             <FlatList
                 data={filterItems(text)}
                 initialNumToRender={20}
+                onEndReached={handleEndReached}
+                onEndReachedThreshold={0.1}
                 style={{ flex: 1, marginBottom: 10 }}
                 renderItem={({ item }) => <RenderItem
                     checked={!!selected[item.sender]}
@@ -186,7 +196,6 @@ export default ListView = ({ navigation }) => {
                     item={item} />}
                 keyExtractor={(item) => item.sender}
                 contentContainerStyle={{ marginBottom: 50, margintop: 10 }}
-
             />
                <Modal
                 animationType="slide"
@@ -200,9 +209,9 @@ export default ListView = ({ navigation }) => {
             </Modal>
 
             <BottomBar
+                visible={true}
                 list={bottomList} />
         </View>
     )
-
 }
 

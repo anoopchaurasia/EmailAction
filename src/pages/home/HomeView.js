@@ -16,6 +16,7 @@ export default function Home() {
     let [fetchCompleted, setFetchCompleted] = useState(false);
     let [fetchCompleted1, setFetchCompleted1] = useState(false);
     let [taskProcessStatus, setTaskProcessStatus] = useState("");
+    let [processRunningStatus, setProcessRunningStatus] = useState({});
 
 
     useEffect(x => {
@@ -38,6 +39,18 @@ export default function Home() {
                 setCount(t => t + c);
             });
         });
+
+        async function latestRun() {
+                let ProcessAlreadyInProgress = Math.ceil((new Date().getTime() -  new Date(await Utility.getData('ProcessAlreadyInProgress')).getTime())/1000/60) + " Mins";
+                let ProcessEnded =   Math.ceil((new Date().getTime() - new Date(await Utility.getData('ProcessEnded')).getTime())/1000/60) + " Mins";
+                let ProcessStarted  =   Math.ceil((new Date().getTime() - new Date(await Utility.getData('ProcessStarted')).getTime())/1000/60) + " Mins";
+                setProcessRunningStatus({ ProcessAlreadyInProgress, ProcessEnded, ProcessStarted});
+            
+        }
+
+        setInterval(latestRun, 5*60*1000);
+        latestRun();
+        
 
         setTotalActivity({ total: ActivityService.getAll().length, pending: ActivityService.getNoCompleted().length })
     }, []);
@@ -102,6 +115,11 @@ function handleEvent(e) {
                         {taskProcessStatus}
                     </Text>
                 </View>
+            </View>
+            <View>
+                <Text>
+                    {JSON.stringify(processRunningStatus, null, 2)}
+                </Text>
             </View>
         </View>
     )

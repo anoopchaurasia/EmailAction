@@ -94,8 +94,19 @@ export default ProcessRules = {
             }
         }
     },
+    createNewRule: async function (label, sender, action) {
+        console.log(sender, label, action  , "createNewRule");
+        if(!action || !sender || !label) throw "no action or sender or label provide";
+        if(ActivityService.getBySender(sender)) throw "rule already exist";
+        ActivityService.createObject({
+            to_label: label.to_label,
+            from: [sender],
+            created_at: new Date,
+            action: action,
+            completed: false,
+        });
+    }
 };
-
 
 
 function matchQuery(fromlist, message) {
