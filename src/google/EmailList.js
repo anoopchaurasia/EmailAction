@@ -6,6 +6,7 @@ import MyDate from '../utility/MyDate';
 import DataSync from './../data/DataSync';
 import Activity from '../data/ActivityProcess';
 import ReactNativeForegroundService from "@supersami/rn-foreground-service";
+import AggregateData from '../data/AggregateData';
 
 const MyComponent = () => {
   let [count, setCount] = useState(MessageService.readAll().length);
@@ -49,25 +50,26 @@ const MyComponent = () => {
   async function aggregate() {
 
     console.log("aggregation started", MessageService.readAll().length);
-    let senders = MessageService.getCountBySender();
+    let messages = MessageService.getCountBySender();
     MessageAggregateService.deleteAll()
-    senders = senders.map(sender => {
-      let labels = [];
-      for (let k in sender.labels) {
-        labels.push({
-          count: sender.labels[k],
-          id: k,
-          name: k
-        })
-      }
-      return {
-        ...sender,
-        labels: labels
-      }
-    });
-    console.log("data ready", senders.length);
-    senders.forEach(x => MessageAggregateService.create(x));
-    console.log("completed");
+    AggregateData.aggregate(messages);
+    // senders = senders.map(sender => {
+    //   let labels = [];
+    //   for (let k in sender.labels) {
+    //     labels.push({
+    //       count: sender.labels[k],
+    //       id: k,
+    //       name: k
+    //     })
+    //   }
+    //   return {
+    //     ...sender,
+    //     labels: labels
+    //   }
+    // });
+    // console.log("data ready", senders.length);
+    // senders.forEach(x => MessageAggregateService.create(x));
+    // console.log("completed");
   }
 
   return (

@@ -5,9 +5,11 @@ const MessageAggregateSchema = {
     name: 'MessageAggregate',
     primaryKey: 'sender',
     properties: {
-        sender: 'string',
+        sender: {type:'string', indexed: true},
         labels: "Label[]",
-        count: 'int'
+        count: 'int',
+        sender_name: {type:'string', indexed: true},
+        sender_domain: {type:'string', indexed: true},
     },
 };
 
@@ -26,7 +28,7 @@ const migrationFunction = (oldRealm, newRealm) => {
 // Create a new Realm instance with the Message schema
 const realm = new Realm({
     path: "messageAggregate",
-    schema: [MessageAggregateSchema, LabelSchema], schemaVersion: 6, migration: migrationFunction,
+    schema: [MessageAggregateSchema, LabelSchema], schemaVersion: 7, migration: migrationFunction,
 });
 
 const MessageAggregateService = {

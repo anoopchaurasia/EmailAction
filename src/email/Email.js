@@ -16,6 +16,7 @@ export default class Email  {
                 return {};
               }
             }
+            
             if (body.labelIds && body.labelIds.includes("CHAT")) {
               return {};
             }

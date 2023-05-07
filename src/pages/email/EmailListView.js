@@ -1,7 +1,13 @@
-/// <reference path="../../../../typings/globals/react-native/index.d.ts" />
-// Path: src/pages/list/EmailListView.js
+// Date: 2021/8/14
+//  Author: Anoop
+//  Description: EmailListView.js is created for showing the list of emails
+//  that are received from the sender.
+//  It also has the bottom bar which has the options to move to trash, go to next and previous email.
+//  It also has the search bar to search the emails by sender name.
+//  It also has the checkbox to select the emails and move to trash.
+//  It also has the refresh button to refresh the emails.
+//  It also has the option to select all the emails and move to trash.
 
-// Import the necessary modules
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import BottomBar from '../component/BottomBarView';
@@ -9,21 +15,11 @@ import BottomBar from '../component/BottomBarView';
 import MessageService from '../../realm/EmailMessageService';
 import MessageEvent from '../../event/MessageEvent';
 
-// Assuming Attachment is a custom component that renders an attachment
-//import Attachment from './Attachment';
-
-// A function that formats a date to a readable string
 const formatDate = (date) => {
-    // Implement your own logic here
+    
     return date.toDateString();
 };
 
-
-
-
-
-
-// The main component that takes an array of email data as a prop
 const EmailList = ({ route, navigation }) => {
     const [page, setPage] = useState(1);
     let [list, setList] = useState([]);
@@ -65,7 +61,7 @@ const EmailList = ({ route, navigation }) => {
     }
 
     useEffect(x => {
-        // Set the loading status to true
+        
         setLoading(true);
         let ll = MessageService.getBySender(route.params.sender, page, 10);
         setList(l => { l.push(...ll); return l; });
@@ -73,28 +69,28 @@ const EmailList = ({ route, navigation }) => {
     }, [page]);
 
     const renderFooter = () => {
-        // If loading, return an ActivityIndicator
+        
         if (loading) {
             return <ActivityIndicator size="large" color="#0000ff" />;
         }
-        // Otherwise, return null
+        
         return null;
     };
 
-    // A function that handles the end reached event of the FlatList
+    
     const handleEndReached = () => {
-        // Increment the page number by one
+        
         setPage((prevPage) => prevPage + 1);
     };
 
 
 
-    // A function that renders a single email item
+    
     const renderItem = ({ item }) => {
         return (
             <View style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
+                <Text>{item.sender_name}</Text>
                 <Text onPress={x=> navigation.navigate("BySenderView", {message_id: item.message_id})} style={{ fontWeight: 'bold' }}>{item.subject}</Text>
-                <Text>{item.sender} ({item.sender_domain})</Text>
                 <Text>{formatDate(item.date)}</Text>
                 <Text>{item.labels.join(', ')}</Text>
                 {/* {item.attachments.length > 0 && (

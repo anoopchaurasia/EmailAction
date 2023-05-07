@@ -104,24 +104,25 @@ const MessageService = {
     getCountBySender: (sender) => {
         let messages = realm.objects('Message').filtered('labels == "INBOX"');
         if(sender) messages = messages.filtered('sender == $0', sender);
-        let countSender = messages.reduce((acc, message) => {
-            const sender = message.sender;
-            if (!acc[sender]) {
-                acc[sender] = {c: 0, labels: {}};
-            }
-            acc[sender].c++;
-            message.labels.forEach(l=>{
-                if(!acc[sender].labels[l]) acc[sender].labels[l]=0
-                acc[sender].labels[l]++;
-                if(l==="TRASH") acc[sender].c--;
-            })
-            return acc;
-        }, {});
-        let d = [];
-        for(let k in countSender) {
-            d.push({count: countSender[k].c, labels: countSender[k].labels, sender: k})
-        }
-        return d;
+        return messages;
+        // let countSender = messages.reduce((acc, message) => {
+        //     const sender = message.sender;
+        //     if (!acc[sender]) {
+        //         acc[sender] = {c: 0, labels: {}};
+        //     }
+        //     acc[sender].c++;
+        //     message.labels.forEach(l=>{
+        //         if(!acc[sender].labels[l]) acc[sender].labels[l]=0
+        //         acc[sender].labels[l]++;
+        //         if(l==="TRASH") acc[sender].c--;
+        //     })
+        //     return acc;
+        // }, {});
+        // let d = [];
+        // for(let k in countSender) {
+        //     d.push({count: countSender[k].c, labels: countSender[k].labels, sender: k})
+        // }
+        // return d;
     },
 
     getBySender: (sender, page, pageSize) =>{

@@ -18,7 +18,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import LoginView from './google/LoginView'
 import EmailList from './google/EmailList';
-import AggregatedListView from './pages/list/AggregatedListView';
+import AggregatedListView from './pages/list/MultiEmailView';
 import SubjectView from './pages/filter/SubjectView';
 import QueryListView from './pages/query/QueryListView';
 import AttachementView from './pages/query/EmailListView'
@@ -27,6 +27,7 @@ import ActivityView from './pages/activity/ActivityView';
 import Home from './pages/home/HomeView';
 import BySenderView from './pages/email/EmailView';
 import EmailListBySender from './pages/email/EmailListBySender';
+import TestView from './pages/test';
 
 
 const Stack = createNativeStackNavigator();
@@ -46,12 +47,13 @@ LogBox.ignoreLogs([
 
 const App: () => Node = () => {
     const DrawerNavigation = () => {
-        return <Drawer.Navigator  >
-            <Drawer.Screen name="Home" component={Home} />
-            <Drawer.Screen name="EmailListBySender" component={EmailListBySender} />
+        return <Drawer.Navigator  screenOptions={{ headerShown: true }}>
+            <Drawer.Screen name="Test" component={TestView} />
             <Drawer.Screen name="Home-old" component={AggregatedListView} />
+            <Drawer.Screen name="EmailListBySender" component={EmailListBySender} />
+            <Drawer.Screen name="Home" component={Home} />
             <Drawer.Screen name="QueryListView" component={QueryListView} />
-            {/* <Drawer.Screen name="EmailList" component={EmailList} /> */}
+            <Drawer.Screen name="EmailList" component={EmailList} />
             <Drawer.Screen name="Login" component={LoginView} />
             <Drawer.Screen name="ActivityView" component={ActivityView} />
         </Drawer.Navigator>

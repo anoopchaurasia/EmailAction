@@ -6,10 +6,11 @@ export default MessageAggregate = {
         return MessageEvent.on('new_message_received', MessageAggregate.aggregate);
     },
     aggregate: async function(messages) {
+        console.log("aggregation started", messages[0].sender_domain);
         let countSender = messages.reduce((acc, message) => {
             const sender = message.sender;
             if (!acc[sender]) {
-                acc[sender] = {c: 0, labels: {}};
+                acc[sender] = {c: 0, labels: {}, domain: message.sender_domain, sender_name: message.sender_name};
             }
             acc[sender].c++;
             message.labels.forEach(l=>{
@@ -21,7 +22,7 @@ export default MessageAggregate = {
         }, {});
         let d = [];
         for(let k in countSender) {
-            d.push({count: countSender[k].c, labels: countSender[k].labels, sender: k})
+            d.push({count: countSender[k].c, labels: countSender[k].labels, sender: k, sender_name: countSender[k].sender_name, domain: countSender[k].domain})
         }
         d.map(sender => {
             let labels = [];
@@ -34,9 +35,12 @@ export default MessageAggregate = {
             }
             return MessageAggregateService.updateCount({
                 ...sender,
-                labels: labels
+                labels: labels,
+                sender_name: sender.sender_name,
+                sender_domain: sender.domain
             })
         });
+        console.log("MessageAggregate.aggregate", "aggreation done");
         return d; 
     }
 };
