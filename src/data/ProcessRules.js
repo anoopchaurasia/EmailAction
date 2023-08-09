@@ -52,7 +52,7 @@ export default ProcessRules = {
                 c += message_ids.length;
                 await process(message_ids, c);
             } catch (e) {
-                console.error(e);
+                console.error(e, "get Message Ids");
             }
         } while (nextPageToken);
 

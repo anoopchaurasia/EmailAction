@@ -24,7 +24,7 @@ const QueryService = {
       });
       return true;
     } catch (error) {
-      console.error(error);
+      console.error(error, "QueryService.create");
       return false;
     }
   },
@@ -35,7 +35,7 @@ const QueryService = {
       });
       return true;
     } catch (error) {
-      console.error(error);
+      console.error(error, "QueryService.update");
       return false;
     }
   },
@@ -56,7 +56,7 @@ const QueryService = {
       let results = this.realm.objects("Query");
       return results.map((obj) => obj.toJSON());
     } catch (error) {
-      console.error(error);
+      console.error(error, "QueryService.getAll");
       return [];
     }
   }

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need to install this library for icons
 
-const BottomBar = ({list, visible}) => {
+const BottomBar = ({list, visible=true}) => {
   if(!visible) {
     return null;
   }

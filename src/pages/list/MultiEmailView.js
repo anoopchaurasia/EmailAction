@@ -148,8 +148,8 @@ export default function MultiEmailView() {
                     <Icon style={{ ...styles.icon, opacity: currentView == x.name ? 1 : .2 }} name={x.icon} size={26} />
                 </TouchableOpacity>))}
             </View>
-            {currentView=='sender' && <EmailListBySender visible={currentView === "sender"} />}
-            {currentView=='domain' && <EmailListByDomain visible={currentView === "domain"} />}
+            {/* {currentView =='sender' && <EmailListBySender visible={currentView === "sender"} />}
+            {currentView=='domain' && <EmailListByDomain visible={currentView === "domain"} />}  */}
             {currentView=='email' && <EmailList visible={currentView === "email"} />}
             <Modal
                 animationType="slide"
@@ -175,3 +175,31 @@ let styles = StyleSheet.create({
         opacity: 1
     }
 });
+
+
+
+const EmailListstyles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 16,
+      backgroundColor: '#f0f0f0',
+    },
+    item: {
+      backgroundColor: 'white',
+      padding: 10,
+      marginVertical: 8,
+      borderRadius: 8,
+      elevation: 2,
+    },
+    email: {
+        fontSize: 12,
+    },
+    title: {
+      fontSize: 16,
+    },
+    count: {
+      fontSize: 14,
+      textAlign: "right",
+      color: '#888',
+    },
+  });

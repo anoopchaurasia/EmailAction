@@ -6,7 +6,6 @@ export default MessageAggregate = {
         return MessageEvent.on('new_message_received', MessageAggregate.aggregate);
     },
     aggregate: async function(messages) {
-        console.log("aggregation started", messages[0].sender_domain);
         let countSender = messages.reduce((acc, message) => {
             const sender = message.sender;
             if (!acc[sender]) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, View, TextInput, Modal, Alert } from 'react-native';
+import { FlatList, Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import EMailMessageSerive from './../../realm/EmailMessageService';
 
@@ -23,18 +23,11 @@ export default ListView = ({ navigation, removeFromList }) => {
         return list.filter((item) => item.sender.toLowerCase().includes(value)).slice(0, page * 20);
     };
     function RenderItem({ item, checked, onPress }) {
-        let [s, setS] = useState(checked || false);
         return (
-
-            <View style={{ flexDirection: "row", borderBottomWidth: .2, borderBottomColor: "#eee", margin: 5, margintop: 10 }}>
-                <View style={{ flexDirection: "column", flex: 1 }}>
-                    <Text onPress={x => navigation.navigate("EmailListView", { sender: item.sender, show_bottom_bar: true })} style={{ flex: 1 }}>{item.sender_name}</Text>
-                </View>
-                <Text>
-                    {item.count}
-                </Text>
-
-            </View>
+            <TouchableOpacity style={EmailListstyles.item} onPress={x=>navigation.navigate("EmailListView", {sender: item.sender})}>
+                <Text style={EmailListstyles.title}>{item.sender_name}  <Text style={EmailListstyles.email}> {item.sender}</Text></Text>
+                <Text style={EmailListstyles.title}>{item.subject}</Text>
+            </TouchableOpacity>
         )
     }
 
@@ -83,3 +76,32 @@ export default ListView = ({ navigation, removeFromList }) => {
     )
 }
 
+
+
+
+
+const EmailListstyles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 16,
+      backgroundColor: '#f0f0f0',
+    },
+    item: {
+      backgroundColor: 'white',
+      padding: 10,
+      marginVertical: 0,
+      borderRadius: 8,
+      elevation: 2,
+    },
+    email: {
+        fontSize: 12,
+    },
+    title: {
+      fontSize: 14,
+    },
+    count: {
+      fontSize: 14,
+      textAlign: "right",
+      color: '#888',
+    },
+  });

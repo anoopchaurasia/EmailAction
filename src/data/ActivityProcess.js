@@ -22,7 +22,7 @@ export default Activity = {
             console.log("completed the process");
             in_progress = false;
         } catch(e) {
-            console.error(e);
+            console.error(e, "process new failed");
         }
          finally {
             let date = new Date();

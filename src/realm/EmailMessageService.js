@@ -46,7 +46,7 @@ const MessageService = {
                 realm.create('Message', message);
             });
         } catch(e) {
-            console.error(e, message);
+            console.error(e, message, "MessageService.create");
         }
     },
 

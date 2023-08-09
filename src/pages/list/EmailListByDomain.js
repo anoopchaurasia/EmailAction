@@ -1,35 +1,69 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, View, TextInput, Modal, Alert } from 'react-native';
+import { FlatList, Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Checkbox } from 'react-native-paper';
-import BottomBar from '../component/BottomBarView'
+import BottomBar from '../component/BottomBarView';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need to install this library for icons
 import MessageAggregateService from './../../realm/EmailAggregateService';
-import AggregateData from "../../data/AggregateData";
 
 export default ListView = ({ navigation, removeFromList }) => {
     let [list, setList] = useState([]);
     let [page, setPage] = useState(1);
-    let [selected, setSelected] = useState({});
+    let [active, setActive] = useState(true);
+    let [selectedList, setSelectedList] = useState({});
     // Declare a state variable to store the text input value
     const [text, setText] = useState('');
+    let actionList = [{name: "Trash", icon:"trash-can", action: trash}, {name:"Rule", icon:"set-merge", action: rule}]
 
+    function trash() {
+        console.log("trash", selectedList);
+    }
+
+    function rule() {
+        console.log("rule", selectedList);
+    }
     useEffect(x => {
         let list = MessageAggregateService.readMessage();
-        let domaoins = {};
+        let domains = {};
         list.forEach(x => {
             let domain = x.sender_domain;
-            if (!domaoins[domain]) {
-                domaoins[domain] = 0;
+            if (!domains[domain]) {
+                domains[domain] = {c:0, sender_name: x.sender_name};
             }
-            domaoins[domain] += x.count;
+            domains[domain].c += x.count;
         });
-        list = Object.keys(domaoins).map(x => {
+        list = Object.keys(domains).map(x => {
             return {
                 sender: x,
-                count: domaoins[x]
+                sender_name: domains[x].sender_name,
+                count: domains[x].c
             }
         });
         setList(list);
     }, []);
+
+    useEffect(()=>{
+        if(Object.keys(selectedList).length===0) setActive(false);
+    }, [selectedList])
+
+    function handleLongPress(item) {
+        if(selectedList[item.sender]) {
+            setSelectedList(x=> {
+                x= {...x};
+                delete x[item.sender];
+                return x;
+            });
+            
+            return 
+        }
+        setSelectedList(x=> ({
+            ...x, [item.sender]:1
+        }))
+        setActive(true);
+    }
+
+    function hanldePress(item) {
+        navigation.navigate("EmailListView", {sender: item.sender})
+    }
 
     const filterItems = (value) => {
         if (value === '') {
@@ -38,31 +72,19 @@ export default ListView = ({ navigation, removeFromList }) => {
         value = value.toLowerCase();
         return list.filter((item) => item.sender.toLowerCase().includes(value)).slice(0, page * 20);
     };
-    function RenderItem({ item, checked, onPress }) {
-        let [s, setS] = useState(checked || false);
+    function RenderItem({ item, selected=false, handleLongPress, hanldePress, active }) {
         return (
-
-            <View style={{ flexDirection: "row", borderBottomWidth: .2, borderBottomColor: "#eee", margin: 5, margintop: 10 }}>
-                <Checkbox
-                    status={s
-                        ? 'checked' : 'unchecked'}
-                    onPress={x => {
-                        setS(r => !r);
-                        onPress(s);
-                    }}
-                />
-                <View style={{ flexDirection: "column", flex: 1 }}>
-                    <Text onPress={x => navigation.navigate("EmailListView", { sender: item.sender, show_bottom_bar: true })} style={{ flex: 1 }}>{item.sender} </Text>
-
-                    {/* <Text style={{ fontSize: 9 }}>
-                    {item.labels.map(x => x.id).map(id => <Text style={{ borderColor: "#ccc", backgroundColor: "#ccc", margin: 10 }} key={id}>{Label.getById(id).name} </Text>)}
-                </Text> */}
+            <TouchableOpacity style={{...SenderListstyles.item, backgroundColor: selected? '#ddd': ''}} onLongPress={()=> handleLongPress(item)} onPress={x=>hanldePress(item)}>
+                {active? 
+                <View style={{ height:"100%", width: 35}}>
+                    <Icon name="check-circle" size={33} style={{marginTop: 13, marginLeft: 5}} onPress={()=> handleLongPress(item)} color={selected? "green": "#ccc"} /> 
                 </View>
-                <Text>
-                    {item.count}
-                </Text>
-
-            </View>
+                :""}
+                <View style={SenderListstyles.details}>
+                    <Text style={SenderListstyles.title}>{item.sender_name}  ({item.count}) </Text>
+                    <Text style={SenderListstyles.email}> {item.sender}</Text>
+                </View>
+            </TouchableOpacity>
         )
     }
 
@@ -89,24 +111,50 @@ export default ListView = ({ navigation, removeFromList }) => {
                 onEndReached={handleEndReached}
                 onEndReachedThreshold={0.3}
                 style={{ flex: 1, marginBottom: 10 }}
-                renderItem={({ item }) => <RenderItem
-                    checked={!!selected[item.sender]}
-                    onPress={checked =>
-                        setSelected(r => {
-                            if (checked) {
-                                delete selected[item.sender]
-                            } else {
-                                selected[item.sender] = item
-                            }
-                            return selected;
-                        })
-                    }
-                    item={item} />}
+                renderItem={({ item }) => <RenderItem active={active} selected={selectedList[item.sender]===1} handleLongPress={handleLongPress} hanldePress={hanldePress}  item={item} />
+            }
                 keyExtractor={(item) => item.sender}
                 contentContainerStyle={{ marginBottom: 50, margintop: 10 }}
             />
+            <BottomBar visible={active} list={actionList} />
 
         </View>
     )
 }
 
+
+const SenderListstyles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 16,
+      backgroundColor: '#f0f0f0',
+    },
+    itemContainer:{
+        margin: 10,
+    },
+    item : {
+        elevation: 1,
+        backgroundColor: 'white',
+        borderRadius: 0,
+        flexDirection:"row",
+        marginTop: 10,
+    },
+    innerItem:{
+        padding: 10
+    },
+
+    details: {
+        padding: 10
+    },
+    email: {
+        fontSize: 12,
+    },
+    title: {
+      fontSize: 14,
+    },
+    count: {
+      fontSize: 11,
+      textAlign: "right",
+      color: '#888',
+    },
+  });

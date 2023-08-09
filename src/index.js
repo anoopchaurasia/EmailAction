@@ -18,7 +18,8 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import LoginView from './google/LoginView'
 import EmailList from './google/EmailList';
-import AggregatedListView from './pages/list/MultiEmailView';
+import EmailListByDomain from './pages/list/EmailListByDomain';
+import EmailList1 from './pages/list/EmailList';
 import SubjectView from './pages/filter/SubjectView';
 import QueryListView from './pages/query/QueryListView';
 import AttachementView from './pages/query/EmailListView'
@@ -26,7 +27,7 @@ import EmailListView from './pages/email/EmailListView';
 import ActivityView from './pages/activity/ActivityView';
 import Home from './pages/home/HomeView';
 import BySenderView from './pages/email/EmailView';
-import EmailListBySender from './pages/email/EmailListBySender';
+import EmailListBySender from './pages/list/EmailListBySender';
 import TestView from './pages/test';
 
 
@@ -48,13 +49,13 @@ LogBox.ignoreLogs([
 const App: () => Node = () => {
     const DrawerNavigation = () => {
         return <Drawer.Navigator  screenOptions={{ headerShown: true }}>
+            <Drawer.Screen name="Email" component={EmailList1} />
+            <Drawer.Screen name="Sender" component={EmailListBySender} />
+            <Drawer.Screen name="Domain" component={EmailListByDomain} />
             <Drawer.Screen name="Test" component={TestView} />
-            <Drawer.Screen name="Home-old" component={AggregatedListView} />
-            <Drawer.Screen name="EmailListBySender" component={EmailListBySender} />
             <Drawer.Screen name="Home" component={Home} />
             <Drawer.Screen name="QueryListView" component={QueryListView} />
             <Drawer.Screen name="EmailList" component={EmailList} />
-            <Drawer.Screen name="Login" component={LoginView} />
             <Drawer.Screen name="ActivityView" component={ActivityView} />
         </Drawer.Navigator>
     };
@@ -64,6 +65,7 @@ const App: () => Node = () => {
             <Stack.Navigator screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="DrawerNavigation" component={DrawerNavigation} /> 
                 <Stack.Screen name="AttachementView" component={AttachementView} />
+                <Stack.Screen name="Login" component={LoginView} />
                 <Stack.Screen name="EmailListView" component={EmailListView} />
                 <Stack.Screen name="SubjectView" component={SubjectView} />
             <Stack.Screen name="BySenderView" component={BySenderView} />

@@ -23,7 +23,7 @@ export default class Gmail extends Email{
           return x;
         });
     } catch(e) {
-      console.error(e);
+      console.error(e, "failed to fetch");
       throw new Error(e);
     }
   }

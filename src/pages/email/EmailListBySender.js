@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, Text, View, Modal, Button, } from 'react-native';
+import { FlatList, Text, View, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import MessageService from '../../realm/EmailMessageService';
 
 export default function App({navigation}) {
@@ -10,27 +10,54 @@ export default function App({navigation}) {
         let senders = {};
         senderList.map(x=> {
             if(!senders[x.sender]) {
-                senders[x.sender] = [];
+                senders[x.sender] = {sender_name: x.sender_name,list: []};
             }
-            senders[x.sender].push(x);
+            senders[x.sender].list.push(x);
         });
-        setSenderList(Object.keys(senders).map(x=> ({sender: x, messages: senders[x].filter(x=>x.labels.indexOf("UNREAD")>=0) })));
+        setSenderList(Object.keys(senders).map(x=> ({sender: x, sender_name: senders[x].sender_name, messages: senders[x].list.filter(x=>x.labels.indexOf("UNREAD")>=0) })));
     }
     , []);
 
     return (
-        <View style={{ flex: 1, padding: 24 }}>
+        <View style={styles.container}>
             <FlatList
             
                 data={senderList}
                 renderItem={({ item }) => (
-                    <View style={{flexDirection:"row", padding: 10, margin:2, borderColor:"#ddd", borderWidth:1}}>
-                        <Text onPress={x=>navigation.navigate("EmailListView", {sender: item.sender})} style={{flex:1}}>{item.sender}</Text>
-                        <Text style={{width:40}}>{item.messages.length}</Text>
-                    </View>
+                    <TouchableOpacity style={styles.item} onPress={x=>navigation.navigate("EmailListView", {sender: item.sender})}>
+                    <Text style={styles.title}>{item.sender_name}  ({item.messages.length})</Text>
+                    <Text style={styles.email}> {item.sender}</Text>
+                  </TouchableOpacity>
                 )}
                 keyExtractor={item => item.sender}
             />
         </View>
     );
 }
+
+
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 16,
+      backgroundColor: '#f0f0f0',
+    },
+    item: {
+      backgroundColor: 'white',
+      padding: 10,
+      marginVertical: 8,
+      borderRadius: 8,
+      elevation: 2,
+    },
+    email: {
+        fontSize: 12,
+    },
+    title: {
+      fontSize: 16,
+    },
+    count: {
+      fontSize: 14,
+      textAlign: "right",
+      color: '#888',
+    },
+  });

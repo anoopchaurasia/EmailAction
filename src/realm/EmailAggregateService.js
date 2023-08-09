@@ -38,7 +38,7 @@ const MessageAggregateService = {
                 realm.create('MessageAggregate', sender);
             });
         } catch (e) {
-            console.error(e, sender);
+            console.error(e, sender, "MessageAggregateService.create");
         }
     },
 
