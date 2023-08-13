@@ -21,14 +21,13 @@ import EmailList from './google/EmailList';
 
 import SubjectView from './pages/filter/SubjectView';
 
-
 import QueryListView from './pages/query/QueryListView';
 import AttachementView from './pages/query/EmailListView'
 
 import ActivityView from './pages/activity/ActivityView';
 import Home from './pages/home/HomeView';
 
-import BySenderView from './pages/email/EmailView';
+import EmailView from './pages/email/EmailView';
 import EmailListView from './pages/email/EmailListView';
 
 import EmailListBySender from './pages/list/EmailListBySender';
@@ -75,7 +74,7 @@ const App: () => Node = () => {
                 <Stack.Screen name="Login" component={LoginView} />
                 <Stack.Screen name="EmailListView" component={EmailListView} />
                 <Stack.Screen name="SubjectView" component={SubjectView} />
-            <Stack.Screen name="BySenderView" component={BySenderView} />
+            <Stack.Screen name="EmailView" component={EmailView} />
             </Stack.Navigator>
         </NavigationContainer>
     );

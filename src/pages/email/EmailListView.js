@@ -94,16 +94,9 @@ const EmailList = ({ route, navigation }) => {
         return (
             <View style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
                 <Text>{item.sender_name}</Text>
-                <Text onPress={x=> navigation.navigate("BySenderView", {message_id: item.message_id})} style={{ fontWeight: 'bold' }}>{item.subject}</Text>
+                <Text onPress={x=> navigation.navigate("EmailView", {message_id: item.message_id})} style={{ fontWeight: 'bold' }}>{item.subject}</Text>
                 <Text>{formatDate(item.date)}</Text>
                 <Text>{item.labels.join(', ')}</Text>
-                {/* {item.attachments.length > 0 && (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-            {item.attachments.map((attachment) => (
-                <Attachment key={attachment.id} attachment={attachment} />
-            ))}
-            </View>
-        )} */}
             </View>
         );
     };

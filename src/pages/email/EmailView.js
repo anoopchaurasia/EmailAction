@@ -5,7 +5,7 @@ import base64 from 'react-native-base64';
 import { WebView } from 'react-native-webview';
 
 
-export default BySenderView = ({navigation, route}) => {
+export default EmailView = ({navigation, route}) => {
     console.log(route?.params?.message_id, "route?.params?.message_id");
     let [email, setEmail] = useState("");
     let [html, setHTML] = useState("");
