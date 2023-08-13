@@ -6,7 +6,7 @@ export default class MyComponent {
 
     static fetchMessages = async (query, nextPageToken) => {
         try {
-            console.log(query, nextPageToken);
+            console.log(query, nextPageToken, "query, nextPageToken");
             let { message_ids, nextPageToken: pageToken } = await Gmail.getMessageIds(query, nextPageToken)
             if (message_ids.length === 0 && !pageToken) {
                 console.log("no result")

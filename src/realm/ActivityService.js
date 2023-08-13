@@ -5,23 +5,24 @@ const ActivitySchema = {
   name: 'Activity',
   properties: {
     id: 'string', // Add an id attribute
-    from: {type:'string[]'},
-    to: {type: 'string[]'},
-    subject: {type: "string?", indexed: true},
-    created_at:{type:'date', indexed: true},
-    body: {type: "string?", indexed: true},
-    delay: {type: 'int', default: 0},
-    action: "string",
-    from_label: "string?",
-    to_label: "string?",
-    delete_at: 'date?',
-    completed: {type:"bool", indexed: true},
+    from: {type:'string[]'}, ///[senders, domains, sub domains ]
+    to: {type: 'string[]'},  /// sender
+    subject: {type: "string?", indexed: true}, /// subject of the message for query
+    created_at:{type:'date', indexed: true}, ///  
+    body: {type: "string?", indexed: true}, /// part of body for the query
+    delay: {type: 'int', default: 0}, /// delay in execustion of the rule
+    action: "string", /// actions [trash, delete, ]
+    type: 'string', /// options are [sender, domain, sub domain]
+    from_label: "string?", /// default inbox
+    to_label: "string?", /// 
+    delete_at: 'date?', /// no longer excecuted 
+    completed: {type:"bool", indexed: true}, /// completed first execution.
   },
   primaryKey: 'id', // Set the id as the primary key
 };
 
 // Create a realm instance with the schemas
-const realm = new Realm({ schema: [ActivitySchema],  schemaVersion: 17, path:"activity"  });
+const realm = new Realm({ schema: [ActivitySchema],  schemaVersion: 18, path:"activity"  });
 
 // Create an object to store the methods
 const ActivityMethods = {

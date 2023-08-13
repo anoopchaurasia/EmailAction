@@ -44,17 +44,22 @@ export default ProcessRules = {
     getMessageIds: async function (task, process, message_ids) {
         if (message_ids && message_ids.length) return await process(message_ids);
 
-        let c = 0;
-        do {
-            try {
-                let str = setValue('from', task.from.join(",")) + setValue(" in", 'inbox', true);
-                var { message_ids, nextPageToken } = await DataSync.fetchMessages(str, nextPageToken).catch(e => console.error(e, "Folder change ActiveProcess", task));
-                c += message_ids.length;
-                await process(message_ids, c);
-            } catch (e) {
-                console.error(e, "get Message Ids");
-            }
-        } while (nextPageToken);
+        let c = 0, i=0;
+        while(i<task.from.length){
+            let from = task.from[i];
+            var nextPageToken=undefined;
+            do {
+                try {
+                    let str = setValue('from', from) + setValue(" in", 'inbox', true);
+                    var { message_ids, nextPageToken } = await DataSync.fetchMessages(str, nextPageToken).catch(e => console.error(e, "Folder change ActiveProcess", task));
+                    c += message_ids.length;
+                    await process(message_ids, c);
+                } catch (e) {
+                    console.error(e, "get Message Ids");
+                }
+            } while (nextPageToken);
+            i++;
+        }
 
     },
 
@@ -94,16 +99,17 @@ export default ProcessRules = {
             }
         }
     },
-    createNewRule: async function (label, sender, action) {
-        console.log(sender, label, action  , "createNewRule");
-        if(!action || !sender || !label) throw "no action or sender or label provide";
-        if(ActivityService.getBySender(sender)) throw "rule already exist";
+    createNewRule: async function (label, senders, action, type) {
+        console.log(senders, label, action  , "createNewRule");
+        if(!action || !senders || !label || !type) throw "no action or senders or label provide";
+       // if(ActivityService.getBySender(senders)) throw "rule already exist";
         ActivityService.createObject({
             to_label: label.to_label,
-            from: [sender],
+            from: senders,
             created_at: new Date,
             action: action,
             completed: false,
+            type: type
         });
     }
 };

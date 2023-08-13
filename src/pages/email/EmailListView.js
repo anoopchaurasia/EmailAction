@@ -61,9 +61,13 @@ const EmailList = ({ route, navigation }) => {
     }
 
     useEffect(x => {
-        
+        let ll;
         setLoading(true);
-        let ll = MessageService.getBySender(route.params.sender, page, 10);
+        if(route.params.type==="domain") {
+            ll = MessageService.getByDomain(route.params.sender, page, 10);
+        } else {
+            ll = MessageService.getBySender(route.params.sender, page, 10);
+        }
         setList(l => { l.push(...ll); return l; });
         setLoading(false);
     }, [page]);

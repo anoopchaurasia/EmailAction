@@ -55,6 +55,20 @@ const MessageAggregateService = {
         });
     },
 
+    deleteBySenders: (senders) => {
+        senders.forEach(sender=> MessageAggregateService.deleteBySender(sender));
+    },
+
+    deleteBySubDomain: (subdomanis) =>{
+        subdomanis.forEach(subdomain=>{
+            console.log("delete aggregated data for domain", subdomain);
+            let data = realm.objects("MessageAggregate").filtered(`sender_domain=="${subdomain}"` );
+            realm.write(() => {
+                realm.delete(data);
+            });
+        });
+    },
+
     readMessage: () => {
         return realm.objects('MessageAggregate').filtered('labels.id == "INBOX"').sorted('count', true).toJSON();
     },

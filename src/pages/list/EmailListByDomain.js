@@ -1,24 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { Checkbox } from 'react-native-paper';
 import BottomBar from '../component/BottomBarView';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need to install this library for icons
 import MessageAggregateService from './../../realm/EmailAggregateService';
+import TrashMessage from "../../data/TrashMessage";
 
 export default ListView = ({ navigation, removeFromList }) => {
     let [list, setList] = useState([]);
     let [page, setPage] = useState(1);
-    let [active, setActive] = useState(true);
+    let [active, setActive] = useState(false);
     let [selectedList, setSelectedList] = useState({});
     // Declare a state variable to store the text input value
     const [text, setText] = useState('');
-    let actionList = [{name: "Trash", icon:"trash-can", action: trash}, {name:"Rule", icon:"set-merge", action: rule}]
+    let actionList = [{
+        name: "Trash", 
+        icon:"trash-can", 
+        action: trashSelectedDomains
+    }, {
+        name:"Rule", 
+        icon:"set-merge", 
+        action: createRuleForSelectedDomain
+    }];
 
-    function trash() {
+    function trashSelectedDomains() {
+        let selectedDomains = Object.keys(selectedList);
+        console.log(selectedDomains, "selectedDomains");
+        TrashMessage.trashBySubDomains(selectedDomains).then(x=>{
+            console.log("selectedDomains", "after rule creation")
+            MessageAggregateService.deleteBySubDomain(selectedDomains);
+            setSelectedList({});
+            setActive(false);
+        });
         console.log("trash", selectedList);
+        
     }
 
-    function rule() {
+    function createRuleForSelectedDomain() {
         console.log("rule", selectedList);
     }
     useEffect(x => {
@@ -62,7 +79,7 @@ export default ListView = ({ navigation, removeFromList }) => {
     }
 
     function hanldePress(item) {
-        navigation.navigate("EmailListView", {sender: item.sender})
+        navigation.navigate("EmailListView", {sender: item.sender, type: 'domain'})
     }
 
     const filterItems = (value) => {
@@ -133,11 +150,14 @@ const SenderListstyles = StyleSheet.create({
         margin: 10,
     },
     item : {
-        elevation: 1,
+        elevation: 0,
         backgroundColor: 'white',
         borderRadius: 0,
         flexDirection:"row",
-        marginTop: 10,
+        marginTop: 0,
+        borderBottomColor:"#ddd",
+        borderBottomWidth:1,
+        paddingHorizontal: 10
     },
     innerItem:{
         padding: 10

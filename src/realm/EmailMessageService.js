@@ -131,6 +131,12 @@ const MessageService = {
         return realm.objects('Message').filtered('sender == $0', sender).filtered('labels == "INBOX"').sorted('date', true).slice(offset, limit);
     },
 
+    getByDomain: (domain, page, pageSize) => {
+        const offset = (page - 1) * pageSize;
+        const limit = offset + pageSize;
+        return realm.objects('Message').filtered('sender_domain == $0', domain).filtered('labels == "INBOX"').sorted('date', true).slice(offset, limit);
+    },
+
     
     getById : (message_id) =>{
         return realm.objects('Message').filtered('message_id == $0', message_id)[0];;

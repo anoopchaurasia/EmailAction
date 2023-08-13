@@ -49,9 +49,9 @@ LogBox.ignoreLogs([
 const App: () => Node = () => {
     const DrawerNavigation = () => {
         return <Drawer.Navigator  screenOptions={{ headerShown: true }}>
-            <Drawer.Screen name="Email" component={EmailList1} />
             <Drawer.Screen name="Sender" component={EmailListBySender} />
             <Drawer.Screen name="Domain" component={EmailListByDomain} />
+            <Drawer.Screen name="Email" component={EmailList1} />
             <Drawer.Screen name="Test" component={TestView} />
             <Drawer.Screen name="Home" component={Home} />
             <Drawer.Screen name="QueryListView" component={QueryListView} />
