@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { Checkbox } from 'react-native-paper';
-import EMailMessageSerive from './../../realm/EmailMessageService';
+import EMailMessageSerive from '../../realm/EmailMessageService';
 
 export default ListView = ({ navigation, removeFromList }) => {
     let [list, setList] = useState([]);

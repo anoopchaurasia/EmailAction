@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, ToastAndroid, Modal, StyleSheet, TouchableOpacity } from "react-native";
 import Utility from "../../utility/Utility";
-import EmailList from "./EmailList.js";
+import EmailList from "./EmailListByEmail.js";
 import EmailListBySender from "./EmailListBySender";
 import EmailListByDomain from "./EmailListByDomain.js";
 import BottomBar from "../component/BottomBarView";

@@ -18,16 +18,23 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import LoginView from './google/LoginView'
 import EmailList from './google/EmailList';
-import EmailListByDomain from './pages/list/EmailListByDomain';
-import EmailList1 from './pages/list/EmailList';
+
 import SubjectView from './pages/filter/SubjectView';
+
+
 import QueryListView from './pages/query/QueryListView';
 import AttachementView from './pages/query/EmailListView'
-import EmailListView from './pages/email/EmailListView';
+
 import ActivityView from './pages/activity/ActivityView';
 import Home from './pages/home/HomeView';
+
 import BySenderView from './pages/email/EmailView';
+import EmailListView from './pages/email/EmailListView';
+
 import EmailListBySender from './pages/list/EmailListBySender';
+import EmailListByDomain from './pages/list/EmailListByDomain';
+import EmailListByEmail from './pages/list/EmailListByEmail';
+
 import TestView from './pages/test';
 
 
@@ -51,7 +58,7 @@ const App: () => Node = () => {
         return <Drawer.Navigator  screenOptions={{ headerShown: true }}>
             <Drawer.Screen name="Sender" component={EmailListBySender} />
             <Drawer.Screen name="Domain" component={EmailListByDomain} />
-            <Drawer.Screen name="Email" component={EmailList1} />
+            <Drawer.Screen name="Email" component={EmailListByEmail} />
             <Drawer.Screen name="Test" component={TestView} />
             <Drawer.Screen name="Home" component={Home} />
             <Drawer.Screen name="QueryListView" component={QueryListView} />

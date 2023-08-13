@@ -79,6 +79,8 @@ export default ListView = ({ navigation, removeFromList }) => {
     }
 
     function hanldePress(item) {
+
+        //// goto pages/email/EmailListView'
         navigation.navigate("EmailListView", {sender: item.sender, type: 'domain'})
     }
 
