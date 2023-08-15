@@ -34,6 +34,9 @@ import EmailListBySender from './pages/list/EmailListBySender';
 import EmailListByDomain from './pages/list/EmailListByDomain';
 import EmailListByEmail from './pages/list/EmailListByEmail';
 
+
+import CreateRuleView from './pages/component/CreateRuleView'
+
 import TestView from './pages/test';
 
 
@@ -55,8 +58,8 @@ LogBox.ignoreLogs([
 const App: () => Node = () => {
     const DrawerNavigation = () => {
         return <Drawer.Navigator  screenOptions={{ headerShown: true }}>
-            <Drawer.Screen name="Sender" component={EmailListBySender} />
             <Drawer.Screen name="Domain" component={EmailListByDomain} />
+            <Drawer.Screen name="Sender" component={EmailListBySender} />
             <Drawer.Screen name="Email" component={EmailListByEmail} />
             <Drawer.Screen name="Test" component={TestView} />
             <Drawer.Screen name="Home" component={Home} />
@@ -74,6 +77,7 @@ const App: () => Node = () => {
                 <Stack.Screen name="Login" component={LoginView} />
                 <Stack.Screen name="EmailListView" component={EmailListView} />
                 <Stack.Screen name="SubjectView" component={SubjectView} />
+                <Stack.Screen name="CreateRuleView" component={CreateRuleView} />
             <Stack.Screen name="EmailView" component={EmailView} />
             </Stack.Navigator>
         </NavigationContainer>

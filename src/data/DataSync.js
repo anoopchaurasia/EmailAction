@@ -70,8 +70,10 @@ export default class MyComponent {
     }
 
     static getLabels = async (fresh_sync=false) => {
+        console.log(await Utility.getData('label_loaded'), "labels are loded")
         if((await Utility.getData('label_loaded')) == 'yes' && fresh_sync==false) return;
         Label.deleteAll();
+        console.log("label loading in progress");
         let labels = await Gmail.getLabels();
         labels.forEach(l => { Label.create(l) });
         Utility.saveData('label_loaded', 'yes');

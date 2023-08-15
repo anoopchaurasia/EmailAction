@@ -64,7 +64,7 @@ export default ListView = ({ navigation, removeFromList }) => {
     }
 
     function hanldePress(item) {
-        navigation.navigate("EmailListView", { sender: item.sender })
+        navigation.navigate("EmailListView", { sender: item.sender, show_bottom_bar: true })
     }
 
     const filterItems = (value) => {

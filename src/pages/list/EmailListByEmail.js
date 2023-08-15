@@ -23,7 +23,7 @@ export default ListView = ({ navigation, removeFromList }) => {
     };
     function RenderItem({ item, checked, onPress }) {
         return (
-            <TouchableOpacity style={EmailListstyles.item} onPress={x=>navigation.navigate("EmailListView", {sender: item.sender})}>
+            <TouchableOpacity style={EmailListstyles.item} onPress={x=>navigation.navigate("EmailListView", {sender: item.sender, show_bottom_bar: true})}>
                 <Text style={EmailListstyles.title}>{item.sender_name}  <Text style={EmailListstyles.email}> {item.sender}</Text></Text>
                 <Text style={EmailListstyles.title}>{item.subject}</Text>
             </TouchableOpacity>

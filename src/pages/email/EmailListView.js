@@ -9,7 +9,7 @@
 //  It also has the option to select all the emails and move to trash.
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Text, FlatList, ActivityIndicator } from 'react-native';
 import BottomBar from '../component/BottomBarView';
 
 import MessageService from '../../realm/EmailMessageService';
@@ -25,39 +25,22 @@ const EmailList = ({ route, navigation }) => {
     let [list, setList] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const bottomList = [
-        {
-            name: 'Prev',
-            icon: "chevron-left",
-            action: gotoPrev
-        },
-        {
-            name: 'Trash',
-            icon: "delete-restore",
-            action: moveToTrash
-        },
-        {
-            name: 'Next',
-            icon: "chevron-right",
-            action: goToNext
-        }
-    ]
+    const bottomList = [{
+        name: "Trash",
+        icon: "trash-can",
+        action: moveToTrash
+    }, {
+        name: "Rule",
+        icon: "set-merge",
+        action: createRuleForSelected
+    }];
 
     function moveToTrash() {
-        navigation.goBack()
-        MessageEvent.emit('goto_next_sender', { sender: route.params.sender })
-        MessageEvent.emit('trash_the_sender', { sender: route.params.sender });
+        navigation.goBack();
     }
 
-    function gotoPrev() {
-        navigation.goBack()
-        MessageEvent.emit('goto_prev_sender', { sender: route.params.sender })
-    }
-
-    function goToNext() {
-        navigation.goBack()
-        MessageEvent.emit('goto_next_sender', { sender: route.params.sender })
-
+    function createRuleForSelected() {
+        console.log("CreateRuleFor selected");
     }
 
     useEffect(x => {
@@ -77,7 +60,6 @@ const EmailList = ({ route, navigation }) => {
         if (loading) {
             return <ActivityIndicator size="large" color="#0000ff" />;
         }
-        
         return null;
     };
 
@@ -92,12 +74,12 @@ const EmailList = ({ route, navigation }) => {
     
     const renderItem = ({ item }) => {
         return (
-            <View style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
+            <TouchableOpacity onPress={x=> navigation.navigate("EmailView", {message_id: item.message_id})} style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
                 <Text>{item.sender_name}</Text>
-                <Text onPress={x=> navigation.navigate("EmailView", {message_id: item.message_id})} style={{ fontWeight: 'bold' }}>{item.subject}</Text>
+                <Text style={{ fontWeight: 'bold' }}>{item.subject}</Text>
                 <Text>{formatDate(item.date)}</Text>
                 <Text>{item.labels.join(', ')}</Text>
-            </View>
+            </TouchableOpacity>
         );
     };
 

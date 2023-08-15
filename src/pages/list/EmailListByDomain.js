@@ -37,6 +37,7 @@ export default ListView = ({ navigation, removeFromList }) => {
 
     function createRuleForSelectedDomain() {
         console.log("rule", selectedList);
+        navigation.navigate('CreateRuleView', {senders: Object.keys(selectedList)})
     }
     useEffect(x => {
         let list = MessageAggregateService.readMessage();
@@ -81,7 +82,7 @@ export default ListView = ({ navigation, removeFromList }) => {
     function hanldePress(item) {
 
         //// goto pages/email/EmailListView'
-        navigation.navigate("EmailListView", {sender: item.sender, type: 'domain'})
+        navigation.navigate("EmailListView", {sender: item.sender, type: 'domain', show_bottom_bar: true})
     }
 
     const filterItems = (value) => {
@@ -91,6 +92,7 @@ export default ListView = ({ navigation, removeFromList }) => {
         value = value.toLowerCase();
         return list.filter((item) => item.sender.toLowerCase().includes(value)).slice(0, page * 20);
     };
+
     function RenderItem({ item, selected=false, handleLongPress, hanldePress, active }) {
         return (
             <TouchableOpacity style={{...SenderListstyles.item, backgroundColor: selected? '#ddd': ''}} onLongPress={()=> handleLongPress(item)} onPress={x=>hanldePress(item)}>

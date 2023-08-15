@@ -72,11 +72,17 @@ const MyComponent = () => {
     // console.log("completed");
   }
 
+  async function syncLabel() {
+    console.log('sync label ')
+    DataSync.getLabels(true);
+  }
+
   return (
     <View>
       <Text>{count}/ {saveCount}</Text>
       <Button title="Get List" onPress={async x => { getList(undefined); }} />
       <Button title="Aggregate" onPress={async x => { aggregate(); }} />
+      <Button title="Sync Label" onPress={async x => { syncLabel(); }} />
     </View>
   )
 
