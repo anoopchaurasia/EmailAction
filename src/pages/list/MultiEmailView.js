@@ -176,8 +176,6 @@ let styles = StyleSheet.create({
     }
 });
 
-
-
 const EmailListstyles = StyleSheet.create({
     container: {
       flex: 1,

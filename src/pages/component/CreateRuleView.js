@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { Text, TextInput, View } from "react-native";
 import {Picker} from '@react-native-picker/picker';
 import LabelService from './../../realm/LabelService'
+import MoveToLabelView from './MoveToLabelView'
 
 
 
 export default CreateRuleView = ({ route, navigation }) => {
 
     let [from, setFrom] = useState(route.params.senders.join(", "));
-    let [moveTo, setMoveTo] = useState('Trash');
+    let [moveTo, setMoveTo] = useState({});
     const [labels, setLabels] = useState([]);
 
 
@@ -17,6 +18,12 @@ export default CreateRuleView = ({ route, navigation }) => {
         setLabels(list);
       }, []);
 
+
+      async function setSelectedLabel(label) {
+        setMoveTo(label);
+        console.log('selected label', label);
+    }
+
     return (
         <View>
             <View>
@@ -24,24 +31,12 @@ export default CreateRuleView = ({ route, navigation }) => {
                 <TextInput value={`trash all email from ${route.params.senders.join(", ")}`}/>
             </View>
             <View>
-                <Text>From</Text>
-                <TextInput onChangeText={text=> setFrom(text)} value={from}/>
+                <Text>Move To</Text> 
+                <MoveToLabelView selectedLabel={moveTo} setSelectedLabel={setSelectedLabel} />
             </View>
             <View>
-                <Text>Move To</Text>
-                <Picker
-                    selectedValue={moveTo}
-                    onValueChange={(itemValue, itemIndex) =>
-                        setMoveTo(itemValue)
-                    }
-                    >
-                    {labels.map((item, index) => (
-                        <Picker.Item key={index} label={item.name} value={item.id} />
-                    ))}
-                    </Picker>
-                
-
-                
+                <Text>From</Text>
+                <TextInput onChangeText={text=> setFrom(text)} value={from}/>
             </View>
         </View>
     )
