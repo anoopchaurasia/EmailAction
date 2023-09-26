@@ -86,7 +86,6 @@ const SearchName = ({ setSelectedLabel, selectedLabel={} }) => {
                   />
               </View>
               <View style={{...styles.inputView, ...styles.buttonView}}>
-
                   {searchText.length>2 && <Button style={styles.createLabelButton} visible={false} title="Create New Label" onPress={createNewName} /> }
               </View>
             </View>

@@ -12,12 +12,10 @@ export default CreateRuleView = ({ route, navigation }) => {
     let [moveTo, setMoveTo] = useState({});
     const [labels, setLabels] = useState([]);
 
-
     useEffect(x=>{
         let list = LabelService.readAll();
         setLabels(list);
       }, []);
-
 
       async function setSelectedLabel(label) {
         setMoveTo(label);
@@ -30,13 +28,19 @@ export default CreateRuleView = ({ route, navigation }) => {
                 <Text>Title</Text>
                 <TextInput value={`trash all email from ${route.params.senders.join(", ")}`}/>
             </View>
+            <Text>Filters</Text>
+            <View>
+                <Text>Sender</Text>
+                <TextInput onChangeText={text=> setFrom(text)} value={from}/>
+            </View>
+            <Text>Action</Text>
             <View>
                 <Text>Move To</Text> 
                 <MoveToLabelView selectedLabel={moveTo} setSelectedLabel={setSelectedLabel} />
             </View>
             <View>
-                <Text>From</Text>
-                <TextInput onChangeText={text=> setFrom(text)} value={from}/>
+                <Text>Delay</Text> 
+                
             </View>
         </View>
     )
