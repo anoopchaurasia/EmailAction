@@ -1,6 +1,6 @@
 
 import { startAtIndex } from "react-native-paper-dates/lib/typescript/Date/dateUtils";
-import Gmail from "./Gmail"
+import Gmail from "./gmail"
 
 export default class Label {
     static trash = async (message_ids, processCB) =>{

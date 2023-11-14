@@ -66,6 +66,7 @@ const App: () => Node = () => {
             <Drawer.Screen name="QueryListView" component={QueryListView} />
             <Drawer.Screen name="EmailList" component={EmailList} />
             <Drawer.Screen name="ActivityView" component={ActivityView} />
+            <Drawer.Screen name="Login" component={LoginView} />
         </Drawer.Navigator>
     };
     

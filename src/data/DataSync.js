@@ -1,4 +1,4 @@
-import Gmail from '../google/Gmail';
+import Gmail from '../google/gmail';
 import Label from '../realm/LabelService';
 import MessageService from '../realm/EmailMessageService';
 import Utility from './../utility/Utility';
