@@ -3,7 +3,7 @@ import MessageAggregateService from "./../realm/EmailAggregateService";
 
 export default MessageAggregate = {
     listen: function() {
-        return MessageEvent.on('new_message_received', MessageAggregate.aggregate);
+        return //MessageEvent.on('new_message_received', MessageAggregate.aggregate);
     },
     aggregate: async function(messages) {
         let countSender = messages.reduce((acc, message) => {

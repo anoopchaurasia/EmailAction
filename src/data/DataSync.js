@@ -1,7 +1,8 @@
-import Gmail from '../google/gmail';
+import Gmail from '../google/Gmail';
 import Label from '../realm/LabelService';
 import MessageService from '../realm/EmailMessageService';
 import Utility from './../utility/Utility';
+import MessageEvent from './../event/MessageEvent';
 export default class MyComponent {
 
     static fetchMessages = async (query, nextPageToken) => {
@@ -27,8 +28,10 @@ export default class MyComponent {
                 .getList({ query:"-in:chats", pageToken: await Utility.getData('full_sync_token'), full_sync: true }).catch(e=>console.error(e, "resume sync issue"));
             aggregate(messages);
             await Utility.saveData('full_sync_token', nextPageToken);
-            await Utility.sleep(500);
             console.log("completed loop", nextPageToken);
+            
+            MessageEvent.emit('new_message_received', messages);
+            await Utility.sleep(500);
         } while (nextPageToken);
         await Utility.saveData('sync_completed', 'yes');
     }

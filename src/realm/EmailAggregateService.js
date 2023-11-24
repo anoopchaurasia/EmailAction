@@ -77,6 +77,10 @@ const MessageAggregateService = {
         return realm.objects('MessageAggregate');
     },
 
+    count: () =>{
+        return MessageAggregateService.readAll().length;
+    },
+
     readBySender: (sender) => {
         return realm.objectForPrimaryKey('MessageAggregate', sender);
     },
