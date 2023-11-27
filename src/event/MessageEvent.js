@@ -23,12 +23,13 @@ export default class MessageEvent{
 
     static emit = (event_name, data) => {
         if(!handleEvents[event_name]) return;
+        
         setTimeout(x=>{
-            console.log(handleEvents);
             handleEvents[event_name].forEach(fn=> {
+                console.log(handleEvents[event_name], "handleEvents1");
                 fn(data);
             })
-        }, 100);
+        }, 0);
     }
 
 };

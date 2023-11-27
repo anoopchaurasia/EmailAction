@@ -66,6 +66,7 @@ export default ProcessRules = {
     moveToFolder: async function (task, message_ids) {
         try {
             await this.getMessageIds(task, async (message_ids) => {
+                console.log(message_ids);
                 await ChangeLabel.moveToFolder(task, message_ids, function (result) {
                     (result || []).forEach(x => MessageService.update(x));
                 }).catch(e => console.error(e, "Folder change", task));

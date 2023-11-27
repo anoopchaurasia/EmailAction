@@ -40,8 +40,6 @@ import EmailListByEmail from './pages/list/EmailListByEmail';
 
 import CreateRuleView from './pages/component/CreateRuleView'
 
-import TestView from './pages/test';
-
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -66,7 +64,6 @@ const App: () => Node = () => {
             <Drawer.Screen name="Domain" component={EmailListByDomain} />
             <Drawer.Screen name="Sender" component={EmailListBySender} />
             <Drawer.Screen name="Email" component={EmailListByEmail} />
-            <Drawer.Screen name="Test" component={TestView} />
             <Drawer.Screen name="QueryListView" component={QueryListView} />
             <Drawer.Screen name="EmailList" component={EmailList} />
             <Drawer.Screen name="ActivityView" component={ActivityView} />

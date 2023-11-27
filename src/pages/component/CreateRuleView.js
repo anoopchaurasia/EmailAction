@@ -4,17 +4,20 @@ import MoveToLabelView from './MoveToLabelView'
 import ActivityService from './../../realm/ActivityService'
 import { Button } from "react-native-paper";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MessageEvent from "../../event/MessageEvent";
 
 
 
 export default CreateRuleView = ({ route, navigation }) => {
-    let [activity, setActivity] = useState({ ...{action: "move", title: `All emails from ${route.params.activity.from.join(", ").slice(0, 70)}`}, ...route.params.activity}); //
+    let [activity, setActivity] = useState({ ...{from_label:"INBOX",action: "move", title: `All emails from ${route.params.activity.from.join(", ").slice(0, 70)}`}, ...route.params.activity}); //
     function saveRule(activity) {
         try {
             if(activity.id) {
                 ActivityService.updateObjectById(activity.id, activity);
+                MessageEvent.emit("updated_new_rule", activity);
             } else {
                 ActivityService.createObject(activity);
+                MessageEvent.emit("created_new_rule", activity);
             }
             navigation.goBack();
         } catch(e) {

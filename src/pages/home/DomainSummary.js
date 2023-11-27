@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import {Text, View } from "react-native";
+import {Text, TouchableHighlight, View } from "react-native";
 import MessageAggregateService from './../../realm/EmailAggregateService';
 import MessageEvent from "../../event/MessageEvent";
 
-export default function DomainSummary() {
+export default function DomainSummary({navigation}) {
     
     const [count, setCount]=useState(-1);
     let [fetchCount, setFetchCount] = useState(0);
@@ -33,7 +33,7 @@ export default function DomainSummary() {
     },[]);
 
     return (
-        <View>
+        <TouchableHighlight onPress={x=> navigation.navigate("Domain")}>
             <View style={{ width: "90%", borderColor: "#ddd", borderWidth: 1, margin: 10 }}>
                     <Text style={{ fontSize: 30, textAlign: "center" }}>
                         Total Domains
@@ -42,7 +42,7 @@ export default function DomainSummary() {
                         {count}
                     </Text>
                 </View>
-        </View>
+        </TouchableHighlight>
 
     );
 

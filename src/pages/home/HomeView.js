@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, FlatList, Text, View, NativeEventEmitter } from "react-native";
+import { Button, FlatList, Text, View, NativeEventEmitter, TouchableHighlight } from "react-native";
 
 
 import MessageEvent from './../../event/MessageEvent'
@@ -8,7 +8,7 @@ import DomainSummary from "./DomainSummary";
 import SenderSummary from "./SenderSummary";
 import EmailSummary from './EmailSummary';
 
-export default function Home() {
+export default function Home({navigation}) {
 
 
 
@@ -43,10 +43,10 @@ export default function Home() {
     }, []);
     return (
         <View>
-            <DomainSummary />
-            <SenderSummary />
-            <EmailSummary />
-            <View>
+            <DomainSummary navigation={navigation} />
+            <SenderSummary navigation={navigation} />
+            <EmailSummary navigation={navigation} />
+            <TouchableHighlight onPress={x=> navigation.navigate("ActivityView")}>
                 <View style={{ width: "90%", borderColor: "#ddd", borderWidth: 1, margin: 10 }}>
                     <Text style={{ fontSize: 30, textAlign: "center" }}>
                         Total Tasks
@@ -58,7 +58,7 @@ export default function Home() {
                         {taskProcessStatus}
                     </Text>
                 </View>
-            </View>
+            </TouchableHighlight>
 
         </View>
     )

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import {Text, View } from "react-native";
+import {Text, View, TouchableHighlight } from "react-native";
 import MessageAggregateService from './../../realm/EmailAggregateService';
 import MessageEvent from "../../event/MessageEvent";
 
-export default function SenderSummary() {
+export default function SenderSummary({navigation}) {
     let [fetchCount, setFetchCount] = useState(0);
     const [count, setCount]=useState(-1);
     useEffect(x => {
@@ -15,7 +15,7 @@ export default function SenderSummary() {
     },[]);
 
     return (
-        <View>
+        <TouchableHighlight onPress={x => navigation.navigate("Sender")}>
             <View style={{ width: "90%", borderColor: "#ddd", borderWidth: 1, margin: 10 }}>
                     <Text style={{ fontSize: 30, textAlign: "center" }}>
                         Total Senders
@@ -24,7 +24,7 @@ export default function SenderSummary() {
                         {count}
                     </Text>
                 </View>
-        </View>
+        </TouchableHighlight>
 
     );
 
