@@ -15,7 +15,6 @@ export default function EmailSummary() {
     let [count, setCount] = useState(MessageService.readAll().length || 0);
     let [inboxInfo, setInboxInfo] = useState({});
     let [processRunningStatus, setProcessRunningStatus] = useState({});
-    let [fetchCount, setFetchCount] = useState(0);
 
 
 
@@ -32,24 +31,14 @@ export default function EmailSummary() {
     })
 
     useEffect(x => {
+        
         DataSync.getTotalEmails().then(data => {
-            console.log(data);
             setInboxInfo(data);
             count && data.messagesTotal && setProgressPer(count / data.messagesTotal);
-            let fetchedCount = count;
-            console.log(ActivityProcess, ActivityProcess.processNew, "ActivityProcess, ActivityProcess.processNew");
-            ActivityProcess.processNew((c, cc) => {
-                setCount(t => t + c);
-                fetchedCount += c;
-                console.log(fetchedCount, data.messagesTotal, "data.messagesTotal");
-                setProgressPer(fetchedCount / data.messagesTotal);
-
-            });
+            ActivityProcess.processNew();
         }).catch(x => {
             console.log("GetTotal failed", x)
-            ActivityProcess.processNew((c, cc) => {
-                setCount(t => t + c);
-            });
+            ActivityProcess.processNew();
         });
 
         async function latestRun() {
@@ -60,24 +49,28 @@ export default function EmailSummary() {
             
         }
 
-        setInterval(latestRun, 5*60*1000);
-        latestRun();
-    }, [fetchCount]);
-
-    useEffect(x=> {
-        MessageEvent.on('new_message_received', x=> setFetchCount(x=> x+1))
-    },[]);
+       //setInterval(latestRun, 5*60*1000);
+      // latestRun();
+    }, []);
     function clean() {
         MessageService.deleteAll();
         Utility.deleteData('sync_completed');
         Utility.deleteData('full_sync_token');
     }
 
+    useEffect(x=> {
+        MessageEvent.on('new_message_received', (messages) => {
+            setCount(t => t + messages.length);
+            console.log(count, inboxInfo.messagesTotal, "data.messagesTotal");
+            setProgressPer(count / inboxInfo.messagesTotal);
+
+        })
+    },[]);
     
     return (
        <>
        <View>
-                <Progress.Bar progress={prgressPer} width={400} height={20} />
+                {/* <Progress.Bar progress={prgressPer} width={400} height={20} /> */}
                 <View style={{ width: "90%", borderColor: "#ddd", borderWidth: 1, margin: 10 }}>
                     <Text style={{ fontSize: 30, textAlign: "center" }}>
                         Total Emails

@@ -11,6 +11,7 @@ export default Activity = {
             let date = new Date();
             in_progress && Utility.saveData("ProcessAlreadyInProgress", date.toISOString());
             if (in_progress) return console.log("in progress return");
+            console.log("Process New ===================================================================")
             Utility.saveData("ProcessStarted", date.toISOString());
             in_progress = true;
             await DataSync.getLabels(true);
@@ -22,7 +23,7 @@ export default Activity = {
             console.log("completed the process");
             in_progress = false;
         } catch(e) {
-            console.error(e, "process new failed");
+            console.error(e, "process new failed", e.stack);
         }
          finally {
             let date = new Date();

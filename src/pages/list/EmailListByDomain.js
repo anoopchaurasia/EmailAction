@@ -37,7 +37,7 @@ export default ListView = ({ navigation, removeFromList }) => {
 
     function createRuleForSelectedDomain() {
         console.log("rule", selectedList);
-        navigation.navigate('CreateRuleView', {senders: Object.keys(selectedList)})
+        navigation.navigate('CreateRuleView', {activity: {from: Object.keys(selectedList), type:"domain"}})
     }
     useEffect(x => {
         let list = MessageAggregateService.readMessage();

@@ -3,31 +3,38 @@ import { View, TextInput, FlatList, Text, Button, Modal, StyleSheet } from 'reac
 import LabelService from '../../realm/LabelService';
 import DataSync from './../../data/DataSync'
 
-const SearchName = ({ setSelectedLabel, selectedLabel={} }) => {
+const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
   // State variables
   const [labels, setLabels] = useState([]);
-  const [searchText, setSearchText] = useState(selectedLabel.name||"");
+  const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedLabelLocal, setSelectedLabelLocal] = useState({});
 
   useEffect(x => {
     let list = LabelService.readAll();
     list = [...list];
     setLabels(list);
+    if(selectedLabelId) {
+      setSelectedLabelLocal(list.filter(x=>x.id===selectedLabelId)[0])
+    }
     console.log(list.length, "label data")
   }, []);
 
   async function setSelected(label) {
     if (label.id) {
       setModalVisible(false);
+      setSelectedLabelLocal(label);
       return setSelectedLabel(label);
     }
     let newLabel = await DataSync.createLabel(label.name).then(async x => await x.json());
     newLabel.type = "user";
     await LabelService.create(newLabel);
+    setModalVisible(false);
     setLabels(l => {
       return [...l, newLabel];
     });
     setSelectedLabel(newLabel);
+    setSelectedLabelLocal(newLabel)
   }
 
   // Filter function
@@ -56,9 +63,9 @@ const SearchName = ({ setSelectedLabel, selectedLabel={} }) => {
   };
 
   return (
-    <View>
-      <Text onPress={x=> setModalVisible(true)}> {selectedLabel.name||"Select Label"} </Text>
-      <View style={{ padding:20}}>
+    <View style={{borderColor: "#ccc", borderColor: "#ccc", borderWidth:.5, margin: 10, marginLeft:0}}>
+      <Text style={{padding:10, color:"#000"}} onPress={x=> setModalVisible(true)}> {selectedLabelLocal.name||"Select Label"} </Text>
+      <View style={{ }}>
         <Modal
           animationType="slide"
           transparent={true}
