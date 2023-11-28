@@ -3,9 +3,15 @@ import { FlatList, Text, View, TextInput, StyleSheet, TouchableOpacity } from 'r
 import BottomBar from '../component/BottomBarView';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need to install this library for icons
 import MessageAggregateService from './../../realm/EmailAggregateService';
-import TrashMessage from "../../data/TrashMessage";
+import ActivityService from './../../realm/ActivityService';
+import MessageEvent from './../../event/MessageEvent';
+/*
+ 
 
-export default ListView = ({ navigation, removeFromList }) => {
+*/
+
+
+export default EmailListByDomain = ({ navigation, removeFromList }) => {
     let [list, setList] = useState([]);
     let [page, setPage] = useState(1);
     let [active, setActive] = useState(false);
@@ -23,23 +29,25 @@ export default ListView = ({ navigation, removeFromList }) => {
     }];
 
     function trashSelectedDomains() {
-        let selectedDomains = Object.keys(selectedList);
-        console.log(selectedDomains, "selectedDomains");
-        TrashMessage.trashBySubDomains(selectedDomains).then(x=>{
-            console.log("selectedDomains", "after rule creation")
-            MessageAggregateService.deleteBySubDomain(selectedDomains);
-            setSelectedList({});
-            setActive(false);
-        });
-        console.log("trash", selectedList);
-        
+        let from = Object.keys(selectedList)
+        let activity = ActivityService.createObject({from, type:"domain", to_label:"TRASH", action: "trash", from_label:"INBOX", title: `All emails from ${from.join(", ").slice(0, 70)}`});
+        MessageEvent.emit("created_new_rule", activity);
     }
 
     function createRuleForSelectedDomain() {
-        console.log("rule", selectedList);
         navigation.navigate('CreateRuleView', {activity: {from: Object.keys(selectedList), type:"domain"}})
     }
-    useEffect(x => {
+
+    useEffect(x=>{
+        return MessageEvent.on('message_aggregation_changed', x=>{
+            setActive(false);
+            setSelectedList({});
+            createList();
+        });
+    }, []);
+
+
+    function createList() {
         let list = MessageAggregateService.readMessage();
         let domains = {};
         list.forEach(x => {
@@ -57,7 +65,9 @@ export default ListView = ({ navigation, removeFromList }) => {
             }
         });
         setList(list);
-    }, []);
+    }
+
+    useEffect(createList, []);
 
     useEffect(()=>{
         if(Object.keys(selectedList).length===0) setActive(false);

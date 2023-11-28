@@ -1,5 +1,7 @@
 import Realm from 'realm';
 
+import MessageEvent from '../event/MessageEvent';
+
 // Define the Message schema
 const MessageAggregateSchema = {
     name: 'MessageAggregate',
@@ -40,12 +42,14 @@ const MessageAggregateService = {
         } catch (e) {
             console.error(e, sender, "MessageAggregateService.create");
         }
+        MessageEvent.emit('message_aggregation_changed');
     },
 
     deleteAll: () => {
         realm.write(() => {
             realm.delete(realm.objects("MessageAggregate"));
         });
+        MessageEvent.emit('message_aggregation_changed')
     },
 
     deleteBySender: (sender) => {
@@ -53,6 +57,7 @@ const MessageAggregateService = {
         realm.write(() => {
             realm.delete(sender);
         });
+        MessageEvent.emit('message_aggregation_changed')
     },
 
     deleteBySenders: (senders) => {
@@ -67,6 +72,7 @@ const MessageAggregateService = {
                 realm.delete(data);
             });
         });
+        MessageEvent.emit('message_aggregation_changed')
     },
 
     readMessage: () => {
@@ -89,6 +95,7 @@ const MessageAggregateService = {
         realm.write(() => {
             realm.create('MessageAggregate', sender, true);
         });
+        MessageEvent.emit('message_aggregation_changed')
     },
     updateCount: (newData)=> {
         let messageAggregate = realm.objectForPrimaryKey('MessageAggregate', newData.sender);
@@ -107,6 +114,7 @@ const MessageAggregateService = {
                 labelObject.count += label.count;
             });
         });
+        MessageEvent.emit('message_aggregation_changed')
         return messageAggregate;
     }
 }

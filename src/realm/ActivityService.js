@@ -43,6 +43,7 @@ const ActivityMethods = {
     } catch (error) {
       console.error(error);
     }
+    return data;
   },
 
   getNoCompleted() {

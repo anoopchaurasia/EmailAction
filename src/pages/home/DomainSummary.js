@@ -29,7 +29,8 @@ export default function DomainSummary({navigation}) {
         setCount(list.length);
     }, [fetchCount]);
     useEffect(x=> {
-        MessageEvent.on('new_message_received', x=>setFetchCount(x=> x+1))
+       let rm1 =  MessageEvent.on('new_message_received', x=>setFetchCount(x=> x+1));
+        return x=> {rm1();};
     },[]);
 
     return (
