@@ -21,29 +21,36 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
     let actionList = [{
         name: "Trash", 
         icon:"trash-can", 
-        action: trashSelectedDomains
+        action: x=>trashSelectedDomains()
     }, {
         name:"Rule", 
         icon:"set-merge", 
-        action: createRuleForSelectedDomain
+        action: x=>createRuleForSelectedDomain()
     }];
 
-    function trashSelectedDomains() {
-        let from = Object.keys(selectedList)
+    function trashSelectedDomains(senders) {
+        let from = senders || Object.keys(selectedList)
         let activity = ActivityService.createObject({from, type:"domain", to_label:"TRASH", action: "trash", from_label:"INBOX", title: `All emails from ${from.join(", ").slice(0, 70)}`});
         MessageEvent.emit("created_new_rule", activity);
     }
 
-    function createRuleForSelectedDomain() {
-        navigation.navigate('CreateRuleView', {activity: {from: Object.keys(selectedList), type:"domain"}})
+    function createRuleForSelectedDomain(senders) {
+        navigation.navigate('CreateRuleView', {activity: {from: senders || Object.keys(selectedList), type:"domain"}})
     }
 
     useEffect(x=>{
-        return MessageEvent.on('message_aggregation_changed', x=>{
+        let rm1 = MessageEvent.on('message_aggregation_changed', x=>{
             setActive(false);
             setSelectedList({});
             createList();
         });
+        let rm2 = MessageEvent.on('email_list_view_trash', ({sender, type})=>{
+            trashSelectedDomains([sender]);
+        });
+        let rm3 = MessageEvent.on("email_list_view_create_rule", ({sender,type})=>{
+            createRuleForSelectedDomain([sender]);
+        });
+        return x=> {[rm1, rm2, rm3].forEach(x=>x())}
     }, []);
 
 

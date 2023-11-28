@@ -3,7 +3,7 @@ import { FlatList, Text, View, TextInput, StyleSheet, TouchableOpacity } from 'r
 import BottomBar from '../component/BottomBarView';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need to install this library for icons
 import MessageAggregateService from './../../realm/EmailAggregateService';
-import TrashMessage from "../../data/TrashMessage";
+import MessageEvent from "../../event/MessageEvent";
 
 export default ListView = ({ navigation, removeFromList }) => {
     let [list, setList] = useState([]);
@@ -15,29 +15,39 @@ export default ListView = ({ navigation, removeFromList }) => {
     let actionList = [{
         name: "Trash",
         icon: "trash-can",
-        action: trashSelectedSenders
+        action: x=> trashSelectedSenders()
     }, {
         name: "Rule",
         icon: "set-merge",
-        action: createRuleForSelectedSenders
+        action: x=> createRuleForSelectedSenders()
     }];
 
-    function trashSelectedSenders() {
-        let selectedSenders = Object.keys(selectedList);
-        console.log(selectedSenders, "selectedSenders");
-        TrashMessage.trashBySenders(selectedSenders).then(x => {
-            console.log("selectedSenders", "after rule creation")
-            MessageAggregateService.deleteBySenders(selectedSenders);
-            setSelectedList({});
+    useEffect(x=>{
+        let rm1 = MessageEvent.on('message_aggregation_changed', x=>{
             setActive(false);
+            setSelectedList({});
+            let list = MessageAggregateService.readMessage();
+            setList(list);
         });
-        console.log("trash senders", selectedList);
+        let rm2 = MessageEvent.on('email_list_view_trash', ({sender, type})=>{
+            trashSelectedSenders([sender]);
+        });
+        let rm3 = MessageEvent.on("email_list_view_create_rule", ({sender,type})=>{
+            createRuleForSelectedSenders([sender]);
+        });
+        return x=> {[rm1, rm2, rm3].forEach(x=>x())}
+    }, []);
 
+    function trashSelectedSenders(senders) {
+        let from = senders || Object.keys(selectedList);
+        let activity = ActivityService.createObject({from, type:"sender", to_label:"TRASH", action: "trash", from_label:"INBOX", title: `All emails from ${from.join(", ").slice(0, 70)}`});
+        MessageEvent.emit("created_new_rule", activity);
     }
 
-    function createRuleForSelectedSenders() {
-        console.log("rule", selectedList);
+    function createRuleForSelectedSenders(senders) {
+        navigation.navigate('CreateRuleView', {activity: {from: senders || Object.keys(selectedList), type:"sender"}})
     }
+
     useEffect(x => {
         let list = MessageAggregateService.readMessage();
         setList(list);

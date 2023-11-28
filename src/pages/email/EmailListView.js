@@ -36,11 +36,13 @@ const EmailList = ({ route, navigation }) => {
     }];
 
     function moveToTrash() {
+        MessageEvent.emit('email_list_view_trash', route.params);
         navigation.goBack();
     }
 
     function createRuleForSelected() {
-        console.log("CreateRuleFor selected");
+        MessageEvent.emit('email_list_view_create_rule', route.params);
+        navigation.goBack();
     }
 
     useEffect(x => {

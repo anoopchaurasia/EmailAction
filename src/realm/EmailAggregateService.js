@@ -57,6 +57,7 @@ const MessageAggregateService = {
         realm.write(() => {
             realm.delete(sender);
         });
+        console.log("delete sender", sender);
         MessageEvent.emit('message_aggregation_changed')
     },
 

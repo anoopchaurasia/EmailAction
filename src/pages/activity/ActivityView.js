@@ -1,6 +1,6 @@
 
-import React, { useEffect, useState,  } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput,} from 'react-native';
+import React, { useEffect, useState, } from 'react';
+import { View, Text, FlatList, TouchableOpacity, TextInput, Alert} from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import ActivityModel from '../../realm/ActivityService';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -33,15 +33,16 @@ const renderItem = (item, onPlay, onDelete, onEdit) => {
   );
 };
 
-const ActivityView = ({navigation}) => {
+const ActivityView = ({ navigation }) => {
   // Get all the activities from the realm
 
   let [activities, setActivities] = useState([]);
   let [text, setText] = useState('');
   const isFocused = useIsFocused();
-  useEffect(x => {
+
+  function createRuleList() {
     console.log(ActivityView.toString(), "fetch new data");
-    let all = ActivityModel.getAll();
+    let all = [...ActivityModel.getAll()];
     all.filter(x => !x.action).forEach(task => {
       if (task.to_label === 'trash') {
         ActivityModel.updateObjectById(task.id, { action: 'trash' });
@@ -52,6 +53,9 @@ const ActivityView = ({navigation}) => {
       }
     })
     setActivities(all);
+  }
+  useEffect(x => {
+    createRuleList();
     return (() => setActivities([]))
   }, [isFocused]);
   async function onPlay(item) {
@@ -68,12 +72,16 @@ const ActivityView = ({navigation}) => {
     value = value.toLowerCase();
     return activities.filter((item) => item.from.filter(email => email.toLowerCase().includes(value)).length > 0);
   };
-  async function onDelete() {
-
+  async function onDelete(item) {
+    Alert.alert("Delete message", "Do you wants to delete the Rule: "+ item.title, [{text: 'Yes', onPress: () => {
+      ActivityModel.deleteObjectById(item.id);
+      createRuleList();
+    }
+    },{text:"Cancel"}]);
   };
 
   async function onEdit(item) {
-    navigation.navigate('CreateRuleView', {activity: item});
+    navigation.navigate('CreateRuleView', { activity: item });
   }
 
   return (

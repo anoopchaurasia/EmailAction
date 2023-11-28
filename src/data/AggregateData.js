@@ -8,14 +8,23 @@ export default MessageAggregate = {
         return //MessageEvent.on('new_message_received', MessageAggregate.aggregate);
     },
     handleRuleCreation: function({action, type, from}) {
-        if(type==='domain' &&(action==='move' || action==='delete' || action==='trash')) {
-            MessageAggregateService.deleteBySubDomain(from);
+        if((action==='move' || action==='delete' || action==='trash')) {
+            if(type=='domain') {
+                MessageAggregateService.deleteBySubDomain(from);
+            } else if(type==='sender') {
+                MessageAggregateService.deleteBySenders(from);
+            }
         }
     },
     handleRuleUpdate: function({action, type, from}) {
-
-        if(type==='domain' &&(action==='move' || action==='delete' || action==='trash')) {
-            MessageAggregateService.deleteBySubDomain(from);
+        
+        console.log(action, type, from, "testing1");
+        if((action==='move' || action==='delete' || action==='trash')) {
+            if(type=='domain') {
+                MessageAggregateService.deleteBySubDomain(from);
+            } else if(type==='sender') {
+                MessageAggregateService.deleteBySenders(from);
+            }
         }
     },
 
