@@ -42,15 +42,26 @@ export default AttachementView = ({ navigation, route }) => {
             if (query && query.query) {
                 do {
                     ///get List porcess only newly added messages
-                    var { messages, nextPageToken } = await DataSync.getList({ full_sync: false , query: QueryService.getQueryString(query.query)});
-                    await Activity.newMessages(messages);
+
+                    var { message_ids, nextPageToken } = await DataSync.fetchMessages(QueryService.getQueryString(query.query), nextPageToken);
+                    let length = message_ids.length;
+                    message_ids = message_ids.filter(message_id => query.message_ids.includes(message_id) == false);
+                    if (length !== message_ids.length) nextPageToken = undefined;
+                    var messages = [];
+                    let nonstored_message_ids = message_ids.filter(id=> MessageService.checkMessageId(id) == false)
+                    if (nonstored_message_ids.length) {
+                        messages = await DataSync.fetchMessageMeta(nonstored_message_ids);
+                        await Activity.newMessages(messages);
+                        messages.map(x => { try { MessageService.update(x) } catch (e) { console.error(e, "update failed getList", x) } });
+                    }
+                    message_ids.filter(mid=> MessageService.update({message_id:mid, has_attachement: true}));
                     setQuery(z => {
-                        z.message_ids.unshift(...(messages.map(x=>x.message_id)));
+                        z.message_ids.unshift(...(message_ids));
                         return z;
                     });
                     QueryService.update(query);
                     setList(msgs=> {
-                        msgs.push(...messages)
+                        msgs.push(...(message_ids.map(mid=> MessageService.getById(mid))));
                         msgs.sort((a,b)=> a.date>b.date?-1:1);
                         return msgs;
                     });
