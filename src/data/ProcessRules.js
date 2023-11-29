@@ -23,7 +23,7 @@ export default ProcessRules = {
                   await ActivityService.updateObjectById(task.id, { completed: true });
             } else if (task.action == "copy") {
                 await ProcessRules.copyToFolder(task);
-                   await ActivityService.updateObjectById(task.id, { completed: true });
+                await ActivityService.updateObjectById(task.id, { completed: true });
             } else {
                 console.log("no action defined", task);
             }
@@ -43,7 +43,6 @@ export default ProcessRules = {
 
     getMessageIds: async function (task, process, message_ids) {
         if (message_ids && message_ids.length) return await process(message_ids);
-
         let c = 0, i=0;
         while(i<task.from.length){
             let from = task.from[i];
@@ -60,7 +59,6 @@ export default ProcessRules = {
             } while (nextPageToken);
             i++;
         }
-
     },
 
     moveToFolder: async function (task, message_ids) {

@@ -1,49 +1,49 @@
 import React, { useEffect, useState } from "react";
-import {View,  StyleSheet, Dimensions, Button, Text} from 'react-native';
-import MessageService from "../../realm/EmailMessageService";
-import QueryService from '../../realm/QueryMessageService';
-
+import {View,  StyleSheet, Dimensions, ActivityIndicator, Text} from 'react-native';
+import BottomBar from './../component/BottomBarView';
 import DataSync from '../../data/DataSync';
 import PDFView from 'react-native-pdf';
 
 export default AttachementView = ({selectedEmail, password, getNext, getPrev, onClose}) => {
+
     let [selected, setSelected] = useState(selectedEmail);
 
     let [PDFContent, setPDFContent] = useState(''); 
+    let actionList = [{
+        name: "Prev", 
+        icon:"page-previous-outline",
+        action: x=>goToPrev()
+    }, {
+        name:"Next", 
+        icon:"page-next-outline", 
+        action: x=>goToNext()
+    }];
+
 
     useEffect(x=> {
         (async function(){
-            console.log(selected)
             setPDFContent(await DataSync.loadAttachment(selected.message_id, selected.attachments[0].id));
         })()
     }, [selected.message_id]);
 
-    function goToNext() {
-        setSelected(getNext())
+    async function goToNext() {
+        setPDFContent("")
+        setSelected(await getNext())
     }
 
-    function goToPrev() {
-        setSelected(getPrev())
+    async function goToPrev() {
+        setPDFContent("")
+        setSelected(await getPrev())
     }
 
-    async function fetchBody(message_ids) {
-        let data =  await DataSync.fetchData(message_ids);
-        console.log(data);
-        data.map(x=> MessageService.update(x));
-    }
-    console.log(selected)
     return (
         <View style={{ flex: 1, flexDirection: "column", backgroundColor:'white' }}>
-            <View>
-                <Text>
-                    {selected.subject}
-                </Text>
-                <Text>
-                    {selected.sender}
-                </Text>
-                <Text>
-                    {selected.date.toISOString()}
-                </Text>
+            <View style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
+            <Text>{selected.sender_name}</Text>
+            <Text style={{ fontWeight: 'bold' }}>{selected.subject}</Text>
+            <Text>{(selected.date.toString())}</Text>
+            <Text>{selected.labels.join(', ')}</Text>
+            {selected.attachments.map(x=> <Text>{x.name}</Text>)}
             </View>
            {PDFContent ? <PDFView
           fadeInDuration={250.0}
@@ -64,21 +64,13 @@ export default AttachementView = ({selectedEmail, password, getNext, getPrev, on
                 console.log(`Link pressed: ${uri}`);
             }}
            
-            />: "" }
-
-            <View style={{flexDirection:"row", width:"100%"}}>
-                <Button style={{flex:1, margin: 10}} title="Prev" onPress={goToPrev}/>
-                <Button style={{flex:1, margin: 10}} title="Next" onPress={goToNext}/> 
-                <Button style={{flex:1, margin: 10}} title="Close" onPress={onClose}/>
-            </View>
+            />: <View style={{flex:1, alignItems:"center", alignContent:"center",}}><ActivityIndicator style={{alignSelf:"center", marginTop:"75%"}} size="large" color="#0000ff" /></View> }
+            <BottomBar visible={true} style={{backgroundColor:"#ccc"}} list={actionList} />
           
         </View>
     )
 
 }
-
-
-
 
 const styles = StyleSheet.create({
     container: {

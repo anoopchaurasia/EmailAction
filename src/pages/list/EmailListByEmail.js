@@ -76,9 +76,6 @@ export default ListView = ({ navigation, removeFromList }) => {
 }
 
 
-
-
-
 const EmailListstyles = StyleSheet.create({
     container: {
       flex: 1,

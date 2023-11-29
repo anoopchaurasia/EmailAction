@@ -15,6 +15,7 @@ const MessageSchema = {
         created_at: 'date',
         labels: {type:'string[]'},
         attachments: "Attachment[]",
+        has_attachement: {type:"bool", default: false, index: true}
     },
 };
 
@@ -35,7 +36,7 @@ const migrationFunction = (oldRealm, newRealm) => {
 // Create a new Realm instance with the Message schema
 const realm = new Realm({
     path:"messagedata",
-    schema: [MessageSchema, AttachmentSchemma], schemaVersion: 10, migration: migrationFunction,
+    schema: [MessageSchema, AttachmentSchemma], schemaVersion: 12, migration: migrationFunction,
 });
 
 // Define CRUD methods for Message objects

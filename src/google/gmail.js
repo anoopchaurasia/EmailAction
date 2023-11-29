@@ -35,6 +35,7 @@ export default class Gmail extends Email{
       q: query || "",
       pageToken: nextPageToken || "",
     })}`;
+    console.log(apiUrl);
     let response = await Gmail.gmailFetch(apiUrl, {
       headers: { 'Content-Type': 'application/json' },
     });

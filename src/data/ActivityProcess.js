@@ -15,10 +15,10 @@ export default Activity = {
             Utility.saveData("ProcessStarted", date.toISOString());
             in_progress = true;
             await DataSync.getLabels(true);
-            await ProcessRules.process();
-            console.log("starting resume sync")
+            console.log("1. starting resume sync")
             await DataSync.resumeSync(Activity.newMessages);
-            console.log("starting  sync")
+            await ProcessRules.process();
+            console.log("2. starting  sync")
             await Activity.sync();
             console.log("completed the process");
             in_progress = false;

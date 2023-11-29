@@ -6,7 +6,8 @@ import MessageAggregateService from './../../realm/EmailAggregateService';
 import ActivityService from './../../realm/ActivityService';
 import MessageEvent from './../../event/MessageEvent';
 /*
- 
+ actions need to be taken
+  -
 
 */
 

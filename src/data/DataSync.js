@@ -26,11 +26,11 @@ export default class MyComponent {
         if ((await Utility.getData('sync_completed')) == "yes") return console.log("sync completed");
         do {
             var { nextPageToken, messages } = await MyComponent
-                .getList({ query:"-in:chats", pageToken: await Utility.getData('full_sync_token'), full_sync: true }).catch(e=>console.error(e, "resume sync issue"));
+                .getList({ query: "-in:chats", pageToken: await Utility.getData('full_sync_token'), full_sync: true }).catch(e => console.error(e, "resume sync issue"));
             aggregate(messages);
             await Utility.saveData('full_sync_token', nextPageToken);
             console.log("completed loop", nextPageToken);
-            
+
             MessageEvent.emit('new_message_received', messages);
             await Utility.sleep(500);
         } while (nextPageToken);
@@ -50,7 +50,7 @@ export default class MyComponent {
         if (message_ids.length) {
             messages = await MyComponent.fetchMessageMeta(message_ids);
             console.log(messages[0]);
-            messages.map(x => {try {MessageService.update(x)} catch(e){console.error(e, "update failed getList", x)} });
+            messages.map(x => { try { MessageService.update(x) } catch (e) { console.error(e, "update failed getList", x) } });
         }
         return { nextPageToken, messages };
     };
@@ -73,9 +73,9 @@ export default class MyComponent {
         return await Gmail.formatBody(result);
     }
 
-    static getLabels = async (fresh_sync=false) => {
+    static getLabels = async (fresh_sync = false) => {
         console.log(await Utility.getData('label_loaded'), "labels are loded")
-        if((await Utility.getData('label_loaded')) == 'yes' && fresh_sync==false) return;
+        if ((await Utility.getData('label_loaded')) == 'yes' && fresh_sync == false) return;
         Label.deleteAll();
         console.log("label loading in progress");
         let labels = await Gmail.getLabels();
@@ -87,11 +87,11 @@ export default class MyComponent {
         return Gmail.getTotal();
     }
 
-    static createLabel = async(name)=>{
+    static createLabel = async (name) => {
         return await Gmail.createLabel(name);
     }
 
-    static moveToFolder = async() => {
+    static moveToFolder = async () => {
         requestBody = {
             addLabelIds: [ORDER_LABEL_ID], // Add the order label ID
             removeLabelIds: ['INBOX'], // Remove the inbox label ID
