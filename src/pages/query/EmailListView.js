@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FlatList, Text, View, StyleSheet, Dimensions, Modal, ActivityIndicator, TouchableOpacity } from 'react-native';
 import MessageService from "../../realm/EmailMessageService";
 import QueryService from '../../realm/QueryMessageService';
-
+import Activity from './../../data/ActivityProcess';
 import DataSync from '../../data/DataSync';
 import EmailAttachmentView from "./EmailAttachmentView";
 
@@ -13,7 +13,6 @@ import EmailAttachmentView from "./EmailAttachmentView";
 */
 
 const formatDate = (date) => {
-    
     return date.toDateString();
 };
 
@@ -34,21 +33,44 @@ export default AttachementView = ({ navigation, route }) => {
         }
 
         return x => { };
-    }, [query.query]);
+    }, []);
 
-    function loadLatestData() {
-
+    async function loadLatestData() {
+        console.log("fetching new messages")
+        try {
+            setLoading(true)
+            if (query && query.query) {
+                do {
+                    ///get List porcess only newly added messages
+                    var { messages, nextPageToken } = await DataSync.getList({ full_sync: false , query: QueryService.getQueryString(query.query)});
+                    await Activity.newMessages(messages);
+                    setQuery(z => {
+                        z.message_ids.unshift(...(messages.map(x=>x.message_id)));
+                        return z;
+                    });
+                    QueryService.update(query);
+                    setList(msgs=> {
+                        msgs.push(...messages)
+                        msgs.sort((a,b)=> a.date>b.date?-1:1);
+                        return msgs;
+                    });
+                    console.log("--------------fetching new messages", messages.length);
+                } while (nextPageToken);
+            }
+            setLoading(false);
+        } catch (e) {
+            console.error(e);
+        }
     }
 
 
-    async function loaddata(sfdfdfdfdddd) {
-        console.log("Load Data from sdfdfd "+ sfdfdfdfdddd)
+    async function loaddata() {
         if((query.nextPageToken==null && query.message_ids.length>0) || query.completed) return console.log("All files already loaded")
         try {
             setLoading(true)
             if (query && query.query) {
                 //TODO: hanlde own loop for data fetch
-                let { message_ids, nextPageToken: pageToken } = await DataSync.fetchMessages(query.query, query.nextPageToken);
+                let { message_ids, nextPageToken: pageToken } = await DataSync.fetchMessages(QueryService.getQueryString(query.query), query.nextPageToken);
                 console.log(message_ids, query.query);
                 setQuery(z => {
                     z.message_ids.push(...message_ids);
@@ -58,7 +80,11 @@ export default AttachementView = ({ navigation, route }) => {
                     z.completed = pageToken==null
                     return z;
                 });
-                setList(message_ids.map(message_id => MessageService.getById(message_id)));
+                setList(msg=> {
+                    msgs.push(...(message_ids.map(message_id => MessageService.getById(message_id))))
+                    msgs.sort((a,b)=> a.date>b.date?-1:1);
+                    return msgs;
+                });
                 message_ids.filter(mid=> MessageService.update({message_id:mid, has_attachement: true}));
                // await fetchBody(message_ids);
 
@@ -75,7 +101,7 @@ export default AttachementView = ({ navigation, route }) => {
     useEffect(x => {
         let messages = query.message_ids.map(message_id => MessageService.getById(message_id));
         console.log(query.message_ids.length, messages.length, "messages.length", messages[20]);
-        setList(msgs => { msgs.push(...messages); return msgs });
+        setList(msgs => { msgs.push(...messages); msgs.sort((a,b)=> a.date>b.date?-1:1); return msgs });
     }, []);
 
     async function fetchBody(message) {

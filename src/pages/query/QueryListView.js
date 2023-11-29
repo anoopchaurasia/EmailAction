@@ -17,7 +17,7 @@ const renderItem = (item, navigation, onEdit, onDelete) => {
   return <View style={{flexDirection:"row", padding: 10, margin:2, borderColor:"#ddd", borderWidth:1}}>
     <Text onPress={x=> navigation.navigate("AttachementView", {query: item})} style={{flex:1}}>
       <Text >Name: {item.name} {item.message_ids.length}</Text>
-      <Text> Query: {item.query}</Text>
+      <Text> Query: {QueryService.getQueryString(item.query)}</Text>
     </Text>
     {MyIcon(item, "pencil-outline", onEdit)}
       {MyIcon(item, "delete",  onDelete) }
@@ -27,21 +27,27 @@ const renderItem = (item, navigation, onEdit, onDelete) => {
 const App = ({navigation}) => {
     let [list, setList] = useState([]);
     let [openSearch, setOpenSearch] = useState(false);
-    let [query, setQuery] = useState({});
+    let [editQuery, setEditQuery] = useState(null);
     useEffect(x=>{
         let queryList  = QueryService.getAll();
         setList(queryList);
     }, [])
 
     function onEdit(item){
-
+      setEditQuery(item);
+      setOpenSearch(true);
     }
 
     function onDelete(item){
-      QueryService.delete(item.query);
-      let index = queryList.indexOf(item);
-      index !=-1 && queryList.splice(index, 1);
+      QueryService.delete(item.id);
+      let index = list.indexOf(item);
+      index !=-1 && list.splice(index, 1);
     }
+function cleanQuery(query) {
+  for(let x in query) {
+    if(query[x] === '') delete query[x];
+  }
+}
 
   return (
     <View>
@@ -51,7 +57,7 @@ const App = ({navigation}) => {
         <FlatList
           data={list}
           renderItem={({item})=> renderItem(item, navigation, onEdit, onDelete)}
-          keyExtractor={item => item.query}
+          keyExtractor={item => item.id}
         />
          <Modal
                 animationType="slide"
@@ -61,12 +67,14 @@ const App = ({navigation}) => {
                     setOpenSearch(false);
                 }}
             >
-                <QueryView onClose={query=> {
+                <QueryView query_init={editQuery} onClose={query=> {
                     console.log('Query', query);
-                    setQuery(query);
                     query.message_ids=[];
+                    console.log("update query", query);
+                    cleanQuery(query.query);
                     QueryService.update(query);
-                    setList(cl=> {cl.push(query); return cl;})
+                    let queryList  = QueryService.getAll();
+                    setList(queryList);
                     setOpenSearch(false);
                 }} />
             </Modal>

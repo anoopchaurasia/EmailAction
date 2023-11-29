@@ -1695,10 +1695,10 @@
   resolved "https://registry.npmjs.org/@react-native-google-signin/google-signin/-/google-signin-9.0.2.tgz"
   integrity sha512-oTD0ZT6ZSH7CZjM1i6hR/gFAXv9As7nxhN99XGliNxf6SChZcQRwGeaz1DjoYrWExWDVX00EH1Per3dMjhAWkQ==
 
-"@react-native-picker/picker@^2.4.10":
-  version "2.4.10"
-  resolved "https://registry.npmjs.org/@react-native-picker/picker/-/picker-2.4.10.tgz"
-  integrity sha512-EvAlHmPEPOwvbP6Pjg/gtDV3XJzIjIxr10fXFNlX5r9HeHw582G1Zt2o8FLyB718nOttgj8HYUTGxvhu4N65sQ==
+"@react-native-picker/picker@^2.6.1":
+  version "2.6.1"
+  resolved "https://registry.npmjs.org/@react-native-picker/picker/-/picker-2.6.1.tgz"
+  integrity sha512-oJftvmLOj6Y6/bF4kPcK6L83yNBALGmqNYugf94BzP0FQGpHBwimVN2ygqkQ2Sn2ZU3pGUZMs0jV6+Gku2GyYg==
 
 "@react-native/assets@1.0.0":
   version "1.0.0"
@@ -6906,11 +6906,6 @@ react-native-screens@^3.20.0, "react-native-screens@>= 3.0.0":
   dependencies:
     react-freeze "^1.0.0"
     warn-once "^0.1.0"
-
-react-native-select-dropdown@^3.3.4:
-  version "3.3.4"
-  resolved "https://registry.npmjs.org/react-native-select-dropdown/-/react-native-select-dropdown-3.3.4.tgz"
-  integrity sha512-Ld6BGGgCnbiv7uORAP+KnvDQiqeuqdlasKk9woJH9XtFMD44rwjKwelGzsDxFUM9hIAwZdac4UAFmOmXRaMeRg==
 
 react-native-svg@*:
   version "13.9.0"

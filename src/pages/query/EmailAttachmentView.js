@@ -3,12 +3,13 @@ import {View,  StyleSheet, Dimensions, ActivityIndicator, Text} from 'react-nati
 import BottomBar from './../component/BottomBarView';
 import DataSync from '../../data/DataSync';
 import PDFView from 'react-native-pdf';
+import {Picker} from '@react-native-picker/picker';
 
 export default AttachementView = ({selectedEmail, password, getNext, getPrev, onClose}) => {
-
+    console.log(selectedEmail);
     let [selected, setSelected] = useState(selectedEmail);
 
-    let [PDFContent, setPDFContent] = useState(''); 
+    let [PDFContent, setPDFContent] = useState([]); 
     let actionList = [{
         name: "Prev", 
         icon:"page-previous-outline",
@@ -19,20 +20,36 @@ export default AttachementView = ({selectedEmail, password, getNext, getPrev, on
         action: x=>goToNext()
     }];
 
+    function getType(filename) {
+        if(filename.match(/\.pdf$/igm)) return 'pdf'
+        if(filename.match(/\.(png|jpeg|jpg)$/igm)) return 'image'
+        return 'others'
+    }
 
     useEffect(x=> {
         (async function(){
-            setPDFContent(await DataSync.loadAttachment(selected.message_id, selected.attachments[0].id));
+            let arr = [];
+            for(let i=0; i< selected.attachments.length; i++) {
+                let attachement = selected.attachments[i];
+                let type = getType(selected.attachments[i].name);
+                arr.push({
+                    attachement: attachement,
+                    type: type,
+                    data:  (type=='pdf' || type=='image') && await DataSync.loadAttachment(selected.message_id, attachement.id)
+                });
+                //console.log(arr, '-----------------------')
+            }
+            setPDFContent(arr);
         })()
     }, [selected.message_id]);
 
     async function goToNext() {
-        setPDFContent("")
+        setPDFContent([])
         setSelected(await getNext())
     }
 
     async function goToPrev() {
-        setPDFContent("")
+        setPDFContent([])
         setSelected(await getPrev())
     }
 
@@ -45,13 +62,13 @@ export default AttachementView = ({selectedEmail, password, getNext, getPrev, on
             <Text>{selected.labels.join(', ')}</Text>
             {selected.attachments.map(x=> <Text>{x.name}</Text>)}
             </View>
-           {PDFContent ? <PDFView
+           {PDFContent.length ? PDFContent.map(content=> content.type==='pdf'? <PDFView
           fadeInDuration={250.0}
             style={styles.pdf}
-            password = {password|| 'ANOO04DEC'}
+            password = {password}
            
-            source={{uri:`data:application/pdf;base64,${PDFContent}`}}
-            onLoadComplete={(numberOfPages,filePath) => {
+            source={{uri:`data:application/pdf;base64,${content.data}`}}
+            onLoadComplete={(numberOfPages) => {
                 console.log(`Number of pages: ${numberOfPages}`);
             }}
             onPageChanged={(page,numberOfPages) => {
@@ -64,7 +81,7 @@ export default AttachementView = ({selectedEmail, password, getNext, getPrev, on
                 console.log(`Link pressed: ${uri}`);
             }}
            
-            />: <View style={{flex:1, alignItems:"center", alignContent:"center",}}><ActivityIndicator style={{alignSelf:"center", marginTop:"75%"}} size="large" color="#0000ff" /></View> }
+            /> : content.type==='image' ? <Text>Image {content.attachement.name}</Text> : <Text>{content.attachement.name}</Text> ): <View style={{flex:1, alignItems:"center", alignContent:"center",}}><ActivityIndicator style={{alignSelf:"center", marginTop:"75%"}} size="large" color="#0000ff" /></View> }
             <BottomBar visible={true} style={{backgroundColor:"#ccc"}} list={actionList} />
           
         </View>

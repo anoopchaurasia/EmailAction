@@ -20,18 +20,18 @@ const QueryDataSchema = {
     from:  "string?",
     to:  "string?",
     subject:  "string?",
-    bodyValue:  "string?",
-    notHasValue:  "string?",
-    has:  "string?",
-    after:  "string?",
-    before:  "string?",
+    body:  "string?",
+    notHas:  "string?",
+    has:  "bool?",
+    after:  "date?",
+    before:  "date?",
   }
 }
 
 const QueryService = {
   realm: null,
   async init() {
-    this.realm = await Realm.open({path: "querymessage",schema: [QuerySchema, QueryDataSchema], schemaVersion: 8});
+    this.realm = await Realm.open({path: "querymessage",schema: [QuerySchema, QueryDataSchema], schemaVersion: 12});
   },
   async create(query) {
     try {
@@ -49,7 +49,7 @@ const QueryService = {
     try {
       query.id = query.id || Math.random().toString(36).slice(2);
       await this.realm.write(() => {
-        this.realm.create("Query", query, "modified");
+        this.realm.create("Query", query, true);
       });
       return true;
     } catch (error) {
@@ -80,16 +80,24 @@ const QueryService = {
   },
   getQueryString(query) {
     return [
-      setValue("from", query.query.from),
-      setValue('to', query.query.to),
-      setValue('subject', query.query.subject),
-      `${query.query.bodyValue||""}`,
-      `${query.query.notHasValue? `-{${query.query.notHasValue}}` : ""}`,
-      setValue('has', query.query.notHasValue.has?'attachment':"", true),
-      setValue('after', query.query.afterValue && query.query.afterValue.toISOString().split("T")[0].replace(/-/igm, "/"), true),
-      setValue('before',query.query.beforeValue && query.query.beforeValue.toISOString().split("T")[0].replace(/-/gm, "/"), true)].filter(x=>x).join (" ");
+      setValue("from", query.from),
+      setValue('to', query.to),
+      setValue('subject', query.subject),
+      `${query.body||""}`,
+      `${query.notHas? `-{${query.notHas}}` : ""}`,
+      setValue('has', query.has?'attachment':"", true),
+      setValue('after', query.after && query.after.toISOString().split("T")[0].replace(/-/igm, "/"), true),
+      setValue('before',query.before && query.before.toISOString().split("T")[0].replace(/-/gm, "/"), true)].filter(x=>x).join (" ");
   }
 };
+
+function setValue(key, value, raw_value) {
+  if(value==undefined || value=='') return "";
+  if(raw_value) {
+      return `${key}:${value}`
+  }
+  return `${key}:(${value})`;
+}
 
 QueryService.init();
 

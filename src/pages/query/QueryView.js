@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {View, Text, TextInput, Button, StyleSheet} from 'react-native';
 import {Checkbox} from 'react-native-paper';
 import {DatePickerInput, registerTranslation, en, tr} from 'react-native-paper-dates';
@@ -6,43 +6,39 @@ import {DatePickerInput, registerTranslation, en, tr} from 'react-native-paper-d
 registerTranslation('en', en);
 
 
-const AdvancedFilter = ({onClose}) => {
+const AdvancedFilter = ({onClose, query_init}) => {
+  query_init = query_init ||{};
   // Declare state variables for each input field
-  const [fromValue, setFromValue] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [toValue, setToValue] = React.useState('');
-  const [subjectValue, setSubjectValue] = React.useState('');
-  const [notHasValue, setNotHasValue] = React.useState('');
-  const [bodyValue, setBodyValue] = React.useState('');
-  const [hasAttachement, setHasAttachement] = React.useState(true);
+  let query= query_init.query ||{};
+  const [fromValue, setFromValue] = React.useState(query.from || '');
+  const [password, setPassword] = React.useState(query_init.pdf_password || '');
+  const [toValue, setToValue] = React.useState(query.to || '');
+  const [subjectValue, setSubjectValue] = React.useState(query.subject || '');
+  const [notHasValue, setNotHasValue] = React.useState(query.notHas || '');
+  const [bodyValue, setBodyValue] = React.useState(query.body|| '');
+  const [hasAttachement, setHasAttachement] = React.useState(query.has || true);
   //const [largerValue, setLargerValue] = React.useState('');
-  const [afterValue, setAfterValue] = React.useState('');
-  const [beforeValue, setBeforeValue] = React.useState('');
-  const [queryName, setQueryName] = React.useState('');
+  const [afterValue, setAfterValue] = React.useState(query.after1 || '');
+  const [beforeValue, setBeforeValue] = React.useState(query.before1 || '');
+  const [queryName, setQueryName] = React.useState(query_init.name || '');
   // Declare a function to handle the search button press
 
-  function setValue(key, value, raw_value) {
-    if(value==undefined || value=='') return "";
-    if(raw_value) {
-        return `${key}:${value}`
-    }
-    return `${key}:(${value})`;
-  }
 
   const handleSearch = () => {
-    console.log(afterValue, "afterValue", typeof afterValue);
     if(!queryName) return console.error("Name is not provided");
 
-    let query = [
-        setValue("from", fromValue),
-        setValue('to', toValue),
-        setValue('subject', subjectValue),
-        `${bodyValue||""}`,
-        `${notHasValue? `-{${notHasValue}}` : ""}`,
-        setValue('has', hasAttachement?'attachment':"", true),
-        setValue('after', afterValue && afterValue.toISOString().split("T")[0].replace(/-/igm, "/"), true),
-        setValue('before',beforeValue && beforeValue.toISOString().split("T")[0].replace(/-/gm, "/"), true)].filter(x=>x).join (" ");
-        onClose({query, name: queryName, pdf_password: password});
+    let query = {
+      from: fromValue,
+      to:toValue,
+      subject: subjectValue,
+      body: bodyValue,
+      notHas: notHasValue,
+      has: hasAttachement,
+      after: afterValue,
+      before: beforeValue
+    }
+
+      onClose({...query_init,  query, name: queryName, pdf_password: password});
     
   };
 

@@ -15,11 +15,13 @@ export default Activity = {
             Utility.saveData("ProcessStarted", date.toISOString());
             in_progress = true;
             await DataSync.getLabels(true);
-            console.log("1. starting resume sync")
+            console.log("1. starting resume sync", ) // dont change the sequence  first one should be 
+            //one time sync then sync left over , then process tasks
+            ///other wise tasks may add random message casusing logic to stop sync 
             await DataSync.resumeSync(Activity.newMessages);
-            await ProcessRules.process();
             console.log("2. starting  sync")
             await Activity.sync();
+            await ProcessRules.process();
             console.log("completed the process");
             in_progress = false;
         } catch(e) {
