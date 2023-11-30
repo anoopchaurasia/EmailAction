@@ -32,7 +32,7 @@ const DOMAIN_REGEX= new RegExp(/^(?!-)[A-Za-z0-9-]+([\-\.]{1}[a-z0-9]+)*\.[A-Za-
 const ActivityMethods = {
   // Define a method to create a new object in the realm
   createObject(data) {
-    data.id = Math.random().toString(36).slice(2);
+    data.id = data.id || Math.random().toString(36).slice(2);
     data.created_at = new Date;
     console.log(data);
     ActivityMethods.validate(data)
