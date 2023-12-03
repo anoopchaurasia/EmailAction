@@ -1,9 +1,10 @@
 
 import React, { useEffect, useState, } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput, Alert} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput, Alert, StyleSheet} from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import ActivityModel from '../../realm/ActivityService';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import LabelService from '../../realm/LabelService';
 // Create a realm instance with the schemas
 
 let MyIcon = (item, name, handlePress, size = 30, color = "#900") => {
@@ -25,7 +26,10 @@ const renderItem = (item, onPlay, onDelete, onEdit) => {
   let title = item.title || `${item.action} to ${(item.to_label || "").toString()} from ${item.to.toString()} ${item.from.toString()}`
   return (
     <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', flexDirection: "row" }}>
-      <Text style={{ flex: 1 }}>{title}</Text>
+      <Text style={{ }}>{title}</Text> 
+      <Text style={styles.label}>{LabelService.getNameById(item.from_label)}</Text> 
+      <Icon name="arrow-right" />
+      <Text style={styles.label}>{LabelService.getNameById(item.to_label)}</Text>
       {MyIcon(item, "pencil-outline", onEdit)}
       {item.completed ? MyIcon(item, "play", onPlay) : MyIcon(item, "circle-outline", handlePress)}
       {MyIcon(item, "delete", onDelete)}
@@ -54,6 +58,9 @@ const ActivityView = ({ navigation }) => {
     })
     setActivities(all);
   }
+
+
+
   useEffect(x => {
     createRuleList();
     return (() => setActivities([]))
@@ -101,3 +108,16 @@ const ActivityView = ({ navigation }) => {
 };
 
 export default ActivityView;
+
+let styles = StyleSheet.create({
+  label:{
+    backgroundColor:"#ccc",
+    fontSize: 10,
+    padding: 3,
+    paddingTop: 4,
+    lineHeight: 10,
+    height: 15,
+    borderColor: "#ccc",
+    borderRadius: 5
+  }
+})

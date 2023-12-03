@@ -26,7 +26,7 @@ export default class MessageEvent{
         
         setTimeout(x=>{
             handleEvents[event_name].forEach(fn=> {
-                console.log(handleEvents[event_name], "handleEvents1");
+              //  console.log(handleEvents[event_name], "handleEvents1");
                 fn(data);
             })
         }, 0);

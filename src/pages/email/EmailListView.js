@@ -9,11 +9,12 @@
 //  It also has the option to select all the emails and move to trash.
 
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, Text, FlatList, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Text,  View, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
 import BottomBar from '../component/BottomBarView';
 
 import MessageService from '../../realm/EmailMessageService';
 import MessageEvent from '../../event/MessageEvent';
+import LabelService from '../../realm/LabelService';
 
 const formatDate = (date) => {
     
@@ -24,6 +25,7 @@ const EmailList = ({ route, navigation }) => {
     const [page, setPage] = useState(1);
     let [list, setList] = useState([]);
     const [loading, setLoading] = useState(false);
+
 
     const bottomList = [{
         name: "Trash",
@@ -80,13 +82,17 @@ const EmailList = ({ route, navigation }) => {
                 <Text>{item.sender_name}</Text>
                 <Text style={{ fontWeight: 'bold' }}>{item.subject}</Text>
                 <Text>{formatDate(item.date)}</Text>
-                <Text>{item.labels.join(', ')}</Text>
+                
+                <View style={{flexDirection:"row", flex:1, alignContent:"flex-start"}}>{item.labels.map(x=> ( <Text key={x} style={styles.label}> {LabelService.getNameById(x)} </Text> ) )}</View>
             </TouchableOpacity>
         );
     };
 
     return (
         <>
+            <View style={{height: 40, backgroundColor:"#ccc", alignContent:"center", alignItems:"center", paddingTop: 10, shadowColor:"#CCC", shadowOffset:10}}>
+                <Text>Emails from {route.params.sender}</Text>
+            </View>
             <FlatList
                 data={list}
                 renderItem={renderItem}
@@ -102,5 +108,19 @@ const EmailList = ({ route, navigation }) => {
         </>
     );
 };
+
+let styles = StyleSheet.create({
+    label:{
+        backgroundColor:"#ccc",
+        fontSize: 10,
+        padding: 3,
+        paddingTop: 4,
+        lineHeight: 10,
+        height: 15,
+        borderColor: "#ccc",
+        borderRadius: 10,
+        margin: 2
+    }
+})
 
 export default EmailList;

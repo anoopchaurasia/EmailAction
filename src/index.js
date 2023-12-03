@@ -8,8 +8,11 @@
 
 import React, { Node, useState, useEffect } from 'react';
 import {
-    LogBox
+    LogBox, Text, View
 } from 'react-native';
+
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
@@ -52,6 +55,13 @@ const theme = {
     },
 };
 
+const LogoTitle = ({name, title}) => {
+    return <View style={{fontSize: 40, flexDirection:"row", alignItems:"center", alignContent:"center"}}>
+        <Icon size={20} name={name} style={{marginTop:3}} /> 
+        <Text style={{fontSize: 20, marginLeft: 5}}>{title}</Text>
+    </View>
+}
+
 LogBox.ignoreLogs([
     'Non-serializable values were found in the navigation state',
 ]);
@@ -59,14 +69,13 @@ LogBox.ignoreLogs([
 const App: () => Node = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const DrawerNavigation = () => {
-        return <Drawer.Navigator screenOptions={{ headerShown: true }} drawerContent={(props) => <LogoutView {...props} onLogoutSuccess={x => setIsAuthenticated(false)} />} >
+        return <Drawer.Navigator screenOptions={{ headerShown: true }} drawerContent={(props) => <LogoutView {...props}  onLogoutSuccess={x => setIsAuthenticated(false)} />} >
             <Drawer.Screen name="Home" component={Home} />
-            <Drawer.Screen name="Domain" component={EmailListByDomain} />
-            <Drawer.Screen name="Sender" component={EmailListBySender} />
-            <Drawer.Screen name="Email" component={EmailListByEmail} />
-            <Drawer.Screen name="QueryListView" component={QueryListView} />
-            <Drawer.Screen name="EmailList" component={EmailList} />
-            <Drawer.Screen name="ActivityView" component={ActivityView} />
+            <Drawer.Screen name="Domain" component={EmailListByDomain} options={{ headerTitle:(props)=>  <LogoTitle title="Sender Domain" name="domain" />, title: (props) => <LogoTitle title="Sender Domain" name="domain" /> }}/>
+            <Drawer.Screen name="Sender" component={EmailListBySender} options={{ headerTitle:(props)=>  <LogoTitle title="Sender" name="call-received" />, title: (props) => <LogoTitle title="Sender" name="call-received" /> }}/>
+            <Drawer.Screen name="Email" component={EmailListByEmail} options={{ headerTitle:(props)=>  <LogoTitle title="Email" name="at" />, title: (props) => <LogoTitle title="Email" name="at" /> }}/>
+            <Drawer.Screen name="QueryListView" component={QueryListView} options={{ headerTitle:(props)=>  <LogoTitle title="Saved Queries" name="database-search" />, title: (props) => <LogoTitle title="Saved Queries" name="database-search" /> }}/>
+            <Drawer.Screen name="ActivityView" component={ActivityView} options={{ headerTitle:(props)=>  <LogoTitle title="Saved Rules" name="gate-xor" />, title: (props) => <LogoTitle title="Saved Rules" name="gate-xor" /> }}/>
         </Drawer.Navigator>
     };
 

@@ -1,4 +1,6 @@
+
     // =  Define a Label class with the methods and the new propertie=> s
+let idNameMap = {};
 export default  Label ={
     deleteById : (id) => {
         realm.write(() => {
@@ -7,6 +9,7 @@ export default  Label ={
                 realm.delete(label);
             }
         });
+        Label.getMap();
     }
     ,
     // Update a Label object's name by id
@@ -17,6 +20,7 @@ export default  Label ={
                 label.name = newName;
             }
         });
+        Label.getMap();
     }
     ,
     getById : (id) =>{
@@ -28,6 +32,7 @@ export default  Label ={
         realm.write(() => {
             realm.create('Label', label);
         });
+        Label.getMap();
         return label;
     }
     ,
@@ -35,6 +40,20 @@ export default  Label ={
     readAll : () => {
         let labels = realm.objects('Label');
         return labels;
+    },
+
+    getMap : () =>{
+        let labels = Label.readAll();
+        let map = {};
+        labels.forEach(x=> {
+            map[x.id] = x.name;
+        });
+        idNameMap = map;
+        return map;
+    },
+
+    getNameById: (id) => {
+        return idNameMap[id];
     },
 
     deleteAll: () => {
@@ -59,3 +78,4 @@ const LabelSchema = {
 
 // Create a new Realm instance with the Label schema
 const realm = new Realm({path: "labels",  schemaVersion: 8,  schema: [LabelSchema] });
+Label.getMap();

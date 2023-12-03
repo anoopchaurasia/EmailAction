@@ -100,7 +100,7 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
     function hanldePress(item) {
 
         //// goto pages/email/EmailListView'
-        navigation.navigate("EmailListView", {sender: item.sender, type: 'domain', show_bottom_bar: true})
+        navigation.navigate("EmailListView", {sender: item.sender, type: 'domain', show_bottom_bar: true, title:"Emails from sender "+ item.sender})
     }
 
     const filterItems = (value) => {
@@ -113,15 +113,16 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
 
     function RenderItem({ item, selected=false, handleLongPress, hanldePress, active }) {
         return (
-            <TouchableOpacity style={{...SenderListstyles.item, backgroundColor: selected? '#ddd': ''}} onLongPress={()=> handleLongPress(item)} onPress={x=>hanldePress(item)}>
-                {active? 
-                <View style={{ height:"100%", width: 35}}>
-                    <Icon name="check-circle" size={33} style={{marginTop: 13, marginLeft: 5}} onPress={()=> handleLongPress(item)} color={selected? "green": "#ccc"} /> 
+            <TouchableOpacity style={{...SenderListstyles.item, backgroundColor: selected? '#ddd': ''}} /*onLongPress={()=> handleLongPress(item)} onPress={x=>hanldePress(item)}*/>
+        
+                <View style={{ height:"100%", width: 27}}>
+                    <Icon name="check-circle" size={25} style={{marginTop: 10, marginLeft: 0}} onPress={()=> handleLongPress(item)} color={selected? "green": "#ccc"} /> 
                 </View>
-                :""}
+           
                 <View style={SenderListstyles.details}>
-                    <Text style={SenderListstyles.title}>{item.sender_name}  ({item.count}) </Text>
-                    <Text style={SenderListstyles.email}> {item.sender}</Text>
+                    <Text style={SenderListstyles.title}>{item.sender_name} ({item.sender}) </Text>
+                    <Text style={SenderListstyles.label}>{item.count}</Text>
+                    {/* <Text style={SenderListstyles.email}> </Text> */}
                 </View>
             </TouchableOpacity>
         )
@@ -139,11 +140,16 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
     };
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>
-            <TextInput
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-                onChangeText={handleChangeText}
-                value={text}
-            />
+            <View style={{flexDirection:"row", height:40, width:"100%", borderColor: '#ccc', borderWidth: .2,}}>
+
+                <Icon name="magnify" size={30} style={{marginTop:5}} />
+                <TextInput
+                    style={{ height: 40,  flex:1 }}
+                    onChangeText={handleChangeText}
+                    placeholder="Search Sender"
+                    value={text}
+                />
+            </View>
             <FlatList
                 data={filterItems(text)}
                 initialNumToRender={20}
@@ -163,9 +169,20 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
 
 
 const SenderListstyles = StyleSheet.create({
+    label: {
+        backgroundColor:"#ccc",
+        fontSize: 12,
+        padding: 6,
+        paddingHorizontal:10,
+        paddingTop: 4,
+        lineHeight: 20,
+        height: 25,
+        borderColor: "#ccc",
+        borderRadius: 5,
+    },
     container: {
       flex: 1,
-      padding: 16,
+      padding: 10,
       backgroundColor: '#f0f0f0',
     },
     itemContainer:{
@@ -186,13 +203,18 @@ const SenderListstyles = StyleSheet.create({
     },
 
     details: {
-        padding: 10
+        padding: 5,
+        paddingVertical: 13,
+        flexDirection:"row",
+        flex:1
     },
     email: {
         fontSize: 12,
     },
     title: {
       fontSize: 14,
+      flex:1
+      
     },
     count: {
       fontSize: 11,
