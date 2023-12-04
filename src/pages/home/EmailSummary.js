@@ -9,13 +9,15 @@ import MessageEvent from "../../event/MessageEvent";
 
 import DataSync from './../../data/DataSync'
 import MyText from './../component/MyText'
+import { useTheme } from '@react-navigation/native';
+
 
 export default function EmailSummary({ navigation }) {
 
     let [count, setCount] = useState(MessageService.readAll().length || 0);
     let [inboxInfo, setInboxInfo] = useState({});
     let [processRunningStatus, setProcessRunningStatus] = useState({});
-
+    let colors = useTheme().colors;
 
 
     let [prgressPer, setProgressPer] = useState(0);
@@ -72,7 +74,7 @@ export default function EmailSummary({ navigation }) {
             <View>
                 <View>
                     {/* <Progress.Bar progress={prgressPer} width={400} height={20} /> */}
-                    <View style={{ width: "90%", borderColor: "#ddd", borderWidth: 1, margin: 10 }}>
+                    <View style={{ width: "90%", borderColor: colors.border, borderWidth: 1, margin: 10 }}>
                         <MyText style={{ fontSize: 30, textAlign: "center" }}>
                             Total Emails
                         </MyText>

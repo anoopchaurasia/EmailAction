@@ -3,6 +3,8 @@ import {Text, View, TouchableHighlight } from "react-native";
 import MessageAggregateService from './../../realm/EmailAggregateService';
 import MessageEvent from "../../event/MessageEvent";
 import MyText from './../component/MyText'
+import { useTheme } from '@react-navigation/native';
+
 
 export default function SenderSummary({navigation}) {
     let [fetchCount, setFetchCount] = useState(0);

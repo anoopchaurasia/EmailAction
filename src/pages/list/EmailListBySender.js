@@ -5,11 +5,15 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need
 import MessageAggregateService from './../../realm/EmailAggregateService';
 import MessageEvent from "../../event/MessageEvent";
 import MyText from './../component/MyText';
+import { useTheme } from '@react-navigation/native';
+
+
 export default ListView = ({ navigation, removeFromList }) => {
     let [list, setList] = useState([]);
     let [page, setPage] = useState(1);
     let [active, setActive] = useState(false);
     let [selectedList, setSelectedList] = useState({});
+    let colors = useTheme().colors;
     // Declare a state variable to store the text input value
     const [text, setText] = useState('');
     let actionList = [{
@@ -113,7 +117,7 @@ export default ListView = ({ navigation, removeFromList }) => {
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>
             <TextInput
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                style={{ height: 40, borderColor: colors.border, borderWidth: 1 }}
                 onChangeText={handleChangeText}
                 value={text}
             />
@@ -146,7 +150,6 @@ const SenderListstyles = StyleSheet.create({
     },
     item: {
         elevation: 0,
-        backgroundColor: 'white',
         borderRadius: 0,
         flexDirection: "row",
         marginTop: 0,

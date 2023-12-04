@@ -16,13 +16,14 @@ import MessageService from '../../realm/EmailMessageService';
 import MessageEvent from '../../event/MessageEvent';
 import LabelService from '../../realm/LabelService';
 import MyText from './../component/MyText'
-
+import { useTheme } from '@react-navigation/native';
 const formatDate = (date) => {
     
     return date.toDateString();
 };
 
 const EmailList = ({ route, navigation }) => {
+    let colors = useTheme().colors;
     const [page, setPage] = useState(1);
     let [list, setList] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -79,12 +80,12 @@ const EmailList = ({ route, navigation }) => {
     
     const renderItem = ({ item }) => {
         return (
-            <TouchableOpacity onPress={x=> navigation.navigate("EmailView", {message_id: item.message_id})} style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
+            <TouchableOpacity onPress={x=> navigation.navigate("EmailView", {message_id: item.message_id})} style={{ padding: 10, borderBottomWidth: 1, borderColor: colors.border }}>
                 <MyText>{item.sender_name}</MyText>
                 <MyText style={{ fontWeight: 'bold' }}>{item.subject}</MyText>
                 <MyText>{formatDate(item.date)}</MyText>
                 
-                <View style={{flexDirection:"row", flex:1, alignContent:"flex-start"}}>{item.labels.map(x=> ( <MyText key={x} style={styles.label}> {LabelService.getNameById(x)} </MyText> ) )}</View>
+                <View style={{flexDirection:"row", flex:1, alignContent:"flex-start"}}>{item.labels.map(x=> ( <MyText key={x} style={{...styles.label, borderColor: colors.border}}> {LabelService.getNameById(x)} </MyText> ) )}</View>
             </TouchableOpacity>
         );
     };
@@ -118,7 +119,6 @@ let styles = StyleSheet.create({
         paddingTop: 4,
         lineHeight: 10,
         height: 15,
-        borderColor: "#ccc",
         borderRadius: 10,
         margin: 2
     }

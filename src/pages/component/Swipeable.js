@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import {
     FlatList,
-    PanGestureHandler,
     RectButton,
     Swipeable,
 } from 'react-native-gesture-handler';

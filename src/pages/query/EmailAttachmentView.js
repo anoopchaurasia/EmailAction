@@ -4,9 +4,12 @@ import BottomBar from './../component/BottomBarView';
 import DataSync from '../../data/DataSync';
 import PDFView from 'react-native-pdf';
 import MyText from './../component/MyText';
+import { useTheme } from '@react-navigation/native';
+
 
 export default AttachementView = ({selectedEmail, password, getNext, getPrev, onClose}) => {
     console.log(selectedEmail);
+    let colors = useTheme().colors;
     let [selected, setSelected] = useState(selectedEmail);
 
     let [PDFContent, setPDFContent] = useState([]); 
@@ -55,7 +58,7 @@ export default AttachementView = ({selectedEmail, password, getNext, getPrev, on
 
     return (
         <View style={{ flex: 1, flexDirection: "column", backgroundColor:'white' }}>
-            <View style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
+            <View style={{ padding: 10, borderBottomWidth: 1, borderColor: colors.border }}>
             <MyText>{selected.sender_name}</MyText>
             <MyText style={{ fontWeight: 'bold' }}>{selected.subject}</MyText>
             <MyText>{(selected.date.toString())}</MyText>

@@ -7,7 +7,9 @@ import ActivityService from './../../realm/ActivityService';
 import MessageEvent from './../../event/MessageEvent';
 import SearchPage from '../component/SearchPage';
 import MyCheckbox from "../component/MyCheckbox";
-import MyText from './../component/MyText'
+import MyText from './../component/MyText';
+import { useTheme } from '@react-navigation/native';
+
 /*
  actions need to be taken
   -
@@ -15,6 +17,7 @@ import MyText from './../component/MyText'
 */
 
 export default EmailListByDomain = ({ navigation, removeFromList }) => {
+    let colors = useTheme().colors;
     let [list, setList] = useState([]);
     let [page, setPage] = useState(1);
     let [active, setActive] = useState(false);
@@ -119,7 +122,7 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
                 <MyCheckbox onPress={()=> handleLongPress(item)} selected={selected}/>
                 <View style={SenderListstyles.details}>
                     <MyText style={SenderListstyles.title}>{item.sender_name} ({item.sender}) </MyText>
-                    <MyText style={SenderListstyles.label}>{item.count}</MyText>
+                    <MyText style={{...SenderListstyles.label, borderColor: colors.border}}>{item.count}</MyText>
                     {/* <MyText style={SenderListstyles.email}> </MyText> */}
                 </View>
             </TouchableOpacity>

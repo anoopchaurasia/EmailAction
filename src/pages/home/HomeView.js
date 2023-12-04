@@ -8,6 +8,7 @@ import SenderSummary from "./SenderSummary";
 import EmailSummary from './EmailSummary';
 import MyText from './../component/MyText'
 
+
 export default function Home({navigation}) {
 
     const colors = useTheme().colors;
@@ -47,7 +48,7 @@ export default function Home({navigation}) {
             <SenderSummary navigation={navigation} />
             <EmailSummary navigation={navigation} />
             <TouchableHighlight onPress={x=> navigation.navigate("ActivityView")}>
-                <View style={{ width: "90%", borderColor: "#ddd", borderWidth: 1, margin: 10 }}>
+                <View style={{ width: "90%", borderColor: colors.colors, borderWidth: 1, margin: 10 }}>
                     <MyText style={{ fontSize: 30, textAlign: "center", color: colors.text  }}>
                         Total Tasks
                     </MyText>

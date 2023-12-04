@@ -80,7 +80,6 @@ const EmailListstyles = StyleSheet.create({
       backgroundColor: '#f0f0f0',
     },
     item: {
-      backgroundColor: 'white',
       padding: 10,
       marginVertical: 0,
       borderRadius: 8,

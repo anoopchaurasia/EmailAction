@@ -6,6 +6,8 @@ import Activity from './../../data/ActivityProcess';
 import DataSync from '../../data/DataSync';
 import EmailAttachmentView from "./EmailAttachmentView";
 import MyText from './../component/MyText';
+import { useTheme } from '@react-navigation/native';
+
 /*
  - get the messageid for the query: Done
  - update message that it contains attachment - 
@@ -18,6 +20,7 @@ const formatDate = (date) => {
 
 export default AttachementView = ({ navigation, route }) => {
     const PAGE_SIZE = 20;
+    let colors = useTheme().colors;
     console.log(route.params.query.message_ids.length, "route.params.query.message_ids.length");
     let [list, setList] = useState([]);
     let [page, setPage] = useState(0);
@@ -178,6 +181,7 @@ export default AttachementView = ({ navigation, route }) => {
                 data={list}
                 style={{ flex: 1, marginBottom: 10 }}
                 renderItem={({ item, index }) => <RenderItem
+                colors={colors}
                     item={item} index={index} openModal={x => { setSelectedEamil(index); fetchBody(list[index]) }} />}
                 keyExtractor={(item, i) => item.sender + i}
                 contentContainerStyle={{ marginBottom: 50, margintop: 10 }}
@@ -200,9 +204,9 @@ export default AttachementView = ({ navigation, route }) => {
 
 }
 
-const RenderItem = ({ item, openModal }) => {
+const RenderItem = ({ item, openModal, colors }) => {
     return (
-        <TouchableOpacity onPress={openModal} style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
+        <TouchableOpacity onPress={openModal} style={{ padding: 10, borderBottomWidth: 1, borderColor: colors.border}}>
             <MyText>{item.sender_name}</MyText>
             <MyText style={{ fontWeight: 'bold' }}>{item.subject}</MyText>
             <MyText>{formatDate(item.date)}</MyText>

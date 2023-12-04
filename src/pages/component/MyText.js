@@ -7,6 +7,5 @@ export default function MyText(props) {
     props = {...props};
      props.style =  props.style || {};
      props.style = { color: colors.text, ...props.style};
-     console.log(props.style.color, "-----------------------------") 
     return <Text {...props} />
 }

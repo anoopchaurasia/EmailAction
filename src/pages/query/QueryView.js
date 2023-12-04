@@ -3,9 +3,11 @@ import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import BottomBar from '../component/BottomBarView';
 import { DatePickerInput, registerTranslation, en, tr } from 'react-native-paper-dates';
 import MyText from './../component/MyText';
+import { useTheme } from '@react-navigation/native';
+
 registerTranslation('en', en);
 
-function Field({ value, label, onChangeText, placeholder }) {
+function Field({ value, label, onChangeText, placeholder, colors }) {
   return (
     <View style={styles.inputGroup}>
       <MyText style={styles.label}>{label}</MyText>
@@ -13,13 +15,14 @@ function Field({ value, label, onChangeText, placeholder }) {
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        style={styles.input}
+        style={{...styles.input, borderColor: colors.border}}
       />
     </View>
   )
 }
 
 const AdvancedFilter = ({ onClose, query_init }) => {
+  let colors = useTheme().colors;
   query_init = query_init || {};
   // Declare state variables for each input field
   let query = query_init.query || {};
@@ -65,13 +68,13 @@ const AdvancedFilter = ({ onClose, query_init }) => {
     <View style={styles.container}>
       <View style={{flex:1, padding: 10}}>
         <MyText style={styles.title}>Advanced Filter</MyText>
-        <Field value={queryName} label="Name" onChangeText={setQueryName} placeholder="Enter Query Name" />
-        <Field value={password}  label="Passowrd" onChangeText={setPassword} placeholder="Enter PDF Password" />
-        <Field value={fromValue}  label="Sender" onChangeText={setFromValue} placeholder="Enter sender name or email" />
-        <Field value={toValue}  label="Receiver" onChangeText={setToValue} placeholder="Enter recipient name or email" />
-        <Field value={subjectValue}  label="Subject" onChangeText={setSubjectValue} placeholder="Enter subject line" />
-        <Field value={notHasValue}  label="Ignore Text" onChangeText={setNotHasValue} placeholder="Enter words not in message" />
-        <Field value={bodyValue}  label="Body Text" onChangeText={setBodyValue} placeholder="Enter words in message" />
+        <Field colors={colors} value={queryName} label="Name" onChangeText={setQueryName} placeholder="Enter Query Name" />
+        <Field colors={colors} value={password}  label="Passowrd" onChangeText={setPassword} placeholder="Enter PDF Password" />
+        <Field colors={colors} value={fromValue}  label="Sender" onChangeText={setFromValue} placeholder="Enter sender name or email" />
+        <Field colors={colors} value={toValue}  label="Receiver" onChangeText={setToValue} placeholder="Enter recipient name or email" />
+        <Field colors={colors} value={subjectValue}  label="Subject" onChangeText={setSubjectValue} placeholder="Enter subject line" />
+        <Field colors={colors} value={notHasValue}  label="Ignore Text" onChangeText={setNotHasValue} placeholder="Enter words not in message" />
+        <Field colors={colors} value={bodyValue}  label="Body Text" onChangeText={setBodyValue} placeholder="Enter words in message" />
 
         {/* <View style={styles.inputGroup}>
         <MyText style={styles.label}>Size:</MyText>
@@ -137,17 +140,6 @@ const styles = StyleSheet.create({
     width: '80%',
     height: 40,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    fontSize: 16,
-    color: '#000',
-  },
-  input_40: {
-    width: '40%',
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 5,
     padding: 10,
     fontSize: 16,

@@ -1,10 +1,11 @@
 
 import React, { useEffect, useState, } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput, Alert, StyleSheet} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput, Alert, StyleSheet } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import ActivityModel from '../../realm/ActivityService';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LabelService from '../../realm/LabelService';
+import { useTheme } from '@react-navigation/native';
 // Create a realm instance with the schemas
 import MyText from './../component/MyText'
 let MyIcon = (item, name, handlePress, size = 30, color = "#900") => {
@@ -22,14 +23,14 @@ function handlePress() {
 
 
 // Define a function to render each item in the flat list
-const renderItem = (item, onPlay, onDelete, onEdit) => {
+const renderItem = (item, onPlay, onDelete, onEdit, colors) => {
   let title = item.title || `${item.action} to ${(item.to_label || "").toString()} from ${item.to.toString()} ${item.from.toString()}`
   return (
     <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', flexDirection: "row" }}>
-      <MyText style={{ }}>{title}</MyText> 
-      <MyText style={styles.label}>{LabelService.getNameById(item.from_label)}</MyText> 
+      <MyText style={{}}>{title}</MyText>
+      <MyText style={{...styles.label, borderColor: colors.border}}>{LabelService.getNameById(item.from_label)}</MyText>
       <Icon name="arrow-right" />
-      <MyText style={styles.label}>{LabelService.getNameById(item.to_label)}</MyText>
+      <MyText style={{...styles.label, borderColor: colors.border}}>{LabelService.getNameById(item.to_label)}</MyText>
       {MyIcon(item, "pencil-outline", onEdit)}
       {item.completed ? MyIcon(item, "play", onPlay) : MyIcon(item, "circle-outline", handlePress)}
       {MyIcon(item, "delete", onDelete)}
@@ -39,7 +40,7 @@ const renderItem = (item, onPlay, onDelete, onEdit) => {
 
 const ActivityView = ({ navigation }) => {
   // Get all the activities from the realm
-
+  let colors = useTheme().colors;
   let [activities, setActivities] = useState([]);
   let [text, setText] = useState('');
   const isFocused = useIsFocused();
@@ -80,11 +81,12 @@ const ActivityView = ({ navigation }) => {
     return activities.filter((item) => item.from.filter(email => email.toLowerCase().includes(value)).length > 0);
   };
   async function onDelete(item) {
-    Alert.alert("Delete message", "Do you wants to delete the Rule: "+ item.title, [{text: 'Yes', onPress: () => {
-      ActivityModel.deleteObjectById(item.id);
-      createRuleList();
-    }
-    },{text:"Cancel"}]);
+    Alert.alert("Delete message", "Do you wants to delete the Rule: " + item.title, [{
+      text: 'Yes', onPress: () => {
+        ActivityModel.deleteObjectById(item.id);
+        createRuleList();
+      }
+    }, { text: "Cancel" }]);
   };
 
   async function onEdit(item) {
@@ -94,13 +96,13 @@ const ActivityView = ({ navigation }) => {
   return (
     <View style={{ flex: 1 }}>
       <TextInput
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+        style={{ height: 40, borderColor: colors.border, borderWidth: 1 }}
         onChangeText={value => setText(value)}
         value={text}
       />
       <FlatList
         data={filterItems(text)}
-        renderItem={({ item }) => renderItem(item, onPlay, onDelete, onEdit)}
+        renderItem={({ item }) => renderItem(item, onPlay, onDelete, onEdit, colors)}
         keyExtractor={(item) => item.id}
       />
     </View>
@@ -110,14 +112,13 @@ const ActivityView = ({ navigation }) => {
 export default ActivityView;
 
 let styles = StyleSheet.create({
-  label:{
-    backgroundColor:"#ccc",
+  label: {
+    backgroundColor: "#ccc",
     fontSize: 10,
     padding: 3,
     paddingTop: 4,
     lineHeight: 10,
     height: 15,
-    borderColor: "#ccc",
     borderRadius: 5
   }
 })

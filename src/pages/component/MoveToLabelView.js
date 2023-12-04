@@ -3,8 +3,10 @@ import { View, TextInput, FlatList, Text, Button, Modal, StyleSheet } from 'reac
 import LabelService from '../../realm/LabelService';
 import DataSync from './../../data/DataSync'
 import MyText from './../component/MyText'
+import { useTheme } from '@react-navigation/native';
 
 const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
+  let colors = useTheme().colors;
   // State variables
   const [labels, setLabels] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -64,7 +66,7 @@ const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
   };
 
   return (
-    <View style={{borderColor: "#ccc", borderColor: "#ccc", borderWidth:.5, margin: 10, marginLeft:0}}>
+    <View style={{ borderColor: colors.border, borderWidth:.5, margin: 10, marginLeft:0}}>
       <MyText style={{padding:10, color:"#000"}} onPress={x=> setModalVisible(true)}> {selectedLabelLocal.name||"Select Label"} </MyText>
       <View style={{ }}>
         <Modal
@@ -79,7 +81,7 @@ const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
             <View style={styles.modalView}>
               <View style={styles.inputView}>
                 <TextInput
-                  style={styles.input}
+                  style={{...styles.input, borderColor: colors.border}}
                   placeholder="Search Label"
                   value={searchText}
                   onChangeText={setSearchText}
@@ -128,7 +130,6 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 10,
     borderWidth: .2,
-    borderColor: "#ccc",
     borderBottomWidth: .2
   },
   centeredView: {

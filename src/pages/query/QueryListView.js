@@ -5,6 +5,8 @@ import QueryView from './QueryView';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import BottomBar from '../component/BottomBarView';
 import MyText from './../component/MyText';
+import { useTheme } from '@react-navigation/native';
+
 let MyIcon = (item, name, handlePress, size = 30, color = "#900") => {
   return (
     <TouchableOpacity onPress={x => handlePress(item)}>
@@ -14,8 +16,8 @@ let MyIcon = (item, name, handlePress, size = 30, color = "#900") => {
 }
 
 
-const renderItem = (item, navigation, onEdit, onDelete) => {
-  return <View style={{ flexDirection: "row", padding: 10, margin: 2, borderColor: "#ddd", borderWidth: 1 }}>
+const renderItem = (item, navigation, onEdit, onDelete, colors) => {
+  return <View style={{ flexDirection: "row", padding: 10, margin: 2, borderColor: colors.border, borderWidth: 1 }}>
     <MyText onPress={x => navigation.navigate("AttachementView", { query: item })} style={{ flex: 1 }}>
       <MyText >Name: {item.name} {item.message_ids.length}</MyText>
       <MyText> Query: {QueryService.getQueryString(item.query)}</MyText>
@@ -26,6 +28,7 @@ const renderItem = (item, navigation, onEdit, onDelete) => {
 };
 
 const App = ({ navigation }) => {
+  let colors = useTheme().colors;
   let [list, setList] = useState([]);
   let [openSearch, setOpenSearch] = useState(false);
   let [editQuery, setEditQuery] = useState(null);
@@ -62,7 +65,7 @@ const App = ({ navigation }) => {
 
         <FlatList
           data={list}
-          renderItem={({ item }) => renderItem(item, navigation, onEdit, onDelete)}
+          renderItem={({ item }) => renderItem(item, navigation, onEdit, onDelete, colors)}
           keyExtractor={item => item.id}
         />
       </View>
