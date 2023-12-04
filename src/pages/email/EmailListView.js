@@ -15,6 +15,7 @@ import BottomBar from '../component/BottomBarView';
 import MessageService from '../../realm/EmailMessageService';
 import MessageEvent from '../../event/MessageEvent';
 import LabelService from '../../realm/LabelService';
+import MyText from './../component/MyText'
 
 const formatDate = (date) => {
     
@@ -79,11 +80,11 @@ const EmailList = ({ route, navigation }) => {
     const renderItem = ({ item }) => {
         return (
             <TouchableOpacity onPress={x=> navigation.navigate("EmailView", {message_id: item.message_id})} style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
-                <Text>{item.sender_name}</Text>
-                <Text style={{ fontWeight: 'bold' }}>{item.subject}</Text>
-                <Text>{formatDate(item.date)}</Text>
+                <MyText>{item.sender_name}</MyText>
+                <MyText style={{ fontWeight: 'bold' }}>{item.subject}</MyText>
+                <MyText>{formatDate(item.date)}</MyText>
                 
-                <View style={{flexDirection:"row", flex:1, alignContent:"flex-start"}}>{item.labels.map(x=> ( <Text key={x} style={styles.label}> {LabelService.getNameById(x)} </Text> ) )}</View>
+                <View style={{flexDirection:"row", flex:1, alignContent:"flex-start"}}>{item.labels.map(x=> ( <MyText key={x} style={styles.label}> {LabelService.getNameById(x)} </MyText> ) )}</View>
             </TouchableOpacity>
         );
     };
@@ -91,7 +92,7 @@ const EmailList = ({ route, navigation }) => {
     return (
         <>
             <View style={{height: 40, backgroundColor:"#ccc", alignContent:"center", alignItems:"center", paddingTop: 10, shadowColor:"#CCC", shadowOffset:10}}>
-                <Text>Emails from {route.params.sender}</Text>
+                <MyText>Emails from {route.params.sender}</MyText>
             </View>
             <FlatList
                 data={list}

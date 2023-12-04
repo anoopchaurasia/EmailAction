@@ -6,7 +6,7 @@ import ActivityModel from '../../realm/ActivityService';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LabelService from '../../realm/LabelService';
 // Create a realm instance with the schemas
-
+import MyText from './../component/MyText'
 let MyIcon = (item, name, handlePress, size = 30, color = "#900") => {
   return (
     <TouchableOpacity onPress={x => handlePress(item)}>
@@ -26,10 +26,10 @@ const renderItem = (item, onPlay, onDelete, onEdit) => {
   let title = item.title || `${item.action} to ${(item.to_label || "").toString()} from ${item.to.toString()} ${item.from.toString()}`
   return (
     <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', flexDirection: "row" }}>
-      <Text style={{ }}>{title}</Text> 
-      <Text style={styles.label}>{LabelService.getNameById(item.from_label)}</Text> 
+      <MyText style={{ }}>{title}</MyText> 
+      <MyText style={styles.label}>{LabelService.getNameById(item.from_label)}</MyText> 
       <Icon name="arrow-right" />
-      <Text style={styles.label}>{LabelService.getNameById(item.to_label)}</Text>
+      <MyText style={styles.label}>{LabelService.getNameById(item.to_label)}</MyText>
       {MyIcon(item, "pencil-outline", onEdit)}
       {item.completed ? MyIcon(item, "play", onPlay) : MyIcon(item, "circle-outline", handlePress)}
       {MyIcon(item, "delete", onDelete)}

@@ -3,7 +3,7 @@ import {View,  StyleSheet, Dimensions, ActivityIndicator, Text} from 'react-nati
 import BottomBar from './../component/BottomBarView';
 import DataSync from '../../data/DataSync';
 import PDFView from 'react-native-pdf';
-import {Picker} from '@react-native-picker/picker';
+import MyText from './../component/MyText';
 
 export default AttachementView = ({selectedEmail, password, getNext, getPrev, onClose}) => {
     console.log(selectedEmail);
@@ -56,11 +56,11 @@ export default AttachementView = ({selectedEmail, password, getNext, getPrev, on
     return (
         <View style={{ flex: 1, flexDirection: "column", backgroundColor:'white' }}>
             <View style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
-            <Text>{selected.sender_name}</Text>
-            <Text style={{ fontWeight: 'bold' }}>{selected.subject}</Text>
-            <Text>{(selected.date.toString())}</Text>
-            <Text>{selected.labels.join(', ')}</Text>
-            {selected.attachments.map(x=> <Text>{x.name}</Text>)}
+            <MyText>{selected.sender_name}</MyText>
+            <MyText style={{ fontWeight: 'bold' }}>{selected.subject}</MyText>
+            <MyText>{(selected.date.toString())}</MyText>
+            <MyText>{selected.labels.join(', ')}</MyText>
+            {selected.attachments.map(x=> <MyText>{x.name}</MyText>)}
             </View>
            {PDFContent.length ? PDFContent.map(content=> content.type==='pdf'? <PDFView
           fadeInDuration={250.0}
@@ -81,7 +81,7 @@ export default AttachementView = ({selectedEmail, password, getNext, getPrev, on
                 console.log(`Link pressed: ${uri}`);
             }}
            
-            /> : content.type==='image' ? <Text>Image {content.attachement.name}</Text> : <Text>{content.attachement.name}</Text> ): <View style={{flex:1, alignItems:"center", alignContent:"center",}}><ActivityIndicator style={{alignSelf:"center", marginTop:"75%"}} size="large" color="#0000ff" /></View> }
+            /> : content.type==='image' ? <MyText>Image {content.attachement.name}</MyText> : <MyText>{content.attachement.name}</MyText> ): <View style={{flex:1, alignItems:"center", alignContent:"center",}}><ActivityIndicator style={{alignSelf:"center", marginTop:"75%"}} size="large" color="#0000ff" /></View> }
             <BottomBar visible={true} style={{backgroundColor:"#ccc"}} list={actionList} />
           
         </View>

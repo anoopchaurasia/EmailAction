@@ -8,7 +8,7 @@ import Utility from "../../utility/Utility";
 import MessageEvent from "../../event/MessageEvent";
 
 import DataSync from './../../data/DataSync'
-
+import MyText from './../component/MyText'
 
 export default function EmailSummary({ navigation }) {
 
@@ -73,19 +73,19 @@ export default function EmailSummary({ navigation }) {
                 <View>
                     {/* <Progress.Bar progress={prgressPer} width={400} height={20} /> */}
                     <View style={{ width: "90%", borderColor: "#ddd", borderWidth: 1, margin: 10 }}>
-                        <Text style={{ fontSize: 30, textAlign: "center" }}>
+                        <MyText style={{ fontSize: 30, textAlign: "center" }}>
                             Total Emails
-                        </Text>
-                        <Text style={{ fontSize: 40, textAlign: "center" }}>
+                        </MyText>
+                        <MyText style={{ fontSize: 40, textAlign: "center" }}>
                             {count}/{inboxInfo.messagesTotal}
-                        </Text>
-                        <Text>Fetch: {fetchCompleted ? "Completed" : "InProgress"} {fetchCompleted1 ? "done" : "in prgress"}</Text>
+                        </MyText>
+                        <MyText>Fetch: {fetchCompleted ? "Completed" : "InProgress"} {fetchCompleted1 ? "done" : "in prgress"}</MyText>
                     </View>
                 </View>
                 <View>
-                    <Text>
+                    <MyText>
                         {JSON.stringify(processRunningStatus, null, 2)}
-                    </Text>
+                    </MyText>
                 </View>
             </View>
         </TouchableHighlight>

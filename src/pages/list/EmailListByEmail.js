@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import EMailMessageSerive from '../../realm/EmailMessageService';
-
+import SearchPage from "../component/SearchPage";
+import MyText from './../component/MyText';
 export default ListView = ({ navigation, removeFromList }) => {
     let [list, setList] = useState([]);
     let [page, setPage] = useState(1);
@@ -24,8 +25,8 @@ export default ListView = ({ navigation, removeFromList }) => {
     function RenderItem({ item, checked, onPress }) {
         return (
             <TouchableOpacity style={EmailListstyles.item} onPress={x=>navigation.navigate("EmailListView", {sender: item.sender, show_bottom_bar: true})}>
-                <Text style={EmailListstyles.title}>{item.sender_name}  <Text style={EmailListstyles.email}> {item.sender}</Text></Text>
-                <Text style={EmailListstyles.title}>{item.subject}</Text>
+                <MyText style={EmailListstyles.title}>{item.sender_name}  <MyText style={EmailListstyles.email}> {item.sender}</MyText></MyText>
+                <MyText style={EmailListstyles.title}>{item.subject}</MyText>
             </TouchableOpacity>
         )
     }
@@ -43,11 +44,7 @@ export default ListView = ({ navigation, removeFromList }) => {
 
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>
-            <TextInput
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-                onChangeText={handleChangeText}
-                value={text}
-            />
+            <SearchPage  onChangeText={handleChangeText}  placeholder="Search Sender"  value={text} name="magnify" />
             <FlatList
                 data={filterItems(text)}
                 initialNumToRender={20}

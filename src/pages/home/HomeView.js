@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { Button, FlatList, Text, View, NativeEventEmitter, TouchableHighlight } from "react-native";
+import {Text, View, TouchableHighlight } from "react-native";
+import { useTheme } from '@react-navigation/native';
 
-
-import MessageEvent from './../../event/MessageEvent'
 import ActivityService from '../../realm/ActivityService'
 import DomainSummary from "./DomainSummary";
 import SenderSummary from "./SenderSummary";
 import EmailSummary from './EmailSummary';
+import MyText from './../component/MyText'
 
 export default function Home({navigation}) {
 
-
+    const colors = useTheme().colors;
 
     let [taskProcessStatus, setTaskProcessStatus] = useState("");
     let [totalActivity, setTotalActivity] = useState({ total: 0, pending: 0 });
@@ -42,21 +42,21 @@ export default function Home({navigation}) {
         return //MessageEvent.on('taskinprogress', handleEvent);
     }, []);
     return (
-        <View>
+        <View style={{backgroundColor: colors.background}}>
             <DomainSummary navigation={navigation} />
             <SenderSummary navigation={navigation} />
             <EmailSummary navigation={navigation} />
             <TouchableHighlight onPress={x=> navigation.navigate("ActivityView")}>
                 <View style={{ width: "90%", borderColor: "#ddd", borderWidth: 1, margin: 10 }}>
-                    <Text style={{ fontSize: 30, textAlign: "center" }}>
+                    <MyText style={{ fontSize: 30, textAlign: "center", color: colors.text  }}>
                         Total Tasks
-                    </Text>
-                    <Text style={{ fontSize: 40, textAlign: "center" }}>
+                    </MyText>
+                    <MyText style={{ fontSize: 40, textAlign: "center", color: colors.text  }}>
                         {totalActivity.pending}/{totalActivity.total}
-                    </Text>
-                    <Text>
+                    </MyText>
+                    <MyText style={{color: colors.text }}>
                         {taskProcessStatus}
-                    </Text>
+                    </MyText>
                 </View>
             </TouchableHighlight>
 

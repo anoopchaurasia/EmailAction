@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import {Text, TouchableHighlight, View } from "react-native";
 import MessageAggregateService from './../../realm/EmailAggregateService';
 import MessageEvent from "../../event/MessageEvent";
+import { useTheme } from '@react-navigation/native';
+import MyText from './../component/MyText';
 
 export default function DomainSummary({navigation}) {
     
     const [count, setCount]=useState(-1);
     let [fetchCount, setFetchCount] = useState(0);
-
+    const colors = useTheme().colors;
 
     useEffect(x => {
         let list = MessageAggregateService.readAll();
@@ -36,12 +38,12 @@ export default function DomainSummary({navigation}) {
     return (
         <TouchableHighlight onPress={x=> navigation.navigate("Domain")}>
             <View style={{ width: "90%", borderColor: "#ddd", borderWidth: 1, margin: 10 }}>
-                    <Text style={{ fontSize: 30, textAlign: "center" }}>
+                    <MyText style={{ fontSize: 30, textAlign: "center", color: colors.text }}>
                         Total Domains
-                    </Text>
-                    <Text style={{ fontSize: 40, textAlign: "center" }}>
+                    </MyText>
+                    <MyText style={{ fontSize: 40, textAlign: "center", color: colors.text  }}>
                         {count}
-                    </Text>
+                    </MyText>
                 </View>
         </TouchableHighlight>
 

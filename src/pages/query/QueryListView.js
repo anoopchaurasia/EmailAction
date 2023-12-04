@@ -4,7 +4,7 @@ import QueryService from '../../realm/QueryMessageService';
 import QueryView from './QueryView';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import BottomBar from '../component/BottomBarView';
-
+import MyText from './../component/MyText';
 let MyIcon = (item, name, handlePress, size = 30, color = "#900") => {
   return (
     <TouchableOpacity onPress={x => handlePress(item)}>
@@ -16,10 +16,10 @@ let MyIcon = (item, name, handlePress, size = 30, color = "#900") => {
 
 const renderItem = (item, navigation, onEdit, onDelete) => {
   return <View style={{ flexDirection: "row", padding: 10, margin: 2, borderColor: "#ddd", borderWidth: 1 }}>
-    <Text onPress={x => navigation.navigate("AttachementView", { query: item })} style={{ flex: 1 }}>
-      <Text >Name: {item.name} {item.message_ids.length}</Text>
-      <Text> Query: {QueryService.getQueryString(item.query)}</Text>
-    </Text>
+    <MyText onPress={x => navigation.navigate("AttachementView", { query: item })} style={{ flex: 1 }}>
+      <MyText >Name: {item.name} {item.message_ids.length}</MyText>
+      <MyText> Query: {QueryService.getQueryString(item.query)}</MyText>
+    </MyText>
     {MyIcon(item, "pencil-outline", onEdit)}
     {MyIcon(item, "delete", onDelete)}
   </View>

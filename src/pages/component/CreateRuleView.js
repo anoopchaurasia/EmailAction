@@ -5,7 +5,7 @@ import ActivityService from './../../realm/ActivityService'
 import { Button } from "react-native-paper";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MessageEvent from "../../event/MessageEvent";
-
+import MyText from './../component/MyText'
 
 
 export default CreateRuleView = ({ route, navigation }) => {
@@ -44,14 +44,14 @@ export default CreateRuleView = ({ route, navigation }) => {
             <View style={{flexDirection:"row", fontSize: 20, borderBottomWidth: 1, marginBottom: 5, paddingBottom: 5, borderColor:"#ccc"}}>
                 <Icon name="checkbox-outline" size={25} style={{height: 40, paddingTop:10, paddingRight: 30, paddingLeft: 20}} />
                 <View style={{flexDirection:"column", flex:1, height:70}}>
-                    <Text style={{marginBottom:10}}>From</Text>
+                    <MyText style={{marginBottom:10}}>From</MyText>
                     <TextInput onChangeText={text=> updateActivity({from: text.split(";").map(x=>x.trim())})} style={{borderColor:"#ccc", borderWidth:.5, paddingLeft:10, borderRadius: 5, flex:1}} value={activity.from.join("; ")}/>
                 </View>
             </View>
             <View style={{flexDirection:"row", fontSize: 20, borderBottomWidth: 1, marginBottom: 5, paddingBottom: 5, borderColor:"#ccc"}}>
                 <Icon name="folder-move-outline" size={25} style={{height: 40, paddingTop:10, paddingRight: 30, paddingLeft: 20}} />
                 <View style={{flexDirection:"column", flex:1, height:100}}>
-                    <Text>Move to</Text>
+                    <MyText>Move to</MyText>
                     <MoveToLabelView   selectedLabelId={activity.to_label} setSelectedLabel={setSelectedLabel} />
                 </View>
             </View>

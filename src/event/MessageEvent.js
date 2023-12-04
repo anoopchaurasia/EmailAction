@@ -12,7 +12,6 @@ export default class MessageEvent{
         handleEvents[event_name].push(handleEvent);
         return function(){
             let index = handleEvents[event_name].indexOf(handleEvent);
-            console.log(handleEvents, index, event_name, handleEvent[event_name]);
             index != -1 && handleEvents[event_name].splice(index, 1);
             if(handleEvents[event_name].length==0) delete handleEvents[event_name];
         }

@@ -4,7 +4,7 @@ import BottomBar from '../component/BottomBarView';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need to install this library for icons
 import MessageAggregateService from './../../realm/EmailAggregateService';
 import MessageEvent from "../../event/MessageEvent";
-
+import MyText from './../component/MyText';
 export default ListView = ({ navigation, removeFromList }) => {
     let [list, setList] = useState([]);
     let [page, setPage] = useState(1);
@@ -93,8 +93,8 @@ export default ListView = ({ navigation, removeFromList }) => {
                     </View>
                     : ""}
                 <View style={SenderListstyles.details}>
-                    <Text style={SenderListstyles.title}>{item.sender_name}  ({item.count}) </Text>
-                    <Text style={SenderListstyles.email}> {item.sender}</Text>
+                    <MyText style={SenderListstyles.title}>{item.sender_name}  ({item.count}) </MyText>
+                    <MyText style={SenderListstyles.email}> {item.sender}</MyText>
                 </View>
             </TouchableOpacity>
         )

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
-
+import MyText from './component/MyText';
 const YourComponent = () => {
   const [selectedItems, setSelectedItems] = useState([]);
 
@@ -41,7 +41,7 @@ const YourComponent = () => {
         borderColor: '#ccc',
         backgroundColor: selectedItems.includes(item.id) ? '#e0e0e0' : 'white',
       }}>
-      <Text>{item.title}</Text>
+      <MyText>{item.title}</MyText>
     </TouchableOpacity>
   );
 

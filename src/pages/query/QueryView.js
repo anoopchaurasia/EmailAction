@@ -2,13 +2,13 @@ import React, { useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import BottomBar from '../component/BottomBarView';
 import { DatePickerInput, registerTranslation, en, tr } from 'react-native-paper-dates';
-
+import MyText from './../component/MyText';
 registerTranslation('en', en);
 
 function Field({ value, label, onChangeText, placeholder }) {
   return (
     <View style={styles.inputGroup}>
-      <Text style={styles.label}>{label}</Text>
+      <MyText style={styles.label}>{label}</MyText>
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -64,7 +64,7 @@ const AdvancedFilter = ({ onClose, query_init }) => {
   return (
     <View style={styles.container}>
       <View style={{flex:1, padding: 10}}>
-        <Text style={styles.title}>Advanced Filter</Text>
+        <MyText style={styles.title}>Advanced Filter</MyText>
         <Field value={queryName} label="Name" onChangeText={setQueryName} placeholder="Enter Query Name" />
         <Field value={password}  label="Passowrd" onChangeText={setPassword} placeholder="Enter PDF Password" />
         <Field value={fromValue}  label="Sender" onChangeText={setFromValue} placeholder="Enter sender name or email" />
@@ -74,7 +74,7 @@ const AdvancedFilter = ({ onClose, query_init }) => {
         <Field value={bodyValue}  label="Body Text" onChangeText={setBodyValue} placeholder="Enter words in message" />
 
         {/* <View style={styles.inputGroup}>
-        <Text style={styles.label}>Size:</Text>
+        <MyText style={styles.label}>Size:</MyText>
         <TextInput
           value={largerValue}
           onChangeText={setLargerValue}

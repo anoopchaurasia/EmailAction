@@ -5,7 +5,7 @@ import QueryService from '../../realm/QueryMessageService';
 import Activity from './../../data/ActivityProcess';
 import DataSync from '../../data/DataSync';
 import EmailAttachmentView from "./EmailAttachmentView";
-
+import MyText from './../component/MyText';
 /*
  - get the messageid for the query: Done
  - update message that it contains attachment - 
@@ -203,10 +203,10 @@ export default AttachementView = ({ navigation, route }) => {
 const RenderItem = ({ item, openModal }) => {
     return (
         <TouchableOpacity onPress={openModal} style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
-            <Text>{item.sender_name}</Text>
-            <Text style={{ fontWeight: 'bold' }}>{item.subject}</Text>
-            <Text>{formatDate(item.date)}</Text>
-            <Text>{item.labels.join(', ')}</Text>
+            <MyText>{item.sender_name}</MyText>
+            <MyText style={{ fontWeight: 'bold' }}>{item.subject}</MyText>
+            <MyText>{formatDate(item.date)}</MyText>
+            <MyText>{item.labels.join(', ')}</MyText>
         </TouchableOpacity>
     );
 };

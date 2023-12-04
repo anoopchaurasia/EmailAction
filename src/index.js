@@ -8,7 +8,7 @@
 
 import React, { Node, useState, useEffect } from 'react';
 import {
-    LogBox, Text, View
+    LogBox, Text, View, useColorScheme
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -16,13 +16,11 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
-import { MD3LightTheme as DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer,  DarkTheme, DefaultTheme, } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import LoginView from './google/LoginView'
-import EmailList from './google/EmailList';
 import LogoutView from './google/LogoutView';
 
 import SubjectView from './pages/filter/SubjectView';
@@ -67,6 +65,7 @@ LogBox.ignoreLogs([
 ]);
 
 const App: () => Node = () => {
+    const theme = useColorScheme();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const DrawerNavigation = () => {
         return <Drawer.Navigator screenOptions={{ headerShown: true }} drawerContent={(props) => <LogoutView {...props}  onLogoutSuccess={x => setIsAuthenticated(false)} />} >
@@ -80,7 +79,7 @@ const App: () => Node = () => {
     };
 
 
-    return <NavigationContainer>
+    return <NavigationContainer theme={theme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             {isAuthenticated ? (
                 <>

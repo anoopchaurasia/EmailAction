@@ -6,6 +6,7 @@ import {
     RectButton,
     Swipeable,
 } from 'react-native-gesture-handler';
+import MyText from './../component/MyText'
 
 export default function App(flatdata) {
 
@@ -31,7 +32,7 @@ function SwipeableItem({ item, itemContainerStyle }) {
                     {
                         leftActions.map((x, i) => 
                             <RectButton key={x.name} style={{ ...styles.actionButton, width: width, backgroundColor: x.bgColor }}>
-                                <Text style={styles.actionText}>{x.name}</Text>
+                                <MyText style={styles.actionText}>{x.name}</MyText>
                             </RectButton>
                          )
 
@@ -63,7 +64,7 @@ function SwipeableItem({ item, itemContainerStyle }) {
     const renderRightActions = (progress) => {
         return (
             <RectButton style={styles.rightAction} onPress={close}>
-                <Text style={{ ...styles.actionText}}>Delete</Text>
+                <MyText style={{ ...styles.actionText}}>Delete</MyText>
             </RectButton>
         );
     };

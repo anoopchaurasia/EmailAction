@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need to install this library for icons
+import MyText from './MyText'
 
 const BottomBar = ({list, visible=true, style={}}) => {
   if(!visible) {
@@ -11,7 +12,7 @@ const BottomBar = ({list, visible=true, style={}}) => {
       
       {list.map(x=>(<TouchableOpacity key={x.name} onPress={x.action} style={{ alignItems: 'center' }}>
         <Icon name={x.icon} size={25} color="red" />
-        <Text style={{ color: 'red' }}>{x.name}</Text>
+        <MyText style={{ color: 'red' }}>{x.name}</MyText>
       </TouchableOpacity>))}
      
     </View>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, Text, View, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import MessageService from '../../realm/EmailMessageService';
+import MyText from './../component/MyText'
 
 export default function App({navigation}) {
  const [senderList, setSenderList] = useState([]);
@@ -25,8 +26,8 @@ export default function App({navigation}) {
                 data={senderList}
                 renderItem={({ item }) => (
                     <TouchableOpacity style={styles.item} onPress={x=>navigation.navigate("EmailListView", {sender: item.sender})}>
-                    <Text style={styles.title}>{item.sender_name}  ({item.messages.length})</Text>
-                    <Text style={styles.email}> {item.sender}</Text>
+                    <MyText style={styles.title}>{item.sender_name}  ({item.messages.length})</MyText>
+                    <MyText style={styles.email}> {item.sender}</MyText>
                   </TouchableOpacity>
                 )}
                 keyExtractor={item => item.sender}

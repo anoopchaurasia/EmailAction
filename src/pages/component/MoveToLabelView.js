@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, TextInput, FlatList, Text, Button, Modal, StyleSheet } from 'react-native';
 import LabelService from '../../realm/LabelService';
 import DataSync from './../../data/DataSync'
+import MyText from './../component/MyText'
 
 const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
   // State variables
@@ -46,11 +47,11 @@ const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
   const RenderItem = ({ item }) => {
 
     return (
-      <Text
+      <MyText
         style={{ padding: 10 }}
         onPress={() => setSelected(item)}>
         {item.name}
-      </Text>
+      </MyText>
     );
   };
 
@@ -64,7 +65,7 @@ const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
 
   return (
     <View style={{borderColor: "#ccc", borderColor: "#ccc", borderWidth:.5, margin: 10, marginLeft:0}}>
-      <Text style={{padding:10, color:"#000"}} onPress={x=> setModalVisible(true)}> {selectedLabelLocal.name||"Select Label"} </Text>
+      <MyText style={{padding:10, color:"#000"}} onPress={x=> setModalVisible(true)}> {selectedLabelLocal.name||"Select Label"} </MyText>
       <View style={{ }}>
         <Modal
           animationType="slide"

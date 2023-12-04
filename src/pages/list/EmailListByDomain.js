@@ -5,12 +5,14 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need
 import MessageAggregateService from './../../realm/EmailAggregateService';
 import ActivityService from './../../realm/ActivityService';
 import MessageEvent from './../../event/MessageEvent';
+import SearchPage from '../component/SearchPage';
+import MyCheckbox from "../component/MyCheckbox";
+import MyText from './../component/MyText'
 /*
  actions need to be taken
   -
 
 */
-
 
 export default EmailListByDomain = ({ navigation, removeFromList }) => {
     let [list, setList] = useState([]);
@@ -113,16 +115,12 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
 
     function RenderItem({ item, selected=false, handleLongPress, hanldePress, active }) {
         return (
-            <TouchableOpacity style={{...SenderListstyles.item, backgroundColor: selected? '#ddd': ''}} /*onLongPress={()=> handleLongPress(item)} onPress={x=>hanldePress(item)}*/>
-        
-                <View style={{ height:"100%", width: 27}}>
-                    <Icon name="check-circle" size={25} style={{marginTop: 10, marginLeft: 0}} onPress={()=> handleLongPress(item)} color={selected? "green": "#ccc"} /> 
-                </View>
-           
+            <TouchableOpacity style={{...SenderListstyles.item, backgroundColor: selected? '#ddd': ''}} /*onLongPress={()=> handleLongPress(item)}*/ onPress={x=>hanldePress(item)}>
+                <MyCheckbox onPress={()=> handleLongPress(item)} selected={selected}/>
                 <View style={SenderListstyles.details}>
-                    <Text style={SenderListstyles.title}>{item.sender_name} ({item.sender}) </Text>
-                    <Text style={SenderListstyles.label}>{item.count}</Text>
-                    {/* <Text style={SenderListstyles.email}> </Text> */}
+                    <MyText style={SenderListstyles.title}>{item.sender_name} ({item.sender}) </MyText>
+                    <MyText style={SenderListstyles.label}>{item.count}</MyText>
+                    {/* <MyText style={SenderListstyles.email}> </MyText> */}
                 </View>
             </TouchableOpacity>
         )
@@ -140,16 +138,7 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
     };
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>
-            <View style={{flexDirection:"row", height:40, width:"100%", borderColor: '#ccc', borderWidth: .2,}}>
-
-                <Icon name="magnify" size={30} style={{marginTop:5}} />
-                <TextInput
-                    style={{ height: 40,  flex:1 }}
-                    onChangeText={handleChangeText}
-                    placeholder="Search Sender"
-                    value={text}
-                />
-            </View>
+            <SearchPage onChangeText={handleChangeText}  placeholder="Search Domain"  value={text} name="magnify" />
             <FlatList
                 data={filterItems(text)}
                 initialNumToRender={20}
@@ -162,7 +151,6 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
                 contentContainerStyle={{ marginBottom: 50, margintop: 10 }}
             />
             <BottomBar visible={active} list={actionList} />
-
         </View>
     )
 }
