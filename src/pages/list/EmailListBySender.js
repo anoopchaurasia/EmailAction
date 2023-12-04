@@ -6,6 +6,7 @@ import MessageAggregateService from './../../realm/EmailAggregateService';
 import MessageEvent from "../../event/MessageEvent";
 import MyText from './../component/MyText';
 import { useTheme } from '@react-navigation/native';
+import SearchPage from './../component/SearchPage'
 
 
 export default ListView = ({ navigation, removeFromList }) => {
@@ -116,11 +117,7 @@ export default ListView = ({ navigation, removeFromList }) => {
     };
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>
-            <TextInput
-                style={{ height: 40, borderColor: colors.border, borderWidth: 1 }}
-                onChangeText={handleChangeText}
-                value={text}
-            />
+             <SearchPage  onChangeText={handleChangeText}  placeholder="Search Sender"  value={text} name="magnify" />
             <FlatList
                 data={filterItems(text)}
                 initialNumToRender={20}

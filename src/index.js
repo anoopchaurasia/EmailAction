@@ -44,19 +44,12 @@ import CreateRuleView from './pages/component/CreateRuleView'
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
-const theme = {
-    ...DefaultTheme,
-    colors: {
-        ...DefaultTheme.colors,
-        primary: 'tomato',
-        secondary: 'yellow',
-    },
-};
 
-const LogoTitle = ({name, title}) => {
+
+const LogoTitle = ({name, title, colors}) => {
     return <View style={{fontSize: 40, flexDirection:"row", alignItems:"center", alignContent:"center"}}>
-        <Icon size={20} name={name} style={{marginTop:3}} /> 
-        <Text style={{fontSize: 20, marginLeft: 5}}>{title}</Text>
+        <Icon size={20} name={name} style={{marginTop:3, color:colors.text}}  /> 
+        <Text style={{fontSize: 20, marginLeft: 5, color:colors.text}}>{title}</Text>
     </View>
 }
 
@@ -66,20 +59,26 @@ LogBox.ignoreLogs([
 
 const App: () => Node = () => {
     const theme = useColorScheme();
+    DefaultTheme.colors.selected="#ccc";
+    DarkTheme.colors.selected="#444";
+    DarkTheme.colors.shadow = "#121212";
+    DefaultTheme.colors.shadow="#121212";
+    let selectedTheme = theme === 'dark' ? DarkTheme : DefaultTheme;
+
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const DrawerNavigation = () => {
-        return <Drawer.Navigator screenOptions={{ headerShown: true }} drawerContent={(props) => <LogoutView {...props}  onLogoutSuccess={x => setIsAuthenticated(false)} />} >
-            <Drawer.Screen name="Home" component={Home} />
-            <Drawer.Screen name="Domain" component={EmailListByDomain} options={{ headerTitle:(props)=>  <LogoTitle title="Sender Domain" name="domain" />, title: (props) => <LogoTitle title="Sender Domain" name="domain" /> }}/>
-            <Drawer.Screen name="Sender" component={EmailListBySender} options={{ headerTitle:(props)=>  <LogoTitle title="Sender" name="call-received" />, title: (props) => <LogoTitle title="Sender" name="call-received" /> }}/>
-            <Drawer.Screen name="Email" component={EmailListByEmail} options={{ headerTitle:(props)=>  <LogoTitle title="Email" name="at" />, title: (props) => <LogoTitle title="Email" name="at" /> }}/>
-            <Drawer.Screen name="QueryListView" component={QueryListView} options={{ headerTitle:(props)=>  <LogoTitle title="Saved Queries" name="database-search" />, title: (props) => <LogoTitle title="Saved Queries" name="database-search" /> }}/>
-            <Drawer.Screen name="ActivityView" component={ActivityView} options={{ headerTitle:(props)=>  <LogoTitle title="Saved Rules" name="gate-xor" />, title: (props) => <LogoTitle title="Saved Rules" name="gate-xor" /> }}/>
+        return <Drawer.Navigator screenOptions={{ headerShown: true, headerTintColor: selectedTheme.colors.text }} drawerContent={(props) => <LogoutView {...props}  onLogoutSuccess={x => setIsAuthenticated(false)} />} >
+            <Drawer.Screen name="Home" component={Home} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Home" name="home-circle-outline" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Home" name="home-circle-outline" /> }}/>
+            <Drawer.Screen name="Domain" component={EmailListByDomain} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Sender Domain" name="domain" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Sender Domain" name="domain" /> }}/>
+            <Drawer.Screen name="Sender" component={EmailListBySender} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Sender" name="call-received" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Sender" name="call-received" /> }}/>
+            <Drawer.Screen name="Email" component={EmailListByEmail} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Email" name="at" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Email" name="at" /> }}/>
+            <Drawer.Screen name="QueryListView" component={QueryListView} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Saved Queries" name="database-search" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Saved Queries" name="database-search" /> }}/>
+            <Drawer.Screen name="ActivityView" component={ActivityView} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Saved Rules" name="gate-xor" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Saved Rules" name="gate-xor" /> }}/>
         </Drawer.Navigator>
     };
 
 
-    return <NavigationContainer theme={theme === 'dark' ? DarkTheme : DefaultTheme}>
+    return <NavigationContainer theme={selectedTheme}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             {isAuthenticated ? (
                 <>

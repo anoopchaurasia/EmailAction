@@ -65,9 +65,60 @@ const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
     }
   };
 
+
+const styles = StyleSheet.create({
+  inputView: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    alignSelf: "stretch"
+  },
+  buttonView: {
+    marginBottom: -10
+
+  },
+  createLabelButton : {
+    alignSelf:"stretch",
+    width: "100%",
+  },
+  input: {
+    height: 40,
+    width: "100%",
+    padding: 10,
+    borderWidth: .2,
+    borderBottomWidth: .2
+  },
+  centeredView: {
+    alignItems: 'center',
+  },
+  listView: {
+    flex: 1,
+  },
+  modalView: {
+    flexDirection: 'column',
+    backgroundColor: colors.background,
+    borderRadius: 5,
+    minWidth: 200,
+    alignItems: "flex-start",
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    paddingBottom: 10
+  }
+});
+
   return (
     <View style={{ borderColor: colors.border, borderWidth:.5, margin: 10, marginLeft:0}}>
-      <MyText style={{padding:10, color:"#000"}} onPress={x=> setModalVisible(true)}> {selectedLabelLocal.name||"Select Label"} </MyText>
+      <MyText style={{padding:10}} onPress={x=> setModalVisible(true)}> {selectedLabelLocal.name||"Select Label"} </MyText>
       <View style={{ }}>
         <Modal
           animationType="slide"
@@ -106,54 +157,5 @@ const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  inputView: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    alignSelf: "stretch"
-  },
-  buttonView: {
-    marginBottom: -10
-
-  },
-  createLabelButton : {
-    alignSelf:"stretch",
-    width: "100%",
-  },
-  input: {
-    height: 40,
-    width: "100%",
-    padding: 10,
-    borderWidth: .2,
-    borderBottomWidth: .2
-  },
-  centeredView: {
-    alignItems: 'center',
-  },
-  listView: {
-    flex: 1,
-  },
-  modalView: {
-    flexDirection: 'column',
-    backgroundColor: 'white',
-    borderRadius: 5,
-    minWidth: 200,
-    alignItems: "flex-start",
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    paddingBottom: 10
-  }
-});
 
 export default SearchName;

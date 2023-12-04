@@ -75,7 +75,19 @@ const EmailList = ({ route, navigation }) => {
         setPage((prevPage) => prevPage + 1);
     };
 
-
+    let styles = StyleSheet.create({
+        label:{
+            fontSize: 10,
+            padding: 3,
+            paddingTop: 4,
+            lineHeight: 10,
+            height: 15,
+            borderRadius: 10,
+            margin: 2,
+            borderColor: colors.border,
+            backgroundColor:colors.border
+        }
+    })
 
     
     const renderItem = ({ item }) => {
@@ -85,14 +97,14 @@ const EmailList = ({ route, navigation }) => {
                 <MyText style={{ fontWeight: 'bold' }}>{item.subject}</MyText>
                 <MyText>{formatDate(item.date)}</MyText>
                 
-                <View style={{flexDirection:"row", flex:1, alignContent:"flex-start"}}>{item.labels.map(x=> ( <MyText key={x} style={{...styles.label, borderColor: colors.border}}> {LabelService.getNameById(x)} </MyText> ) )}</View>
+                {/* <View style={{flexDirection:"row", flex:1, alignContent:"flex-start"}}>{item.labels.map(x=> ( <MyText key={x} style={{...styles.label, borderColor: colors.border}}> {LabelService.getNameById(x)} </MyText> ) )}</View> */}
             </TouchableOpacity>
         );
     };
 
     return (
         <>
-            <View style={{height: 40, backgroundColor:"#ccc", alignContent:"center", alignItems:"center", paddingTop: 10, shadowColor:"#CCC", shadowOffset:10}}>
+            <View style={{height: 40, backgroundColor:colors.background, alignContent:"center", alignItems:"center", paddingTop: 10, shadowColor:colors.border, shadowOffset:10}}>
                 <MyText>Emails from {route.params.sender}</MyText>
             </View>
             <FlatList
@@ -111,17 +123,6 @@ const EmailList = ({ route, navigation }) => {
     );
 };
 
-let styles = StyleSheet.create({
-    label:{
-        backgroundColor:"#ccc",
-        fontSize: 10,
-        padding: 3,
-        paddingTop: 4,
-        lineHeight: 10,
-        height: 15,
-        borderRadius: 10,
-        margin: 2
-    }
-})
+
 
 export default EmailList;

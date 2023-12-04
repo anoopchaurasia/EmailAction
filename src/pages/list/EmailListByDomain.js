@@ -118,11 +118,11 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
 
     function RenderItem({ item, selected=false, handleLongPress, hanldePress, active }) {
         return (
-            <TouchableOpacity style={{...SenderListstyles.item, backgroundColor: selected? '#ddd': ''}} /*onLongPress={()=> handleLongPress(item)}*/ onPress={x=>hanldePress(item)}>
+            <TouchableOpacity style={{...SenderListstyles.item, backgroundColor: selected? colors.selected: colors.card}} /*onLongPress={()=> handleLongPress(item)}*/ onPress={x=>hanldePress(item)}>
                 <MyCheckbox onPress={()=> handleLongPress(item)} selected={selected}/>
                 <View style={SenderListstyles.details}>
                     <MyText style={SenderListstyles.title}>{item.sender_name} ({item.sender}) </MyText>
-                    <MyText style={{...SenderListstyles.label, borderColor: colors.border}}>{item.count}</MyText>
+                    <MyText style={{...SenderListstyles.label, borderColor: colors.border, backgroundColor:colors.border}}>{item.count}</MyText>
                     {/* <MyText style={SenderListstyles.email}> </MyText> */}
                 </View>
             </TouchableOpacity>
@@ -165,7 +165,7 @@ const SenderListstyles = StyleSheet.create({
         fontSize: 12,
         padding: 6,
         paddingHorizontal:10,
-        paddingTop: 4,
+        paddingTop: 2,
         lineHeight: 20,
         height: 25,
         borderColor: "#ccc",
