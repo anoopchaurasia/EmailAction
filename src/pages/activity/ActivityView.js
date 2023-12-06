@@ -6,6 +6,7 @@ import ActivityModel from '../../realm/ActivityService';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LabelService from '../../realm/LabelService';
 import { useTheme } from '@react-navigation/native';
+import SearchPage from './../component/SearchPage';
 // Create a realm instance with the schemas
 import MyText from './../component/MyText'
 let MyIcon = (item, name, handlePress, size = 30, color = "#900") => {
@@ -95,11 +96,7 @@ const ActivityView = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <TextInput
-        style={{ height: 40, borderColor: colors.border, borderWidth: 1 }}
-        onChangeText={value => setText(value)}
-        value={text}
-      />
+      <SearchPage onChangeText={value => setText(value)}  placeholder="Search Rules"  value={text} name="magnify" />
       <FlatList
         data={filterItems(text)}
         renderItem={({ item }) => renderItem(item, onPlay, onDelete, onEdit, colors)}

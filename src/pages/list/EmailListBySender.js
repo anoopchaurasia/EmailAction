@@ -33,13 +33,13 @@ export default ListView = ({ navigation, removeFromList }) => {
             setSelectedList({});
             let list = MessageAggregateService.readMessage();
             setList(list);
-        });
+        }, true);
         let rm2 = MessageEvent.on('email_list_view_trash', ({sender, type})=>{
             trashSelectedSenders([sender]);
-        });
+        }, true);
         let rm3 = MessageEvent.on("email_list_view_create_rule", ({sender,type})=>{
             createRuleForSelectedSenders([sender]);
-        });
+        }, true);
         return x=> {[rm1, rm2, rm3].forEach(x=>x())}
     }, []);
 

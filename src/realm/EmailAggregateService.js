@@ -42,14 +42,14 @@ const MessageAggregateService = {
         } catch (e) {
             console.error(e, sender, "MessageAggregateService.create");
         }
-        MessageEvent.emit('message_aggregation_changed');
+        MessageEvent.emit('message_aggregation_changed', {type:"create"});
     },
 
     deleteAll: () => {
         realm.write(() => {
             realm.delete(realm.objects("MessageAggregate"));
         });
-        MessageEvent.emit('message_aggregation_changed')
+        MessageEvent.emit('message_aggregation_changed', {type: "delete"})
     },
 
     deleteBySender: (sender) => {
@@ -58,7 +58,7 @@ const MessageAggregateService = {
             realm.delete(sender);
         });
         console.log("delete sender", sender);
-        MessageEvent.emit('message_aggregation_changed')
+        MessageEvent.emit('message_aggregation_changed', {type:"delete"})
     },
 
     deleteBySenders: (senders) => {
@@ -73,7 +73,7 @@ const MessageAggregateService = {
                 realm.delete(data);
             });
         });
-        MessageEvent.emit('message_aggregation_changed')
+        MessageEvent.emit('message_aggregation_changed', {type:"delete"})
     },
 
     readMessage: () => {
@@ -96,7 +96,7 @@ const MessageAggregateService = {
         realm.write(() => {
             realm.create('MessageAggregate', sender, true);
         });
-        MessageEvent.emit('message_aggregation_changed')
+        MessageEvent.emit('message_aggregation_changed', {type:"update"})
     },
     updateCount: (newData)=> {
         let messageAggregate = realm.objectForPrimaryKey('MessageAggregate', newData.sender);
@@ -115,7 +115,7 @@ const MessageAggregateService = {
                 labelObject.count += label.count;
             });
         });
-        MessageEvent.emit('message_aggregation_changed')
+        MessageEvent.emit('message_aggregation_changed', {type:"update"})
         return messageAggregate;
     }
 }

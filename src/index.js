@@ -65,7 +65,7 @@ const App: () => Node = () => {
     DefaultTheme.colors.shadow="#121212";
     let selectedTheme = theme === 'dark' ? DarkTheme : DefaultTheme;
 
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(true);
     const DrawerNavigation = () => {
         return <Drawer.Navigator screenOptions={{ headerShown: true, headerTintColor: selectedTheme.colors.text }} drawerContent={(props) => <LogoutView {...props}  onLogoutSuccess={x => setIsAuthenticated(false)} />} >
             <Drawer.Screen name="Home" component={Home} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Home" name="home-circle-outline" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Home" name="home-circle-outline" /> }}/>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, View, StyleSheet, TouchableOpacity } from 'react-native';
 import EMailMessageSerive from '../../realm/EmailMessageService';
 import SearchPage from "../component/SearchPage";
 import MyText from './../component/MyText';
