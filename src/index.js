@@ -41,6 +41,8 @@ import EmailListByEmail from './pages/list/EmailListByEmail';
 
 import CreateRuleView from './pages/component/CreateRuleView'
 
+import ProgressNotification from "./ProgressNotification"
+
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -60,9 +62,13 @@ LogBox.ignoreLogs([
 const App: () => Node = () => {
     const theme = useColorScheme();
     DefaultTheme.colors.selected="#ccc";
+    DefaultTheme.colors.shadow="#121212";
+    DefaultTheme.colors.underlayColor = "rgba(0, 0, 0, 0.1)"
+    
     DarkTheme.colors.selected="#444";
     DarkTheme.colors.shadow = "#121212";
-    DefaultTheme.colors.shadow="#121212";
+    DarkTheme.colors.underlayColor = "rgba(255, 255, 255, 0.1)"
+    
     let selectedTheme = theme === 'dark' ? DarkTheme : DefaultTheme;
 
     const [isAuthenticated, setIsAuthenticated] = useState(true);
@@ -89,6 +95,7 @@ const App: () => Node = () => {
                     <Stack.Screen name="LoginView" component={LoginView} />
                     <Stack.Screen name="CreateRuleView" component={CreateRuleView} />
                     <Stack.Screen name="EmailView" component={EmailView} />
+                    <Stack.Screen name="Progress" component={ProgressNotification} />
                 </>
             ) : (
                 <Stack.Screen
