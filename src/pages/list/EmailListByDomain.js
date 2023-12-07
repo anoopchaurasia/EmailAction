@@ -119,7 +119,7 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
 
     function RenderItem({ item, selected=false, handleLongPress, hanldePress, active }) {
         return (
-            <TouchableOpacity style={{...SenderListstyles.item, backgroundColor: selected? colors.selected: colors.card}} /*onLongPress={()=> handleLongPress(item)}*/ onPress={x=>hanldePress(item)}>
+            <TouchableOpacity style={{...SenderListstyles.item, backgroundColor: selected? colors.selected: colors.card,}} onLongPress={()=> handleLongPress(item)} onPress={x=>hanldePress(item)}>
                 <MyCheckbox onPress={()=> handleLongPress(item)} selected={selected}/>
                 <View style={SenderListstyles.details}>
                     <MyText style={SenderListstyles.title}>{item.sender_name} ({item.sender}) </MyText>
@@ -141,7 +141,7 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
         setPage((prevPage) => prevPage + 1);
     };
     return (
-        <View style={{ flex: 1, flexDirection: "column" }}>
+        <View style={{ flex: 1, flexDirection: "column", }}>
             <SearchPage onChangeText={handleChangeText}  placeholder="Search Domain"  value={text} name="magnify" />
             <FlatList
                 data={filterItems(text)}
@@ -172,14 +172,6 @@ const SenderListstyles = StyleSheet.create({
         borderColor: "#ccc",
         borderRadius: 5,
     },
-    container: {
-      flex: 1,
-      padding: 10,
-      backgroundColor: '#f0f0f0',
-    },
-    itemContainer:{
-        margin: 10,
-    },
     item : {
         elevation: 0,
         backgroundColor: 'white',
@@ -188,14 +180,12 @@ const SenderListstyles = StyleSheet.create({
         marginTop: 0,
         borderBottomColor:"#ddd",
         borderBottomWidth:1,
-        paddingHorizontal: 10
     },
-    innerItem:{
-        padding: 10
-    },
+
 
     details: {
         padding: 5,
+        paddingLeft: 0,
         paddingVertical: 13,
         flexDirection:"row",
         flex:1

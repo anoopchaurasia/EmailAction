@@ -74,7 +74,7 @@ export default function EmailSummary({ navigation }) {
             <View>
                 <View>
                     {/* <Progress.Bar progress={prgressPer} width={400} height={20} /> */}
-                    <View style={{ width: "90%", borderColor: colors.border, borderWidth: 1, margin: 10 }}>
+                    <View style={{ width: "90%", borderColor: colors.border, borderWidth: 1, margin: 10, marginLeft: 0 }}>
                         <MyText style={{ fontSize: 30, textAlign: "center" }}>
                             Total Emails
                         </MyText>
