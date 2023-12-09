@@ -41,7 +41,7 @@ import EmailListByEmail from './pages/list/EmailListByEmail';
 
 import CreateRuleView from './pages/component/CreateRuleView'
 
-import ProgressNotification from "./ProgressNotification"
+import notifications from './pages/home/notificationstart';
 
 
 const Stack = createNativeStackNavigator();
@@ -71,7 +71,11 @@ const App: () => Node = () => {
     
     let selectedTheme = theme === 'dark' ? DarkTheme : DefaultTheme;
 
-    const [isAuthenticated, setIsAuthenticated] = useState(true);
+   
+
+
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
     const DrawerNavigation = () => {
         return <Drawer.Navigator screenOptions={{ headerShown: true, headerTintColor: selectedTheme.colors.text }} drawerContent={(props) => <LogoutView {...props}  onLogoutSuccess={x => setIsAuthenticated(false)} />} >
             <Drawer.Screen name="Home" component={Home} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Home" name="home-circle-outline" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Home" name="home-circle-outline" /> }}/>
@@ -83,7 +87,9 @@ const App: () => Node = () => {
         </Drawer.Navigator>
     };
 
-
+    if(isAuthenticated) {
+        notifications()
+    }
     return <NavigationContainer theme={selectedTheme}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             {isAuthenticated ? (
@@ -95,7 +101,7 @@ const App: () => Node = () => {
                     <Stack.Screen name="LoginView" component={LoginView} />
                     <Stack.Screen name="CreateRuleView" component={CreateRuleView} />
                     <Stack.Screen name="EmailView" component={EmailView} />
-                    <Stack.Screen name="Progress" component={ProgressNotification} />
+                    {/* <Stack.Screen name="Progress" component={ProgressNotification} /> */}
                 </>
             ) : (
                 <Stack.Screen

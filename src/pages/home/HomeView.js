@@ -8,14 +8,12 @@ import SenderSummary from "./SenderSummary";
 import EmailSummary from './EmailSummary';
 import MyText from './../component/MyText'
 
-
 export default function Home({navigation}) {
-
+    
     const colors = useTheme().colors;
 
     let [taskProcessStatus, setTaskProcessStatus] = useState("");
     let [totalActivity, setTotalActivity] = useState({ total: 0, pending: 0 });
-
 
     useEffect(x=>{
         setTotalActivity({ total: ActivityService.getAll().length, pending: ActivityService.getNoCompleted().length })

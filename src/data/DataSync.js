@@ -79,7 +79,6 @@ export default class MyComponent {
         Label.deleteAll();
         console.log("label loading in progress");
         let labels = await Gmail.getLabels();
-        console.log(JSON.stringify(labels, null, 2))
         labels.forEach(l => { Label.create(l) });
         Utility.saveData('label_loaded', 'yes');
     }

@@ -6,8 +6,9 @@ import Utility from '../utility/Utility';
 
 let in_progress = false;
 export default Activity = {
-    processNew: async function () {
+    processNew: async function (cb) {
         try {
+            console.log("processNewprocessNewprocessNewprocessNewprocessNewprocessNewprocessNew");
             let date = new Date();
             in_progress && Utility.saveData("ProcessAlreadyInProgress", date.toISOString());
             if (in_progress) return console.log("in progress return");
@@ -31,6 +32,7 @@ export default Activity = {
             let date = new Date();
             in_progress = false;
             Utility.saveData("ProcessEnded", date.toISOString());
+            cb && typeof cb === 'function' && cb();
         }
     },
 
