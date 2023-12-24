@@ -2,18 +2,26 @@ import Utility from "../utility/Utility";
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import Email from "../email/Email";
 
-const base_gmail_url = "https://gmail.googleapis.com/gmail/v1/users/me/"
+const base_gmail_url = "https://gmail.googleapis.com/gmail/v1/users/me/";
+let last_toke_fetch_time = 0;
 export default class Gmail extends Email{
-  static gmailFetch = async function (url, options) {
+  static _accessToken = null
+  static getAccessToken = async function (fresh=false) {
+    if(Gmail._accessToken && !fresh && last_toke_fetch_time &&  (new Date()).getTime() - last_toke_fetch_time < 50*60*1000) return Gmail._accessToken;
+    last_toke_fetch_time = (new Date()).getTime();
+    Gmail._accessToken = (await GoogleSignin.getTokens()).accessToken;
+    return Gmail._accessToken;
+  }
+  static gmailFetch = async function (url, options, fresh=false) {
     console.log(url);
-    let accessToken = (await GoogleSignin.getTokens()).accessToken;
+    let accessToken = await Gmail.getAccessToken(fresh);
     options.headers.Authorization = `Bearer ${accessToken}`
     try {
         return fetch(url, options).then(async x => {
           if (x.status == '401') {
             await GoogleSignin.clearCachedAccessToken(accessToken);
             console.log(x, x.status, "re trying");
-            return Gmail.gmailFetch(url, options);
+            return Gmail.gmailFetch(url, options, true);
           }
           if(x.status!==200) {
             console.log(x, x.status, "re trying");

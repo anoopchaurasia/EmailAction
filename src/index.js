@@ -11,6 +11,9 @@ import {
     LogBox, Text, View, useColorScheme
 } from 'react-native';
 
+import Crashes from 'appcenter-crashes';
+
+
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
@@ -60,6 +63,8 @@ LogBox.ignoreLogs([
 ]);
 
 const App: () => Node = () => {
+   // throw new Error('This is a test javascript crash!');
+
     const theme = useColorScheme();
     DefaultTheme.colors.selected="#ccc";
     DefaultTheme.colors.shadow="#121212";

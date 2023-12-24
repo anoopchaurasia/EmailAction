@@ -16,12 +16,12 @@ let count = MessageService.readAll().length || 0, total=0;
     }).catch(x => {
     });
 
-    console.log("startForegroundServicestartForegroundServicestartForegroundServicestartForegroundServicestartForegroundService")
+    console.log("Starting foreground service to fetch messages");
   try {
-      if(await notifee.isChannelCreated('my-channel-id')===false) {
+      if(await notifee.isChannelCreated('message_foreground_channel')===false) {
         await notifee.requestPermission();
         await notifee.createChannel({
-            id: 'my-channel-id',
+            id: 'message_foreground_channel',
             name: 'Default Channel',
         });
     }
@@ -37,11 +37,11 @@ let count = MessageService.readAll().length || 0, total=0;
 function register(count=0, total=0) {
     if(count>0 && total>0) indeterminate=false; else indeterminate=true;
     notifee.displayNotification({
-        title: 'Foreground service',
-        id: "notification_id",
-        body: 'This notification will exist for the lifetime of the service runner',
+        title: 'Downloading Messages',
+        id: "foreground_service_id",
+        body: 'Downloading messages, you can start taking actions, download time depends on message count and network',
         android: {
-          channelId:"my-channel-id",
+          channelId:"message_foreground_channel",
           asForegroundService: true,
           progress: {
             max: total,
