@@ -49,7 +49,6 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
             setActive(false);
             setSelectedList({});
             createList();
-            console.log("came---------------------------");
         }, true);
         let rm2 = MessageEvent.on('email_list_view_trash', ({sender, type})=>{
             trashSelectedDomains([sender]);

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Dimensions, ActivityIndicator, ScrollView } from 'react-native';
+import { View, StyleSheet, Dimensions, ActivityIndicator, ScrollView, Image } from 'react-native';
 import BottomBar from './../component/BottomBarView';
 import DataSync from '../../data/DataSync';
 import PDFView from 'react-native-pdf';
 import MyText from './../component/MyText';
+import EmailMessageService from './../../realm/EmailMessageService';
 import { useTheme } from '@react-navigation/native';
 
 
@@ -12,6 +13,7 @@ export default AttachementView = ({ selectedEmail, password, getNext, getPrev, o
     let [selected, setSelected] = useState(selectedEmail);
     let [selectedFile, setSelectedFile] = useState(selectedEmail.attachments[0]);
     let [loadAttachmentData, setLoadAttachmentData] = useState(null);
+    let [inProgress, setInprogress] = useState(false);
     let actionList = [{
         name: "Prev",
         icon: "page-previous-outline",
@@ -31,8 +33,13 @@ export default AttachementView = ({ selectedEmail, password, getNext, getPrev, o
 
     useEffect(x => {
         (async function a(){
+            if(selectedFile.data) return setLoadAttachmentData({type: selectedFile.type, data: selectedFile.data});
             let type = getType(selectedFile.name);
-            let data = (type == 'pdf' || type == 'image') && await DataSync.loadAttachment(selected.message_id, selectedFile.id)
+            let data;
+            if(type == 'pdf' || type == 'image') {
+                data = await DataSync.loadAttachment(selected.message_id, selectedFile.id);
+                EmailMessageService.updateAttachmentById({id:selectedFile.id, type, data});
+            }
             setLoadAttachmentData({type, data});
         }) ()
 
@@ -43,13 +50,19 @@ export default AttachementView = ({ selectedEmail, password, getNext, getPrev, o
     }, [selected])
     
     async function goToNext() {
+        if(inProgress) return console.log("loading data for prev email");
+        setInprogress(true);
         setLoadAttachmentData(null);
-        setSelected(await getNext())
+        setSelected(await getNext());
+        setInprogress(false);
     }
     
     async function goToPrev() {
+        if(inProgress) return console.log("loading data for prev email");
+        setInprogress(true);
         setLoadAttachmentData(null)
-        setSelected(await getPrev())
+        setSelected(await getPrev());
+        setInprogress(false);
     }
     
     return (
@@ -79,7 +92,15 @@ export default AttachementView = ({ selectedEmail, password, getNext, getPrev, o
                     console.log(`Link pressed: ${uri}`);
                 }}
 
-            /> : loadAttachmentData.type === 'image' ? <MyText style={{flex:1}}>Image {selectedFile.name}</MyText> : <MyText>{selectedFile.name}</MyText>) 
+            /> 
+            : loadAttachmentData.type === 'image' ? <View  style={styles.pdf}><Image
+            resizeMode="contain"
+                style={{width:"100%",height:"100%"}}
+                    source={{
+                    uri: `data:image/png;base64,${loadAttachmentData.data}`,
+                    }}
+                /></View>
+            : <MyText>{selectedFile.name}</MyText>)  
             
             : <View style={{ flex: 1, alignItems: "center", alignContent: "center", }}><ActivityIndicator style={{ alignSelf: "center", marginTop: "75%" }} size="large" color="#0000ff" /></View>}
             <View>
@@ -92,7 +113,7 @@ export default AttachementView = ({ selectedEmail, password, getNext, getPrev, o
                     {selected.attachments.map((x, i) => <MyText onPress={()=> {setLoadAttachmentData(null); setSelectedFile(x)} } key={i} style={{...styles.label, backgroundColor: x.id==selectedFile.id? "rgba(39, 39, 41, 1)":"rgba(39, 39, 41, .5)"}}> {x.name}</MyText>)}
                 </ScrollView>
             </View>
-            <BottomBar visible={true} style={{ backgroundColor: "#ccc" }} list={actionList} />
+            <BottomBar visible={true} disabled={inProgress} style={{ backgroundColor: "#ccc" }} list={actionList} />
 
         </View>
     )

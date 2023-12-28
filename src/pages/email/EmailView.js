@@ -11,7 +11,6 @@ export default EmailView = ({navigation, route}) => {
     let [html, setHTML] = useState("");
     useEffect(x=> {
         DataSync.getMessagebById(route.params?.message_id).then(x=> {
-            console.log(Object.keys(x), console.log(x.headers.map(x=>x.name)),"-----------------------");
             setEmail(x);
             extractMultipartFromJSON(x);
         });

@@ -14,7 +14,7 @@ export default ProcessRules = {
                 console.error("filter is not present, it should contain atleast one sender email")
                 break;
             }
-            console.log(task.action, task.from_label, task.to_label, task.from);
+            console.log("ProcessRule",task.action, task.from_label, task.to_label, task.from);
             if (task.action === 'trash') {
                 await ProcessRules.trash(task);
                  await ActivityService.updateObjectById(task.id, { completed: true });
@@ -25,7 +25,7 @@ export default ProcessRules = {
                 await ProcessRules.copyToFolder(task);
                 await ActivityService.updateObjectById(task.id, { completed: true });
             } else {
-                console.log("no action defined", task);
+                console.log("ProcessRule","no action defined", task);
             }
         }
     },
@@ -34,10 +34,10 @@ export default ProcessRules = {
             await this.getMessageIds(task, async (message_ids) => {
                 await ChangeLabel.trash(message_ids, function (result) {
                     (result || []).forEach(x => MessageService.update(x));
-                }).catch(e => console.error(e, "Trash ActiveProcess", task));
+                }).catch(e => console.error("ProcessRule", e, "Trash ActiveProcess", task));
             }, message_ids)
         } catch (e) {
-            console.log(e, "Trash")
+            console.error("ProcessRule", e, "Trash")
         }
     },
 
@@ -50,11 +50,11 @@ export default ProcessRules = {
             do {
                 try {
                     let str = setValue('from', from) + setValue(" in", 'inbox', true);
-                    var { message_ids, nextPageToken } = await DataSync.fetchMessages(str, nextPageToken).catch(e => console.error(e, "Folder change ActiveProcess", task));
+                    var { message_ids, nextPageToken } = await DataSync.fetchMessages(str, nextPageToken).catch(e => console.error("ProcessRule", e, "Folder change ActiveProcess", task));
                     c += message_ids.length;
                     await process(message_ids, c);
                 } catch (e) {
-                    console.error(e, "get Message Ids");
+                    console.error("ProcessRule", e, "get Message Ids");
                 }
             } while (nextPageToken);
             i++;
@@ -64,10 +64,9 @@ export default ProcessRules = {
     moveToFolder: async function (task, message_ids) {
         try {
             await this.getMessageIds(task, async (message_ids) => {
-                console.log(message_ids);
                 await ChangeLabel.moveToFolder(task, message_ids, function (result) {
                     (result || []).forEach(x => MessageService.update(x));
-                }).catch(e => console.error(e, "Folder change", task));
+                }).catch(e => console.error("ProcessRule", e, "Folder change", task));
             }, message_ids);
         } catch (e) {
         }
@@ -77,7 +76,7 @@ export default ProcessRules = {
             await this.getMessageIds(task, async (message_ids) => {
                 await ChangeLabel.copyToFolder(task, message_ids, function (result) {
                     (result || []).forEach(x => MessageService.update(x));
-                }).catch(e => console.error(e, "copy change", task));
+                }).catch(e => console.error("ProcessRule", e, "copy change", task));
             }, message_ids);
         } catch (e) {
         }
@@ -99,7 +98,7 @@ export default ProcessRules = {
         }
     },
     createNewRule: async function (label, senders, action, type) {
-        console.log(senders, label, action  , "createNewRule");
+        console.log("ProcessRule", senders, label, action  , "createNewRule");
         if(!action || !senders || !label || !type) throw "no action or senders or label provide";
        // if(ActivityService.getBySender(senders)) throw "rule already exist";
         ActivityService.createObject({

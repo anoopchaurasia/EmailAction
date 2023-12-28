@@ -22,10 +22,13 @@ const MessageSchema = {
 
 const AttachmentSchemma = {
     name: 'Attachment',
+    primaryKey: 'id',
     properties: {
       id: 'string',
       name: 'string',
-      size: 'int'
+      size: 'int',
+      type: "string?",
+      data: "string?"
     }
   };
 
@@ -36,7 +39,7 @@ const migrationFunction = (oldRealm, newRealm) => {
 // Create a new Realm instance with the Message schema
 const realm = new Realm({
     path:"messagedata",
-    schema: [MessageSchema, AttachmentSchemma], schemaVersion: 12, migration: migrationFunction,
+    schema: [MessageSchema, AttachmentSchemma], schemaVersion: 14, migration: migrationFunction,
 });
 
 // Define CRUD methods for Message objects
@@ -174,6 +177,11 @@ const MessageService = {
         realm.write(() => {
             realm.delete(realm.objects("Message"));
           });
+    },
+    updateAttachmentById: (attachment) => {
+        realm.write(() => {
+            realm.create('Attachment', attachment, true);
+        });
     },
 
 };

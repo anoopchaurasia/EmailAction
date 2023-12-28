@@ -8,17 +8,17 @@ import Activity from '../data/ActivityProcess';
 import ReactNativeForegroundService from "@supersami/rn-foreground-service";
 import AggregateData from '../data/AggregateData';
 
-const MyComponent = () => {
+const EmailList = () => {
   let [count, setCount] = useState(MessageService.readAll().length);
   let [saveCount, setSavedCount] = useState(0);
   function update(a,b,c) {
-    console.log(a,b,c);
+    console.log("EmailList",a,b,c);
   }
   ReactNativeForegroundService.add_task((a,b,c) => update(a,b,c), {
     delay: 7000,
     onLoop: true,
     taskId: "taskid",
-    onError: (e) => console.log(`Error logging:`, e),
+    onError: (e) => console.error("EmailList", `Error logging:`, e),
   });
 
   const getList = async (query, pageToken = null) => {
@@ -49,7 +49,7 @@ const MyComponent = () => {
   
   async function aggregate() {
 
-    console.log("aggregation started", MessageService.readAll().length);
+    console.log("EmailList", "aggregation started", MessageService.readAll().length);
     let messages = MessageService.getCountBySender();
     MessageAggregateService.deleteAll()
     AggregateData.aggregate(messages);
@@ -73,7 +73,7 @@ const MyComponent = () => {
   }
 
   async function syncLabel() {
-    console.log('sync label ')
+    console.log("EmailList", 'sync label ')
     DataSync.getLabels(true);
   }
 
@@ -88,4 +88,4 @@ const MyComponent = () => {
 
 };
 
-export default MyComponent;
+export default EmailList;

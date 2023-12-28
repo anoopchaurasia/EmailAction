@@ -29,7 +29,7 @@ export default AttachementView = ({ navigation, route }) => {
     let [selectedEmail, setSelectedEamil] = useState(null);
     useEffect(x => {
         if(query.message_ids.length == 0) {
-            loaddata("sfdfdfdfddddd");
+            loaddata("");
         } else {
             loadLatestData()
         }
@@ -67,7 +67,6 @@ export default AttachementView = ({ navigation, route }) => {
                         msgs.sort((a,b)=> a.date>b.date?-1:1);
                         return msgs.filter(x=>x);
                     });
-                    console.log("--------------fetching new messages", messages.length);
                 } while (nextPageToken);
             }
             setLoading(false);
@@ -176,7 +175,6 @@ export default AttachementView = ({ navigation, route }) => {
     const handleEndReached = () => {
         loaddata("last page");
     };
-    console.log(list.filter(x=>!x).length, "length ------------------------1=================================+++++++++++++=========++++++++++=======+++")
 
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>

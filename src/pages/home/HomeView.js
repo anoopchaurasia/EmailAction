@@ -7,6 +7,7 @@ import DomainSummary from "./DomainSummary";
 import SenderSummary from "./SenderSummary";
 import EmailSummary from './EmailSummary';
 import MyText from './../component/MyText'
+import QueriesSummary from "./QueriesSummary";
 
 export default function Home({navigation}) {
     
@@ -45,6 +46,7 @@ export default function Home({navigation}) {
             <DomainSummary navigation={navigation} />
             <SenderSummary navigation={navigation} />
             <EmailSummary navigation={navigation} />
+            <QueriesSummary navigation={navigation} />
             <TouchableHighlight onPress={x=> navigation.navigate("ActivityView")}>
                 <View style={{ width: "90%", borderColor: colors.colors, borderWidth: 1, margin: 10 }}>
                     <MyText style={{ fontSize: 30, textAlign: "center", color: colors.text  }}>

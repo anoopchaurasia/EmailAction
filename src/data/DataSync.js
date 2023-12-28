@@ -15,14 +15,14 @@ export default class MyComponent {
             }
             return { message_ids, nextPageToken: pageToken };
         } catch (e) {
-            console.log("failed: did not receive message", e);
+            console.error("failed: did not receive message", e);
             await Utility.sleep(10000);
             return MyComponent.fetchMessages(query, nextPageToken);
         }
     };
 
     static resumeSync = async function (aggregate) {
-        console.log("SYNC in progress Wait -------------------------------------------------------------------------------")
+        console.log("SYNC in progress Wait")
         if ((await Utility.getData('sync_completed')) == "yes") return console.log("sync completed");
         do {
             var { nextPageToken, messages } = await MyComponent
@@ -49,7 +49,6 @@ export default class MyComponent {
         var messages = [];
         if (message_ids.length) {
             messages = await MyComponent.fetchMessageMeta(message_ids);
-            console.log(messages[0]);
             messages.map(x => { try { MessageService.update(x) } catch (e) { console.error(e, "update failed getList", x) } });
         }
         return { nextPageToken, messages };

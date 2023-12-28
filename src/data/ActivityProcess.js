@@ -8,11 +8,10 @@ let in_progress = false;
 export default Activity = {
     processNew: async function (cb) {
         try {
-            console.log("processNewprocessNewprocessNewprocessNewprocessNewprocessNewprocessNew");
             let date = new Date();
             in_progress && Utility.saveData("ProcessAlreadyInProgress", date.toISOString());
-            if (in_progress) return console.log("in progress return");
-            console.log("Process New ===================================================================")
+            if (in_progress) return console.log("Activity.processNew", "in progress return");
+            console.log("Process New")
             Utility.saveData("ProcessStarted", date.toISOString());
             in_progress = true;
             await DataSync.getLabels(true);
@@ -23,8 +22,8 @@ export default Activity = {
             console.log("2. starting  sync")
             await Activity.sync();
             await ProcessRules.process();
-            console.log("completed the process");
             in_progress = false;
+            console.log("completed the process");
         } catch(e) {
             console.error(e, "process new failed", e.stack);
         }

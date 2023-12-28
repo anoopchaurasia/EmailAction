@@ -55,7 +55,6 @@ export default function EmailSummary({ navigation }) {
 
         MessageEvent.on('new_message_received', (messages) => {
             setCount(t => t + messages.length);
-            console.log(count, inboxInfo.messagesTotal, "data.messagesTotal00000-------------------------=======================");
             setProgressPer(count / inboxInfo.messagesTotal);
             
         })
@@ -85,7 +84,6 @@ export default function EmailSummary({ navigation }) {
             name: 'Default Channel',
         });
         setChannelId(cid);
-        console.log(id, cid, "notificationId----=============================---------");
         const id = await notifee.displayNotification({
             title: 'Non-Deletable Notification',
             body: 'This notification appears to be non-deletable.',

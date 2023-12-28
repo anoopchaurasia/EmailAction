@@ -31,7 +31,7 @@ BackgroundFetch.configure(
     },
     onBackgroundFetchEvent,
     (error) => {
-      console.log("[BackgroundFetch] Failed to configure: ", error);
+      console.error("[BackgroundFetch] Failed to configure: ", error);
     }
   );
 
@@ -54,7 +54,6 @@ BackgroundFetch.scheduleTask({
 // Define a function to handle the custom task
 const onCustomTask = async (taskId) => {
   console.log("[BackgroundFetch HeadlessTask] Custom task received: ", taskId, new Date);
-  console.log(taskId);
   await ActivityProcess.processNew();
   BackgroundFetch.finish(taskId);
 };
