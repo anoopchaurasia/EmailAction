@@ -106,20 +106,15 @@ export default function EmailSummary({ navigation }) {
             <View>
                 <View>
                     {/* <Progress.Bar progress={prgressPer} width={400} height={20} /> */}
-                    <View style={{ width: "90%", borderColor: colors.border, borderWidth: 1, margin: 10, marginLeft: 0 }}>
+                    <View style={{ width: "90%", borderColor: colors.border, borderWidth: 1, margin: 10, marginLeft: "5%" }}>
                         <MyText style={{ fontSize: 30, textAlign: "center" }}>
                             Total Emails
                         </MyText>
                         <MyText style={{ fontSize: 40, textAlign: "center" }}>
                             {count}/{inboxInfo.messagesTotal}
                         </MyText>
-                        <MyText>Fetch: {fetchCompleted ? "Completed" : "InProgress"} {fetchCompleted1 ? "done" : "in prgress"}</MyText>
+                        <MyText> {fetchCompleted ? "" : "Fetch: InProgress"}</MyText>
                     </View>
-                </View>
-                <View>
-                    <MyText>
-                        {JSON.stringify(processRunningStatus, null, 2)}
-                    </MyText>
                 </View>
             </View>
         </TouchableHighlight>

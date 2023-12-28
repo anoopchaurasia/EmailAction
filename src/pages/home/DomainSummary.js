@@ -37,7 +37,7 @@ export default function DomainSummary({navigation}) {
 
     return (
         <TouchableHighlight underlayColor={colors.underlayColor} onPress={x=> navigation.navigate("Domain")}>
-            <View style={{ width: "90%", borderColor: colors.border, borderWidth: 1, margin: 10, marginLeft:0 }}>
+            <View style={{ width: "90%", borderColor: colors.border, borderWidth: 1, margin: 10, marginLeft:"5%" }}>
                     <MyText style={{ fontSize: 30, textAlign: "center", color: colors.text }}>
                         Total Domains
                     </MyText>

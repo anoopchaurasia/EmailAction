@@ -18,7 +18,7 @@ export default function QueriesSummary({navigation}) {
 
     return (
         <TouchableHighlight underlayColor={colors.underlayColor} onPress={x=> navigation.navigate("QueryListView")}>
-            <View style={{ width: "90%", borderColor: colors.border, borderWidth: 1, margin: 10, marginLeft:0 }}>
+            <View style={{ width: "90%", borderColor: colors.border, borderWidth: 1, margin: 10, marginLeft:"5%" }}>
                     <MyText style={{ fontSize: 30, textAlign: "center", color: colors.text }}>
                         Total Queries
                     </MyText>
