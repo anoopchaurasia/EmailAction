@@ -45,6 +45,13 @@ const QueryService = {
       return false;
     }
   },
+
+  async deleteAll () {
+    this.realm.write(() => {
+      this.realm.delete(this.realm.objects("Query"));  
+      this.realm.delete(this.realm.objects("QueryData"));
+    });
+  },
   async update(query) {
     try {
       query.id = query.id || Math.random().toString(36).slice(2);

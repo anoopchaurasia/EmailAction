@@ -47,7 +47,6 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
     useEffect(x=>{
         let rm1 = MessageEvent.on('message_aggregation_changed', x=>{
             setActive(false);
-            setSelectedList({});
             createList();
         }, true);
         let rm2 = MessageEvent.on('email_list_view_trash', ({sender, type})=>{
@@ -133,6 +132,7 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
     const handleChangeText = (value) => {
         // Update the state variable with the new value
         setText(value);
+        Object.keys(selectedList).length && setSelectedList({});
     };
 
     const handleEndReached = () => {

@@ -48,6 +48,7 @@ const MessageAggregateService = {
     deleteAll: () => {
         realm.write(() => {
             realm.delete(realm.objects("MessageAggregate"));
+            ///label will be deleted by label service
         });
         MessageEvent.emit('message_aggregation_changed', {type: "delete"})
     },

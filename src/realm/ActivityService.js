@@ -46,6 +46,12 @@ const ActivityMethods = {
     return data;
   },
 
+  deleteAll: () => {
+    realm.write(() => {
+        realm.delete(realm.objects("Activity"));
+    });
+},
+
   getNoCompleted() {
     return realm.objects('Activity').filtered('completed == $0', false);
   },

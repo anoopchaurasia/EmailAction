@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Button, Text, View } from 'react-native';
 import MessageService from '../realm/EmailMessageService';
 import MessageAggregateService from '../realm/EmailAggregateService';
-import MyDate from '../utility/MyDate';
 import DataSync from './../data/DataSync';
 import Activity from '../data/ActivityProcess';
 import ReactNativeForegroundService from "@supersami/rn-foreground-service";

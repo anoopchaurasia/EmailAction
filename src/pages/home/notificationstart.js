@@ -1,11 +1,16 @@
 import notifee, {AndroidColor} from '@notifee/react-native';
+import { interpolate } from 'react-native-reanimated';
 import MessageEvent from '../../event/MessageEvent';
 import DataSync from './../../data/DataSync';
 import MessageService from './../../realm/EmailMessageService';
 // Start the foreground service with a notification
 const startForegroundService = async () => {
 let count = MessageService.readAll().length || 0, total=0;
+    MessageEvent.on('user_logged_out', x=>{
+      count = 0;
+    })
     MessageEvent.on('new_message_received', (messages) => {
+      console.log(messages.length, count);
         count += messages.length;
         register(count, total);
     });
@@ -35,6 +40,8 @@ let count = MessageService.readAll().length || 0, total=0;
 };
 
 function register(count=0, total=0) {
+  let indeterminate = true;
+  
     if(count>0 && total>0) indeterminate=false; else indeterminate=true;
     notifee.displayNotification({
         title: 'Downloading Messages',

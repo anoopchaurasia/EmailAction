@@ -49,6 +49,10 @@ export default class Utility {
     static deleteData = function (key) {
         return AsyncStorage.removeItem(key);
     }
+
+    static clear = function () {
+        return AsyncStorage.clear();
+    }
 }
 
 

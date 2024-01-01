@@ -176,14 +176,16 @@ const MessageService = {
     deleteAll: () => {
         realm.write(() => {
             realm.delete(realm.objects("Message"));
+            realm.delete(realm.objects("Attachment"));
           });
+        console.log(MessageService.readAll().length, "MessageService.readAll().length");
     },
+
     updateAttachmentById: (attachment) => {
         realm.write(() => {
             realm.create('Attachment', attachment, true);
         });
     },
-
 };
 
 export default MessageService;

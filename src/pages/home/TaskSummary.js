@@ -40,7 +40,7 @@ export default function DomainSummary({navigation}) {
         <TouchableHighlight underlayColor={colors.underlayColor}onPress={x=> navigation.navigate("ActivityView")}>
             <View style={{ width: "90%", borderColor: colors.border, borderWidth: 1, margin: 10, marginLeft:"5%" }}>
                 <MyText style={{ fontSize: 30, textAlign: "center", color: colors.text  }}>
-                    Total Tasks
+                    Total Rules
                 </MyText>
                 <MyText style={{ fontSize: 40, textAlign: "center", color: colors.text  }}>
                     {totalActivity.pending}/{totalActivity.total}
