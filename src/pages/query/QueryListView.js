@@ -14,8 +14,6 @@ let MyIcon = (item, name, handlePress, size = 30, color = "#900") => {
     </TouchableOpacity>
   )
 }
-
-
 const renderItem = (item, navigation, onEdit, onDelete, colors) => {
   return <View style={{ flexDirection: "row", padding: 10, margin: 2, borderColor: colors.border, borderWidth: 1 }}>
     <MyText onPress={x => navigation.navigate("AttachementView", { query: item })} style={{ flex: 1 }}>
@@ -56,7 +54,10 @@ const App = ({ navigation }) => {
   let actionList = [{
     name: "+Create",
     icon: "trash-can",
-    action: x => setOpenSearch(true)
+    action: x => {
+      setEditQuery({});
+      setOpenSearch(true);
+    }
   }];
 
   return (
@@ -82,9 +83,8 @@ const App = ({ navigation }) => {
         }}
       >
         <QueryView query_init={editQuery} onClose={query => {
-          console.log('Query', query);
           query.message_ids = [];
-          console.log("update query", query);
+          query.completed = false;
           cleanQuery(query.query);
           QueryService.update(query);
           let queryList = QueryService.getAll();

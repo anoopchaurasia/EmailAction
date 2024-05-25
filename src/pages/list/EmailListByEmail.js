@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, View, StyleSheet, TouchableOpacity } from 'react-native';
 import EMailMessageSerive from '../../realm/EmailMessageService';
 import SearchPage from "../component/SearchPage";
 import MyText from './../component/MyText';
@@ -25,8 +25,10 @@ export default ListView = ({ navigation, removeFromList }) => {
     function RenderItem({ item, checked, onPress }) {
         return (
             <TouchableOpacity style={EmailListstyles.item} onPress={x=>navigation.navigate("EmailListView", {sender: item.sender, show_bottom_bar: true})}>
-                <MyText style={EmailListstyles.title}>{item.sender_name}  <MyText style={EmailListstyles.email}> {item.sender}</MyText></MyText>
-                <MyText style={EmailListstyles.title}>{item.subject}</MyText>
+                <View style={EmailListstyles.details}>
+                    <MyText style={EmailListstyles.title}>{item.sender_name}  <MyText style={EmailListstyles.email}> {item.sender}</MyText></MyText>
+                    <MyText style={EmailListstyles.title}>{item.subject}</MyText>
+                </View>
             </TouchableOpacity>
         )
     }
@@ -80,10 +82,13 @@ const EmailListstyles = StyleSheet.create({
       backgroundColor: '#f0f0f0',
     },
     item: {
-      padding: 10,
-      marginVertical: 0,
-      borderRadius: 8,
-      elevation: 2,
+        elevation: 0,
+        borderRadius: 0,
+        flexDirection: "row",
+        marginTop: 0,
+        borderBottomColor: "#ddd",
+        borderBottomWidth: 1,
+        paddingHorizontal: 10
     },
     email: {
         fontSize: 12,
@@ -95,5 +100,8 @@ const EmailListstyles = StyleSheet.create({
       fontSize: 14,
       textAlign: "right",
       color: '#888',
+    },
+    details: {
+        padding: 10
     },
   });

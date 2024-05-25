@@ -93,7 +93,7 @@ const EmailList = ({ route, navigation }) => {
     const renderItem = ({ item }) => {
         return (
             <TouchableOpacity onPress={x=> navigation.navigate("EmailView", {message_id: item.message_id})} style={{ padding: 10, borderBottomWidth: 1, borderColor: colors.border }}>
-                <MyText>{item.sender_name}</MyText>
+                <MyText>{item.sender_name} ({item.sender})</MyText>
                 <MyText style={{ fontWeight: 'bold' }}>{item.subject}</MyText>
                 <MyText>{formatDate(item.date)}</MyText>
                 

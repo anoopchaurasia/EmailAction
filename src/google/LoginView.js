@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
-import { View, Button, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Button, Text, TouchableOpacity, StyleSheet, Image, Linking } from 'react-native';
+import MyText from '../pages/component/MyText';
 GoogleSignin.configure({
   webClientId: '977286924231-mil75iap3q03f0fj7c6h6flcp0b124nk.apps.googleusercontent.com',
   scopes: ['https://mail.google.com/'], // what API you want to access on behalf of the user, default is email and profile
@@ -53,51 +54,49 @@ const MyComponent = ({ onLoginSuccess }) => {
       source={require('./../assets/email-action-icon.png')}
       style={{ width: 100, height: 100 }}
     />
-        <Text style={styles.appName_text}>Email Action</Text>
+        <MyText style={styles.appName_text}>Email Action</MyText>
       </View>
       <View style={styles.row}>
         <View style={styles.feature}>
-          <Text style={{ maxWidth: 40, marginRight: 10, fontSize: 20 }}>📧</Text>
-          <Text style={{ flex: 1 }}>
-            <Text style={styles.title}>Clean Inbox:  </Text>
+          <MyText style={{ maxWidth: 40, marginRight: 10, fontSize: 20 }}>📧</MyText>
+          <MyText style={{ flex: 1 }}>
+            <MyText style={styles.title}>Clean Inbox:  </MyText>
             Easily manage and declutter your inbox hassle-free.
-          </Text>
+          </MyText>
         </View>
         <View style={styles.feature}>
-          <Text style={{ maxWidth: 40, marginRight: 10, fontSize: 20 }}>🔍</Text>
-          <Text style={{ flex: 1 }}>
-            <Text style={styles.title}>Create Filters:  </Text>
+          <MyText style={{ maxWidth: 40, marginRight: 10, fontSize: 20 }}>🔍</MyText>
+          <MyText style={{ flex: 1 }}>
+            <MyText style={styles.title}>Create Filters:  </MyText>
             Organize emails effortlessly with custom filters.
-          </Text>
+          </MyText>
         </View>
         <View style={styles.feature}>
-          <Text style={{ maxWidth: 40, marginRight: 10, fontSize: 20 }}> 📎</Text>
-          <Text style={{ flex: 1 }}>
-            <Text style={styles.title}>PDF Viewer:  </Text>
+          <MyText style={{ maxWidth: 40, marginRight: 10, fontSize: 20 }}> 📎</MyText>
+          <MyText style={{ flex: 1 }}>
+            <MyText style={styles.title}>PDF Viewer:  </MyText>
             View attachments seamlessly within the app.
-          </Text>
+          </MyText>
         </View>
         <View style={styles.feature}>
-          <Text style={{ maxWidth: 40, marginRight: 10, fontSize: 20 }}>🔒</Text>
-          <Text style={{ flex: 1 }}>
-            <Text style={styles.title}>Your Privacy Matters:  </Text>
+          <MyText style={{ maxWidth: 40, marginRight: 10, fontSize: 20 }}>🔒</MyText>
+          <MyText style={{ flex: 1 }}>
+            <MyText style={styles.title}>Your Privacy Matters:  </MyText>
             Your data is securely stored in the app. No external servers except for Gmail API for essential email access.
-          </Text>
+          </MyText>
         </View>
       </View>
       <View style={styles.info}>
-        <Text>
+        <MyText>
           Enjoy a clutter-free inbox experience while ensuring your privacy is prioritized.
-        </Text>
+        </MyText>
       </View>
-      <View style={{ alignContent: "center", flex: 1, justifyContent: 'flex-end', paddingBottom: 100 }}>
-        <>
+      <View style={{ alignContent: "center", flex: 1, justifyContent: 'flex-end', paddingBottom: 100, alignItems:"center" }}>
           <GoogleSigninButton style={styles.button} size={GoogleSigninButton.Size.Wide} color={GoogleSigninButton.Color.Dark} onPress={signIn} />
-          <Text style={styles.label}>By signing in, you agree to our</Text>
+          <MyText style={styles.label}>By signing in, you agree to our</MyText>
           <TouchableOpacity onPress={() => Linking.openURL('https://www.example.com/terms-and-conditions')}>
-            <Text style={styles.link}>Terms and Conditions</Text>
+            <MyText style={styles.link}>Terms and Conditions</MyText>
           </TouchableOpacity>
-        </>
       </View>
     </View>
   );
@@ -108,7 +107,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
   title: {
     fontSize: 15,
@@ -126,6 +124,7 @@ const styles = StyleSheet.create({
     margin: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    textAlign:"center",
     borderRadius: 5,
     backgroundColor: '#4285F4',
   },

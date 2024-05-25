@@ -68,7 +68,7 @@ const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
 
 const styles = StyleSheet.create({
   inputView: {
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     minWidth: 200,
     alignItems: "flex-start",
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: {
       width: 0,
       height: 2,

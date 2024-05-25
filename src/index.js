@@ -11,9 +11,12 @@ import {
     LogBox, Text, View, useColorScheme
 } from 'react-native';
 
+import Crashes from 'appcenter-crashes';
+
+
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-
+import MyDate from './utility/MyDate';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 import { NavigationContainer,  DarkTheme, DefaultTheme, } from '@react-navigation/native';
@@ -41,6 +44,8 @@ import EmailListByEmail from './pages/list/EmailListByEmail';
 
 import CreateRuleView from './pages/component/CreateRuleView'
 
+import notifications from './pages/home/notificationstart';
+
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -58,14 +63,24 @@ LogBox.ignoreLogs([
 ]);
 
 const App: () => Node = () => {
+   // throw new Error('This is a test javascript crash!');
+
     const theme = useColorScheme();
     DefaultTheme.colors.selected="#ccc";
+    DefaultTheme.colors.shadow="#121212";
+    DefaultTheme.colors.underlayColor = "rgba(0, 0, 0, 0.1)"
+    
     DarkTheme.colors.selected="#444";
     DarkTheme.colors.shadow = "#121212";
-    DefaultTheme.colors.shadow="#121212";
+    DarkTheme.colors.underlayColor = "rgba(255, 255, 255, 0.1)"
+    
     let selectedTheme = theme === 'dark' ? DarkTheme : DefaultTheme;
 
+   
+
+
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+
     const DrawerNavigation = () => {
         return <Drawer.Navigator screenOptions={{ headerShown: true, headerTintColor: selectedTheme.colors.text }} drawerContent={(props) => <LogoutView {...props}  onLogoutSuccess={x => setIsAuthenticated(false)} />} >
             <Drawer.Screen name="Home" component={Home} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Home" name="home-circle-outline" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Home" name="home-circle-outline" /> }}/>
@@ -77,7 +92,9 @@ const App: () => Node = () => {
         </Drawer.Navigator>
     };
 
-
+    if(isAuthenticated) {
+        notifications()
+    }
     return <NavigationContainer theme={selectedTheme}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             {isAuthenticated ? (
@@ -89,6 +106,7 @@ const App: () => Node = () => {
                     <Stack.Screen name="LoginView" component={LoginView} />
                     <Stack.Screen name="CreateRuleView" component={CreateRuleView} />
                     <Stack.Screen name="EmailView" component={EmailView} />
+                    {/* <Stack.Screen name="Progress" component={ProgressNotification} /> */}
                 </>
             ) : (
                 <Stack.Screen

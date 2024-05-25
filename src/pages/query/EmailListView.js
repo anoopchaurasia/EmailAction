@@ -23,14 +23,13 @@ export default AttachementView = ({ navigation, route }) => {
     let colors = useTheme().colors;
     console.log(route.params.query.message_ids.length, "route.params.query.message_ids.length");
     let [list, setList] = useState([]);
-    let [page, setPage] = useState(0);
     let [query, setQuery] = useState(route.params.query);
     let [openSearch, setOpenSearch] = useState(false);
     let [loading, setLoading] = useState(0);
     let [selectedEmail, setSelectedEamil] = useState(null);
     useEffect(x => {
         if(query.message_ids.length == 0) {
-            loaddata("sfdfdfdfddddd");
+            loaddata("");
         } else {
             loadLatestData()
         }
@@ -66,9 +65,8 @@ export default AttachementView = ({ navigation, route }) => {
                     setList(msgs=> {
                         msgs.push(...(message_ids.map(mid=> MessageService.getById(mid))));
                         msgs.sort((a,b)=> a.date>b.date?-1:1);
-                        return msgs;
+                        return msgs.filter(x=>x);
                     });
-                    console.log("--------------fetching new messages", messages.length);
                 } while (nextPageToken);
             }
             setLoading(false);
@@ -94,10 +92,10 @@ export default AttachementView = ({ navigation, route }) => {
                     z.completed = pageToken==null
                     return z;
                 });
-                setList(msg=> {
+                setList(msgs=> {
                     msgs.push(...(message_ids.map(message_id => MessageService.getById(message_id))))
                     msgs.sort((a,b)=> a.date>b.date?-1:1);
-                    return msgs;
+                    return msgs.filter(x=>x);
                 });
                 message_ids.filter(mid=> MessageService.update({message_id:mid, has_attachement: true}));
                // await fetchBody(message_ids);
@@ -115,7 +113,7 @@ export default AttachementView = ({ navigation, route }) => {
     useEffect(x => {
         let messages = query.message_ids.map(message_id => MessageService.getById(message_id));
         console.log(query.message_ids.length, messages.length, "messages.length", messages[20]);
-        setList(msgs => { msgs.push(...messages); msgs.sort((a,b)=> a.date>b.date?-1:1); return msgs });
+        setList(msgs => { msgs.push(...messages); msgs.sort((a,b)=> a.date>b.date?-1:1); return msgs.filter(x=>x) });
     }, []);
 
     async function fetchBody(message) {
@@ -126,38 +124,43 @@ export default AttachementView = ({ navigation, route }) => {
             return
         }
         console.log("fetch body", );
-        let data = await DataSync.fetchData([message.message_id]);
-        data.map(x => MessageService.update(x));
+        //fetch single item 
+        let data = (await DataSync.fetchData([message.message_id]))[0];
+        MessageService.update(data);
 //        let messages = message_ids.map(message_id => MessageService.getById(message_id)).filter(x => x && x.attachments && (x.attachments.filter(r => r.name.match(/pdf$/i)).length));
+        
         setList(msgs => { 
-            msgs[selectedEmail] = data[0];
-            return msgs 
+            let index = list.indexOf(message);
+            index!=-1 && (msgs[index] = data)
+            return msgs
         });
         setOpenSearch(true);
     }
 
     async function getNext() {
-        ++selectedEmail;
-        if (!list[selectedEmail]) {
+        let _selectedEmail = selectedEmail+1;
+        if (!list[_selectedEmail]) {
             await loaddata("next");
-            if(!list[selectedEmail]) {
-                console.log("no message for index", selectedEmail);
-                return list[--selectedEmail];
+            if(!list[_selectedEmail]) {
+                console.log("no message for index", _selectedEmail);
+                return list[--_selectedEmail];
             }
         }
-        await fetchBody(list[selectedEmail]);
-        fetchBody(list[selectedEmail+1]);
-        return list[selectedEmail];
+        await fetchBody(list[_selectedEmail]);
+        fetchBody(list[_selectedEmail+1]);
+        setSelectedEamil(_selectedEmail);
+        return list[_selectedEmail];
     }
 
     async function getPrev() {
-        --selectedEmail;
-        if (!list[selectedEmail]) {
+        let _selectedEmail = selectedEmail-1;
+        if (!list[_selectedEmail]) {
             return list[0];
         }
-        await fetchBody(list[selectedEmail]);
-        fetchBody(list[selectedEmail-1]);
-        return list[selectedEmail];
+        await fetchBody(list[_selectedEmail]);
+        fetchBody(list[_selectedEmail-1]);
+        setSelectedEamil(_selectedEmail);
+        return list[_selectedEmail];
     }
 
     const renderFooter = () => {
@@ -172,7 +175,6 @@ export default AttachementView = ({ navigation, route }) => {
     const handleEndReached = () => {
         loaddata("last page");
     };
-
 
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>

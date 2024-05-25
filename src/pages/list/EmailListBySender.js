@@ -6,7 +6,8 @@ import MessageAggregateService from './../../realm/EmailAggregateService';
 import MessageEvent from "../../event/MessageEvent";
 import MyText from './../component/MyText';
 import { useTheme } from '@react-navigation/native';
-import SearchPage from './../component/SearchPage'
+import SearchPage from './../component/SearchPage';
+import MyCheckbox from "../component/MyCheckbox";
 
 
 export default ListView = ({ navigation, removeFromList }) => {
@@ -30,16 +31,16 @@ export default ListView = ({ navigation, removeFromList }) => {
     useEffect(x=>{
         let rm1 = MessageEvent.on('message_aggregation_changed', x=>{
             setActive(false);
-            setSelectedList({});
+          ///  setSelectedList({}); will create problem incase we fetch messages
             let list = MessageAggregateService.readMessage();
             setList(list);
-        });
+        }, true);
         let rm2 = MessageEvent.on('email_list_view_trash', ({sender, type})=>{
             trashSelectedSenders([sender]);
-        });
+        }, true);
         let rm3 = MessageEvent.on("email_list_view_create_rule", ({sender,type})=>{
             createRuleForSelectedSenders([sender]);
-        });
+        }, true);
         return x=> {[rm1, rm2, rm3].forEach(x=>x())}
     }, []);
 
@@ -72,6 +73,7 @@ export default ListView = ({ navigation, removeFromList }) => {
 
             return
         }
+        console.log(item.sender, "item sender");
         setSelectedList(x => ({
             ...x, [item.sender]: 1
         }))
@@ -87,19 +89,17 @@ export default ListView = ({ navigation, removeFromList }) => {
             return list.slice(0, page * 20);
         }
         value = value.toLowerCase();
+        console.log("search value");
         return list.filter((item) => item.sender.toLowerCase().includes(value)).slice(0, page * 20);
     };
-    function RenderItem({ item, selected = false, handleLongPress, hanldePress, active }) {
+
+    function RenderItem({ item, selected=false, handleLongPress, hanldePress }) {
         return (
-            <TouchableOpacity style={{ ...SenderListstyles.item, backgroundColor: selected ? '#ddd' : '' }} onLongPress={() => handleLongPress(item)} onPress={x => hanldePress(item)}>
-                {active ?
-                    <View style={{ height: "100%", width: 35 }}>
-                        <Icon name="check-circle" size={33} style={{ marginTop: 13, marginLeft: 5 }} onPress={() => handleLongPress(item)} color={selected ? "green" : "#ccc"} />
-                    </View>
-                    : ""}
+            <TouchableOpacity style={{...SenderListstyles.item, backgroundColor: selected? colors.selected: colors.card,}} onLongPress={()=> handleLongPress(item)} onPress={x=>hanldePress(item)}>
+                <MyCheckbox onPress={()=> handleLongPress(item)} selected={selected}/>
                 <View style={SenderListstyles.details}>
-                    <MyText style={SenderListstyles.title}>{item.sender_name}  ({item.count}) </MyText>
-                    <MyText style={SenderListstyles.email}> {item.sender}</MyText>
+                    <MyText style={SenderListstyles.title}>{item.sender_name} ({item.sender}) </MyText>
+                    <MyText style={{...SenderListstyles.label, borderColor: colors.border, backgroundColor:colors.border}}>{item.count}</MyText>
                 </View>
             </TouchableOpacity>
         )
@@ -109,12 +109,16 @@ export default ListView = ({ navigation, removeFromList }) => {
     const handleChangeText = (value) => {
         // Update the state variable with the new value
         setText(value);
+        Object.keys(selectedList).length && setSelectedList({});
     };
 
     const handleEndReached = () => {
         // Increment the page number by one
         setPage((prevPage) => prevPage + 1);
     };
+
+    console.log(selectedList, "selectedList");
+
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>
              <SearchPage  onChangeText={handleChangeText}  placeholder="Search Sender"  value={text} name="magnify" />
@@ -137,39 +141,46 @@ export default ListView = ({ navigation, removeFromList }) => {
 
 
 const SenderListstyles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: '#f0f0f0',
+    label: {
+        backgroundColor:"#ccc",
+        fontSize: 12,
+        padding: 6,
+        paddingHorizontal:10,
+        paddingTop: 2,
+        lineHeight: 20,
+        height: 25,
+        borderColor: "#ccc",
+        borderRadius: 5,
     },
-    itemContainer: {
-        margin: 10,
-    },
-    item: {
+    item : {
         elevation: 0,
+        backgroundColor: 'white',
         borderRadius: 0,
-        flexDirection: "row",
+        flexDirection:"row",
         marginTop: 0,
-        borderBottomColor: "#ddd",
-        borderBottomWidth: 1,
-        paddingHorizontal: 10
-    },
-    innerItem: {
-        padding: 10
+        borderBottomColor:"#ddd",
+        borderBottomWidth:1,
     },
 
+
     details: {
-        padding: 10
+        padding: 5,
+        paddingLeft: 0,
+        paddingVertical: 13,
+        flexDirection:"row",
+        flex:1
     },
     email: {
         fontSize: 12,
     },
     title: {
-        fontSize: 14,
+      fontSize: 14,
+      flex:1
+      
     },
     count: {
-        fontSize: 11,
-        textAlign: "right",
-        color: '#888',
+      fontSize: 11,
+      textAlign: "right",
+      color: '#888',
     },
 });

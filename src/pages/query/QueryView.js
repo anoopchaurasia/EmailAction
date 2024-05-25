@@ -15,7 +15,7 @@ function Field({ value, label, onChangeText, placeholder, colors }) {
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        style={{...styles.input, borderColor: colors.border}}
+        style={{...styles.input, borderColor: colors.border, color: colors.text}}
       />
     </View>
   )
@@ -57,15 +57,15 @@ const AdvancedFilter = ({ onClose, query_init }) => {
     onClose({ ...query_init, query, name: queryName, pdf_password: password });
 
   };
-
+console.log(query_init.id, "query_init.id");
   let actionList = [{
-    name: "Create",
-    icon: "plus",
+    name: query_init.id ? "Update": "Create",
+    icon: query_init.id ? "update" : "plus",
     action: handleSearch
   }];
 
   return (
-    <View style={styles.container}>
+    <View style={{...styles.container, backgroundColor: colors.background}}>
       <View style={{flex:1, padding: 10}}>
         <MyText style={styles.title}>Advanced Filter</MyText>
         <Field colors={colors} value={queryName} label="Name" onChangeText={setQueryName} placeholder="Enter Query Name" />
@@ -116,7 +116,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom:10,
     flexDirection:"column",
-    backgroundColor: '#fff',
   },
   title: {
     fontSize: 18,

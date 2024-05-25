@@ -1,8 +1,15 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import MessageAggregateService from '../realm/EmailAggregateService';
+import ActivityMethods from '../realm/ActivityService';
+import LabelService from '../realm/LabelService';
+import QueryService from '../realm/QueryMessageService';
+import EmailMessageService from './../realm/EmailMessageService';
+import Utility from '../utility/Utility';
 
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import MessageEvent from '../event/MessageEvent';
 
 
 const DrawerContent = (props) => {
@@ -10,6 +17,13 @@ const DrawerContent = (props) => {
 
   const handleSignOut = async () => {
     try {
+      MessageAggregateService.deleteAll();
+      ActivityMethods.deleteAll();
+      LabelService.deleteAll();
+      QueryService.deleteAll();
+      EmailMessageService.deleteAll();
+      MessageEvent.emit('user_logged_out');
+      Utility.clear();
       await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
       onLogoutSuccess();

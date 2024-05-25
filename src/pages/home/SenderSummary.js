@@ -8,6 +8,7 @@ import { useTheme } from '@react-navigation/native';
 
 export default function SenderSummary({navigation}) {
     let [fetchCount, setFetchCount] = useState(0);
+    let colors = useTheme().colors;
     const [count, setCount]=useState(-1);
     useEffect(x => {
         setCount(MessageAggregateService.count());
@@ -18,8 +19,8 @@ export default function SenderSummary({navigation}) {
     },[]);
 
     return (
-        <TouchableHighlight onPress={x => navigation.navigate("Sender")}>
-            <View style={{ width: "90%", borderColor: "#ddd", borderWidth: 1, margin: 10 }}>
+        <TouchableHighlight underlayColor={colors.underlayColor} onPress={x => navigation.navigate("Sender")}>
+            <View style={{ width: "90%", borderColor: colors.border, borderWidth: 1, margin: 10, marginLeft:"5%"}}>
                     <MyText style={{ fontSize: 30, textAlign: "center" }}>
                         Total Senders
                     </MyText>

@@ -1,3 +1,5 @@
+import Realm from 'realm';
+
 
     // =  Define a Label class with the methods and the new propertie=> s
 let idNameMap = {};

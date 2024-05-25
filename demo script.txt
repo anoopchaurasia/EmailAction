@@ -1,0 +1,21 @@
+Welcome to our revolutionary email client application, designed to elevate your emailing experience with an array of powerful features aimed at achieving a seamless inbox management solution.
+
+
+This application exclusively retrieves emails from the Gmail server and does not engage with any other server, thus prioritizing your privacy. Furthermore, we do not store or transmit any data on any other server, ensuring the utmost security of your information.
+
+With our application, achieving a clutter-free inbox is effortless. You'll have the ability to execute multiple actions and schedule various rules for your emails. Whether it's reading PDFs, viewing images, or applying specific filters stored within the system, our application empowers you to do it all.
+
+Let's dive in:
+
+To begin, log in to your Gmail account. Once logged in, the application initiates the process of retrieving your emails. The landing page provides a comprehensive overview, showcasing statistics such as total sender domains, the number of unique senders, and the overall email count. Additionally, it presents your personalized actions and rules, along with the total stored queries for your convenience.
+
+Now, let's explore the functionality:
+
+Navigate to the domain section, where you can effortlessly select multiple domains and execute various actions, such as moving emails to the trash or creating custom rules to direct emails to different folders. Similar functionalities are available for sender and email-specific actions, providing you with comprehensive control over your inbox management.
+
+In the query tab, you have the flexibility to add and store queries, ensuring easy access and utilization for future tasks.
+
+Moreover, the task section compiles a detailed log of all the actions performed on domains, senders, or individual emails, allowing you to track and manage your workflow efficiently.
+
+Our application aims to streamline your email management experience, providing you with the tools and functionalities needed to achieve a clutter-free inbox effortlessly.
+
