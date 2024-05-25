@@ -75,7 +75,12 @@ export default ProcessRules = {
         try {
             await this.getMessageIds(task, async (message_ids) => {
                 await ChangeLabel.copyToFolder(task, message_ids, function (result) {
-                    (result || []).forEach(x => MessageService.update(x));
+                    console.log(result);
+                    try{
+                        (result || []).forEach(x => MessageService.update(x));
+                    } catch(e){
+                        console.error("ProcessRule", e, "copy change DB", task)
+                        };
                 }).catch(e => console.error("ProcessRule", e, "copy change", task));
             }, message_ids);
         } catch (e) {

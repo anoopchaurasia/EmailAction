@@ -68,9 +68,14 @@ const MessageService = {
     },
 
     update: (message) => {
-        realm.write(() => {
-            realm.create('Message', message, true);
-        });
+        try{
+
+            realm.write(() => {
+                realm.create('Message', message, true);
+            });
+        } catch(e) {
+            console.error(e, message);
+        }
     },
 
     delete: (message) => {

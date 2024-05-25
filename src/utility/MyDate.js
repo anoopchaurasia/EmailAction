@@ -21,5 +21,5 @@ Date.parseString = function(str){
 Date.dateView = function(date) {
   if(!date) return "";
   date = new Date(date);
-  return date.toLocaleDateString()
+  return date.toLocaleString()
 }

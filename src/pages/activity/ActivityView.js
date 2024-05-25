@@ -7,9 +7,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LabelService from '../../realm/LabelService';
 import { useTheme } from '@react-navigation/native';
 import SearchPage from './../component/SearchPage';
+import MyDate from './../../utility/MyDate';
 // Create a realm instance with the schemas
 import MyText from './../component/MyText'
-let MyIcon = (item, name, handlePress, size = 30, color = "#900") => {
+let MyIcon = (item, name, handlePress, size = 25, color = "#900") => {
   return (
     <TouchableOpacity onPress={x => handlePress(item)}>
       <Icon name={name} size={size} color={color} />
@@ -21,21 +22,25 @@ function handlePress() {
   console.log("pressedddd");
 }
 
-
-
 // Define a function to render each item in the flat list
 const renderItem = (item, onPlay, onDelete, onEdit, colors) => {
-  let title = item.title || `${item.action} to ${(item.to_label || "").toString()} from ${item.to.toString()} ${item.from.toString()}`
+  let title = item.title || `${item.action} from ${item.to.toString()} ${item.from.toString()}`
   return (
-    <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', flexDirection: "row" }}>
-      <MyText style={{}}>{title}</MyText>
-      <MyText style={{...styles.label, borderColor: colors.border}}>{LabelService.getNameById(item.from_label)}</MyText>
-      <Icon name="arrow-right" />
-      <MyText>{Date.dateView (item.ran_at)}</MyText>
-      <MyText style={{...styles.label, borderColor: colors.border}}>{LabelService.getNameById(item.to_label)}</MyText>
-      {MyIcon(item, "pencil-outline", onEdit)}
-      {item.completed ? MyIcon(item, "play", onPlay) : MyIcon(item, "circle-outline", handlePress)}
-      {MyIcon(item, "delete", onDelete)}
+    <View style={{flexDirection: "row", padding: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0',}}>
+      <View style={{flexDirection: "column", flex:1, marginRight: 70, }}>
+        <MyText style={{}}>{title}</MyText>
+        <View style={{flexDirection:"row"}}>
+          <MyText>{Date.dateView(item.ran_at)} </MyText>
+          <MyText style={{...styles.label, borderColor: colors.border}}>{LabelService.getNameById(item.from_label)}</MyText>
+          <Icon name="arrow-right" />
+          <MyText style={{...styles.label, borderColor: colors.border}}>{LabelService.getNameById(item.to_label)}</MyText>
+        </View>
+      </View>
+      <View style={{width:70, flexDirection:"row"}}>
+        {MyIcon(item, "pencil-outline", onEdit)}
+        {item.completed ? MyIcon(item, "play", onPlay) : MyIcon(item, "circle-outline", handlePress)}
+        {MyIcon(item, "delete", onDelete)}
+      </View>
     </View>
   );
 };

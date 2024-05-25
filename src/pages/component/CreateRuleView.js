@@ -36,7 +36,7 @@ export default CreateRuleView = ({ route, navigation }) => {
         updateActivity({to_label: label.id});
         console.log('selected label', label);
     }
-
+    console.log(activity);
     return (
         <View style={{padding: 10}}>
             <View style={{flexDirection:"row", fontSize: 20, borderBottomWidth: 1, marginBottom: 5, paddingBottom: 5, borderColor:colors.border}}>
@@ -53,7 +53,7 @@ export default CreateRuleView = ({ route, navigation }) => {
             <View style={{flexDirection:"row", fontSize: 20, borderBottomWidth: 1, marginBottom: 5, paddingBottom: 5, borderColor:colors.border}}>
                 <Icon name="folder-move-outline" size={25} style={{height: 40, paddingTop:10, paddingRight: 30, paddingLeft: 20}} />
                 <View style={{flexDirection:"column", flex:1, height:100}}>
-                    <MyText>Move to</MyText>
+                    <MyText> {activity.action=="copy"? 'Copy': "Move"} to</MyText>
                     <MoveToLabelView   selectedLabelId={activity.to_label} setSelectedLabel={setSelectedLabel} />
                 </View>
             </View>

@@ -28,6 +28,11 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
         name: "Trash", 
         icon:"trash-can", 
         action: x=>trashSelectedDomains()
+    },
+    {
+        name: "Copy",
+        icon: "content-copy",
+        action: x=> copySelectedDomain()
     }, {
         name:"Rule", 
         icon:"set-merge", 
@@ -40,13 +45,16 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
         MessageEvent.emit("created_new_rule", activity);
     }
 
-    function createRuleForSelectedDomain(senders) {
-        navigation.navigate('CreateRuleView', {activity: {from: senders || Object.keys(selectedList), type:"domain"}})
+    function createRuleForSelectedDomain(senders, action="move") {
+        navigation.navigate('CreateRuleView', {activity: {from: senders || Object.keys(selectedList), action ,type:"domain"}})
     }
+
+    function copySelectedDomain(senders) {
+        createRuleForSelectedDomain(senders, 'copy');
+     }
 
     useEffect(x=>{
         let rm1 = MessageEvent.on('message_aggregation_changed', x=>{
-            setActive(false);
             createList();
         }, true);
         let rm2 = MessageEvent.on('email_list_view_trash', ({sender, type})=>{
@@ -82,7 +90,7 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
     useEffect(createList, []);
 
     useEffect(()=>{
-        if(Object.keys(selectedList).length===0) setActive(false);
+        if(Object.keys(selectedList).length===0) setActive(false); else setActive(true);
     }, [selectedList])
 
     function handleLongPress(item) {
@@ -98,7 +106,6 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
         setSelectedList(x=> ({
             ...x, [item.sender]:1
         }))
-        setActive(true);
     }
 
     function hanldePress(item) {

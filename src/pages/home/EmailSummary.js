@@ -6,11 +6,11 @@ import * as Progress from 'react-native-progress';
 import MessageService from "../../realm/EmailMessageService";
 import Utility from "../../utility/Utility";
 import MessageEvent from "../../event/MessageEvent";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import DataSync from './../../data/DataSync'
 import MyText from './../component/MyText'
 import { useTheme } from '@react-navigation/native';
-import notifee, {AndroidColor} from '@notifee/react-native';
 
 export default function EmailSummary({ navigation }) {
 
@@ -35,22 +35,13 @@ export default function EmailSummary({ navigation }) {
 
     useEffect(x => {
         
-        async function setX() {
-            await notifee.requestPermission();
-            // const channelId = await notifee.createChannel({
-            //     id: 'default',
-            //     name: 'Default Channel',
-            // });
-            // setChannelId(channelId);
-        }
-       setX();
         DataSync.getTotalEmails().then(data => {
             setInboxInfo(data);
             count && data.messagesTotal && setProgressPer(count / data.messagesTotal);
-            //ActivityProcess.processNew();
+            ActivityProcess.processNew();
         }).catch(x => {
             console.log("GetTotal failed", x)
-            //ActivityProcess.processNew();
+            ActivityProcess.processNew();
         });
 
         MessageEvent.on('new_message_received', (messages) => {
@@ -76,29 +67,11 @@ export default function EmailSummary({ navigation }) {
         Utility.deleteData('full_sync_token');
     }
 
-
-    const displayNonDeletableNotification = async () => {
-       // if( channelId ) return
-        const cid = await notifee.createChannel({
-            id: 'testing34',
-            name: 'Default Channel',
-        });
-        setChannelId(cid);
-        const id = await notifee.displayNotification({
-            title: 'Non-Deletable Notification',
-            body: 'This notification appears to be non-deletable.',
-            android: {
-                android: {
-                    channelId: 'testing34',
-                    asForegroundService: true,
-                    color: AndroidColor.RED,
-                    colorized: true,
-                  },
-            }
-        });
-
-        
-    };
+    const handleSync = (props) => {
+        Utility.deleteData('full_sync_token');
+        Utility.deleteData('sync_completed');
+        ActivityProcess.processNew();
+     }
 
 
     return (
@@ -110,10 +83,17 @@ export default function EmailSummary({ navigation }) {
                         <MyText style={{ fontSize: 30, textAlign: "center" }}>
                             Total Emails
                         </MyText>
+                        <View style={{position:"absolute", right: 20}}>
+
+                            {fetchCompleted?  
+                                <Icon onPress={handleSync} name="sync" size={25} style={{marginTop: 10, marginLeft: 0}} /> : 
+                                <Icon name="progress-clock" size={25} style={{marginTop: 10, marginLeft: 0}} /> 
+                            }
+                        </View>
                         <MyText style={{ fontSize: 40, textAlign: "center" }}>
                             {count}/{inboxInfo.messagesTotal}
                         </MyText>
-                        <MyText> {fetchCompleted ? "" : "Fetch: InProgress"}</MyText>
+                        
                     </View>
                 </View>
             </View>

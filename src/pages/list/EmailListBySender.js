@@ -3,6 +3,7 @@ import { FlatList, Text, View, TextInput, StyleSheet, TouchableOpacity } from 'r
 import BottomBar from '../component/BottomBarView';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need to install this library for icons
 import MessageAggregateService from './../../realm/EmailAggregateService';
+import ActivityService from './../../realm/ActivityService';
 import MessageEvent from "../../event/MessageEvent";
 import MyText from './../component/MyText';
 import { useTheme } from '@react-navigation/native';
@@ -22,7 +23,13 @@ export default ListView = ({ navigation, removeFromList }) => {
         name: "Trash",
         icon: "trash-can",
         action: x=> trashSelectedSenders()
-    }, {
+    },
+    {
+        name: "Copy",
+        icon: "content-copy",
+        action: x=> copySelectedSenders()
+    }
+    , {
         name: "Rule",
         icon: "set-merge",
         action: x=> createRuleForSelectedSenders()
@@ -50,8 +57,12 @@ export default ListView = ({ navigation, removeFromList }) => {
         MessageEvent.emit("created_new_rule", activity);
     }
 
-    function createRuleForSelectedSenders(senders) {
-        navigation.navigate('CreateRuleView', {activity: {from: senders || Object.keys(selectedList), type:"sender"}})
+    function copySelectedSenders(senders) {
+       createRuleForSelectedSenders(senders, 'copy');
+    }
+
+    function createRuleForSelectedSenders(senders, action="move") {
+        navigation.navigate('CreateRuleView', {activity: {from: senders || Object.keys(selectedList), action, type:"sender"}})
     }
 
     useEffect(x => {
@@ -89,7 +100,6 @@ export default ListView = ({ navigation, removeFromList }) => {
             return list.slice(0, page * 20);
         }
         value = value.toLowerCase();
-        console.log("search value");
         return list.filter((item) => item.sender.toLowerCase().includes(value)).slice(0, page * 20);
     };
 
@@ -116,8 +126,6 @@ export default ListView = ({ navigation, removeFromList }) => {
         // Increment the page number by one
         setPage((prevPage) => prevPage + 1);
     };
-
-    console.log(selectedList, "selectedList");
 
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>

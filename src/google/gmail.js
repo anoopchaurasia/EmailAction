@@ -39,7 +39,7 @@ export default class Gmail extends Email{
   static getMessageIds = async (query, nextPageToken) => {
 
     let apiUrl = `${base_gmail_url}messages?${new URLSearchParams({
-      maxResults: 100,
+      maxResults: 50,
       q: query || "",
       pageToken: nextPageToken || "",
     })}`;

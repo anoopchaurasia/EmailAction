@@ -19,3 +19,17 @@ Moreover, the task section compiles a detailed log of all the actions performed 
 
 Our application aims to streamline your email management experience, providing you with the tools and functionalities needed to achieve a clutter-free inbox effortlessly.
 
+
+
+let primary = dynamic([112,104,220,92,204,217,127,215,216,208,412,128,218,404,94,492]);
+let addon = dynamic([105,113,409,413,209]);
+moc_tlog
+| mv-expand promos = discountinfos
+| extend promoId = tostring(promos.promoId)
+| where invoiceDate >= _startTime and invoiceDate <= _endTime
+| where itemNumber in (112,104,220,92,204,217,127,215,216,208,412,128,218,404,94,492,105,113,409,413,209)
+| where  promoId != ""
+// | summarize c= count() by promoId
+// | where c >= ['count']
+| distinct promoId
+
