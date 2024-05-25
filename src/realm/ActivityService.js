@@ -18,6 +18,7 @@ const ActivitySchema = {
     title: "string",
     delete_at: 'date?', /// no longer excecuted 
     completed: {type:"bool", indexed: true, default: false}, /// completed first execution.
+    ran_at: 'date?'
   },
   primaryKey: 'id', // Set the id as the primary key
 };

@@ -17,13 +17,13 @@ export default ProcessRules = {
             console.log(task.action, task.from_label, task.to_label, task.from);
             if (task.action === 'trash') {
                 await ProcessRules.trash(task);
-                 await ActivityService.updateObjectById(task.id, { completed: true });
+                await ActivityService.updateObjectById(task.id, {ran_at: new Date, completed: true });
             } else if (task.action == "move") {
                 await ProcessRules.moveToFolder(task);
-                  await ActivityService.updateObjectById(task.id, { completed: true });
+                await ActivityService.updateObjectById(task.id, {ran_at: new Date, completed: true });
             } else if (task.action == "copy") {
                 await ProcessRules.copyToFolder(task);
-                await ActivityService.updateObjectById(task.id, { completed: true });
+                await ActivityService.updateObjectById(task.id, {ran_at: new Date, completed: true });
             } else {
                 console.log("no action defined", task);
             }
@@ -84,20 +84,34 @@ export default ProcessRules = {
     },
     takeAction: async function (messages) {
 
-        let fromlist = {};
-        ActivityService.getAll().filter(x => x.from).forEach(x => x.from.forEach(r => fromlist[r] = x));
-        for (let i = 0; i < messages.length; i++) {
-            let { task, message_id } = matchQuery(fromlist, messages[i]);
-            if (!task) continue;
+        let fromlist = {}, message_mapping = {}, task_message_map={};
+        ActivityService.getAll().filter(x => x.from).forEach(x => x.from.forEach(r => fromlist[r] =  x));
+        messages.forEach(message=>{
+            message_mapping[message.sender] = message_mapping[message.sender] || [];
+            message_mapping[message.sender].push(message);
+            message_mapping[message.sender_domain] = message_mapping[message.sender_domain] || []
+            message_mapping[message.sender_domain].push(message);
+        });
+        for (let sender in message_mapping) {
+            let task = fromlist[sender];
+            if(!task) continue;
+            task_message_map[task.id] = task_message_map[task.id] || {task: task, messages:[]}
+            task_message_map[task.id].messages.push(...message_mapping[sender]);
+        }
+
+        for(let task_id in task_message_map) {
+            let {task, messages} = task_message_map[task_id];
             if (task.action === 'trash') {
-                await ProcessRules.trash(task, [message_id]);
+                await ProcessRules.trash(task, messages.map(msg=> msg.message_id));
             } else if (task.action == "move") {
-                await ProcessRules.moveToFolder(task, [message_id]);
+                await ProcessRules.moveToFolder(task, messages.map(msg=> msg.message_id));
             } else if (task.action == "copy") { ////copy if we are not removing existing labels
-                await ProcessRules.copyToFolder(task, [message_id]);
+                await ProcessRules.copyToFolder(task, messages.map(msg=> msg.message_id));
             }
+            await ActivityService.updateObjectById(task.id, {ran_at: new Date});
         }
     },
+
     createNewRule: async function (label, senders, action, type) {
         console.log(senders, label, action  , "createNewRule");
         if(!action || !senders || !label || !type) throw "no action or senders or label provide";
@@ -115,12 +129,9 @@ export default ProcessRules = {
 
 
 function matchQuery(fromlist, message) {
-    let temp = fromlist[message.sender];
-    if (temp) return {
-        message_id: message.message_id,
-        task: temp
-    }
-    return {};
+    let temp = fromlist[message.sender] || fromlist[message.sender_domain];
+    if (temp) return temp;
+    return null;
 }
 
 
