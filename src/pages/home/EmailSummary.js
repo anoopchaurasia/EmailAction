@@ -10,7 +10,6 @@ import MessageEvent from "../../event/MessageEvent";
 import DataSync from './../../data/DataSync'
 import MyText from './../component/MyText'
 import { useTheme } from '@react-navigation/native';
-import notifee, {AndroidColor} from '@notifee/react-native';
 
 export default function EmailSummary({ navigation }) {
 
@@ -35,15 +34,6 @@ export default function EmailSummary({ navigation }) {
 
     useEffect(x => {
         
-        async function setX() {
-            await notifee.requestPermission();
-            // const channelId = await notifee.createChannel({
-            //     id: 'default',
-            //     name: 'Default Channel',
-            // });
-            // setChannelId(channelId);
-        }
-       setX();
         DataSync.getTotalEmails().then(data => {
             setInboxInfo(data);
             count && data.messagesTotal && setProgressPer(count / data.messagesTotal);
@@ -76,29 +66,6 @@ export default function EmailSummary({ navigation }) {
         Utility.deleteData('full_sync_token');
     }
 
-
-    const displayNonDeletableNotification = async () => {
-       // if( channelId ) return
-        const cid = await notifee.createChannel({
-            id: 'testing34',
-            name: 'Default Channel',
-        });
-        setChannelId(cid);
-        const id = await notifee.displayNotification({
-            title: 'Non-Deletable Notification',
-            body: 'This notification appears to be non-deletable.',
-            android: {
-                android: {
-                    channelId: 'testing34',
-                    asForegroundService: true,
-                    color: AndroidColor.RED,
-                    colorized: true,
-                  },
-            }
-        });
-
-        
-    };
 
 
     return (

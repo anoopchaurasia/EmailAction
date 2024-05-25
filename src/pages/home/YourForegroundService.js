@@ -10,7 +10,6 @@ const YourForegroundService = () => {
     console.log(Platform.OS, "Platform.OS");
     notifee.registerForegroundService(async ({ id }) => {
       return new Promise((resolve) => {
-        console.log(" ActivityProcess.processNew(x=>{ ActivityProcess.processNew(x=>{")
         ActivityProcess.processNew(x=>{
           console.log("process completed, marking done");
            notifee.stopForegroundService().then(x=>{
