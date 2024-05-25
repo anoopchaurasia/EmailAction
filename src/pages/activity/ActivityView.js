@@ -31,7 +31,7 @@ const renderItem = (item, onPlay, onDelete, onEdit, colors) => {
       <MyText style={{}}>{title}</MyText>
       <MyText style={{...styles.label, borderColor: colors.border}}>{LabelService.getNameById(item.from_label)}</MyText>
       <Icon name="arrow-right" />
-      <MyText>{item.ran_at}</MyText>
+      <MyText>{Date.dateView (item.ran_at)}</MyText>
       <MyText style={{...styles.label, borderColor: colors.border}}>{LabelService.getNameById(item.to_label)}</MyText>
       {MyIcon(item, "pencil-outline", onEdit)}
       {item.completed ? MyIcon(item, "play", onPlay) : MyIcon(item, "circle-outline", handlePress)}
