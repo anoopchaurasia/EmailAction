@@ -29,7 +29,7 @@ export default class MyComponent {
                 .getList({ query: "-in:chats", pageToken: await Utility.getData('full_sync_token'), full_sync: true }).catch(e => console.error(e, "resume sync issue"));
             aggregate(messages);
             await Utility.saveData('full_sync_token', nextPageToken);
-            console.log("completed loop", nextPageToken);
+            console.log("completed loop", nextPageToken, messages.length);
 
             MessageEvent.emit('new_message_received', messages);
             await Utility.sleep(500);
@@ -46,13 +46,31 @@ export default class MyComponent {
         let length = message_ids.length;
         message_ids = message_ids.filter(message_id => MessageService.checkMessageId(message_id) == false);
         if (full_sync === false && length !== message_ids.length) nextPageToken = undefined;
+        let messages = await MyComponent.getMessages(message_ids);
+        return { nextPageToken, messages };
+        };
+        
+        static getMessages = async (message_ids=[], iteration=0)=> {
+            if(iteration>3)  {
+                console.error("failed to retrieve email info in 3 try for the messages", message_ids);
+                return [];
+                }
         var messages = [];
         if (message_ids.length) {
             messages = await MyComponent.fetchMessageMeta(message_ids);
+            let messages_ids_received = {};
+            messages.forEach(x=> messages_ids_received[x.message_id]=1);
+            let non_received_message = message_ids.filter(t=> !messages_ids_received[t]);
             messages.map(x => { try { MessageService.update(x) } catch (e) { console.error(e, "update failed getList", x) } });
-        }
-        return { nextPageToken, messages };
-    };
+            if(non_received_message.length) {
+                let new_messages = await MyComponent.getMessages(non_received_message, iteration+1);
+                messages.push(...new_messages);
+            }
+
+            }
+        console.log(message_ids.length, messages.length, iteration, "-------------");
+        return messages;
+    }
 
     static loadAttachment = async (message_id, attachmentId) => {
         return await Gmail.fetchAttachment(message_id, attachmentId);

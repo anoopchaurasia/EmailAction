@@ -20,7 +20,9 @@ export default Activity = {
             ///other wise tasks may add random message casusing logic to stop sync 
             await DataSync.resumeSync(Activity.newMessages);
             console.log("2. starting  sync")
+            console.log("4544545--")
             await Activity.sync();
+            console.log("4544545")
             await ProcessRules.process();
             in_progress = false;
             console.log("completed the process");
