@@ -8,11 +8,14 @@
     "lint": "eslint .",
     "start1": "source ~/.bash_profile && react-native start",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "emulator": "emulator.lnk -avd Pixel_8_API_35"
   },
   "dependencies": {
     "@notifee/react-native": "^7.8.0",
     "@react-native-async-storage/async-storage": "^1.18.1",
+    "@react-native-firebase/app": "^20.5.0",
+    "@react-native-firebase/messaging": "^20.5.0",
     "@react-native-google-signin/google-signin": "^9.0.2",
     "@react-native-picker/picker": "^2.6.1",
     "@react-navigation/drawer": "^6.6.2",
