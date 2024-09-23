@@ -68,7 +68,7 @@ const App: () => Node = () => {
     DefaultTheme.colors.shadow="#121212";
     let selectedTheme = theme === 'dark' ? DarkTheme : DefaultTheme;
     //initiate FCM messages
-    useEffect(x=>FCM_Message, []);
+    useEffect(x=>FCM_Message(), []);
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const DrawerNavigation = () => {
