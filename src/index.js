@@ -41,8 +41,6 @@ import EmailListByEmail from './pages/list/EmailListByEmail';
 
 import CreateRuleView from './pages/component/CreateRuleView'
 
-import FCM_Message from "./FCM_Messaging"
-
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -68,7 +66,6 @@ const App: () => Node = () => {
     DefaultTheme.colors.shadow="#121212";
     let selectedTheme = theme === 'dark' ? DarkTheme : DefaultTheme;
     //initiate FCM messages
-    useEffect(x=>FCM_Message(), []);
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const DrawerNavigation = () => {

@@ -11,7 +11,7 @@ export default class Gmail extends Email{
     if(Gmail._accessToken && !fresh && last_toke_fetch_time &&  (new Date()).getTime() - last_toke_fetch_time < 50*60*1000) return Gmail._accessToken;
     last_toke_fetch_time = (new Date()).getTime();
     Gmail._accessToken = (await GoogleSignin.getTokens()).accessToken;
-    return Gmail._accessToken;s
+    return Gmail._accessToken;
   }
   static gmailFetch = async function (url, options, fresh=false) {
     console.log(url);
