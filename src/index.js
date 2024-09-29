@@ -41,6 +41,7 @@ import EmailListByEmail from './pages/list/EmailListByEmail';
 
 import CreateRuleView from './pages/component/CreateRuleView'
 
+import GmailImapApp from './google/GmailImapApp';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -78,7 +79,9 @@ const App: () => Node = () => {
             <Drawer.Screen name="ActivityView" component={ActivityView} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Saved Rules" name="gate-xor" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Saved Rules" name="gate-xor" /> }}/>
         </Drawer.Navigator>
     };
-
+    if(isAuthenticated) {
+        GmailImapApp.init();
+    }
     return <NavigationContainer theme={selectedTheme}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             {isAuthenticated ? (
