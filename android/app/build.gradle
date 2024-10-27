@@ -3,6 +3,14 @@ apply plugin: "com.facebook.react"
 
 import com.android.build.OutputFile
 
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file("local.properties")
+
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -114,21 +122,22 @@ android {
     }
     signingConfigs {
         debug {
-            storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
+            storeFile file(localProperties['MYAPP_UPLOAD_STORE_FILE_DEBUG'])
+            storePassword localProperties['MYAPP_UPLOAD_STORE_PASSWORD_DEBUG']
+            keyAlias localProperties['MYAPP_UPLOAD_KEY_ALIAS_DEBUG']
+            keyPassword localProperties['MYAPP_UPLOAD_KEY_PASSWORD_DEBUG']
         }
         release {
-            storeFile file('email-action-release.keystore')
-            storePassword "Unique@Sushil1"
-            keyAlias 'anoopsystem'
-            keyPassword "Unique@Sushil1"
+            storeFile file(localProperties['MYAPP_UPLOAD_STORE_FILE_RELEASE'])
+            storePassword localProperties['MYAPP_UPLOAD_STORE_PASSWORD_RELEASE']
+            keyAlias localProperties['MYAPP_UPLOAD_KEY_ALIAS_RELEASE']
+            keyPassword localProperties['MYAPP_UPLOAD_KEY_PASSWORD_RELEASE']
         }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+          //  applicationIdSuffix ".debug"
         }
         release {
             // Caution! In production, you need to generate your own keystore file.

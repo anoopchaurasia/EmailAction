@@ -62,7 +62,10 @@ public class GmailIMAP {
     private static void sendNewMessageToJS(String message) {
         if (webSocketServer != null) {
             webSocketServer.sendMessageToAll(message);
+        } else {
+            System.out.println("webSocketServer is not available");
         }
+
     }
 
     public static void initializeWebSocketServer() {

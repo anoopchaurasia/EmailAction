@@ -19,7 +19,7 @@ class GmailImapApp {
                 .then((message) => console.log(message, "Connected"))
                 .catch((error) => console.error(error, "Error"));
 
-                const socket = new WebSocket('ws://localhost:8080');
+                const socket = new WebSocket('ws://localhost:8765');
 
                 socket.addEventListener('open', (event) => {
                     console.log('Connected to WebSocket server');
