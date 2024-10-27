@@ -41,9 +41,11 @@ import EmailListByEmail from './pages/list/EmailListByEmail';
 
 import CreateRuleView from './pages/component/CreateRuleView'
 
+import GmailImapApp from './google/GmailImapApp';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
+
 
 
 const LogoTitle = ({name, title, colors}) => {
@@ -64,6 +66,7 @@ const App: () => Node = () => {
     DarkTheme.colors.shadow = "#121212";
     DefaultTheme.colors.shadow="#121212";
     let selectedTheme = theme === 'dark' ? DarkTheme : DefaultTheme;
+    //initiate FCM messages
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const DrawerNavigation = () => {
@@ -76,7 +79,9 @@ const App: () => Node = () => {
             <Drawer.Screen name="ActivityView" component={ActivityView} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Saved Rules" name="gate-xor" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Saved Rules" name="gate-xor" /> }}/>
         </Drawer.Navigator>
     };
-
+    if(isAuthenticated) {
+        GmailImapApp.init();
+    }
     return <NavigationContainer theme={selectedTheme}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             {isAuthenticated ? (
