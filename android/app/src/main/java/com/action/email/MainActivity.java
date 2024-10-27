@@ -4,11 +4,27 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
+
+import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
+
 //import AppCenter
 
 public class MainActivity extends ReactActivity {
 
 
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //setContentView(R.layout.activity_main);
+
+        Intent serviceIntent = new Intent(this, EmailForegroundService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        }
+    }
   // @Override
 
   // protected void onCreate(Bundle savedInstanceState) {

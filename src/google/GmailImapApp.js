@@ -16,8 +16,8 @@ class GmailImapApp {
         setTimeout(x=>{
 
             EmailModule.connectToGmail('anoop.iitbhu@gmail.com', access_token)
-                .then((message) => console.log(message))
-                .catch((error) => console.error(error));
+                .then((message) => console.log(message, "Connected"))
+                .catch((error) => console.error(error, "Error"));
 
                 const socket = new WebSocket('ws://localhost:8080');
 
