@@ -40,10 +40,13 @@ public class EmailModule extends ReactContextBaseJavaModule {
         @Override
         protected String doInBackground(Void... voids) {
             try {
+                System.out.println("doInBackground: Connected and listening for new emails");
                 Store store = GmailIMAP.connectToGmail(userId, accessToken);
                 GmailIMAP.addNewMessageListener(store);
+                System.out.println("doInBackground: Connected and listening for new emails");
                 return "Connected and listening for new emails";
             } catch (MessagingException e) {
+                 System.out.println("doInBackground Error: Connected and listening for new emails");
                 return "Error: " + e.getMessage();
             }
         }

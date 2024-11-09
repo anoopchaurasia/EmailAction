@@ -13,6 +13,10 @@ export default class Gmail extends Email{
     Gmail._accessToken = (await GoogleSignin.getTokens()).accessToken;
     return Gmail._accessToken;
   }
+
+  static getCurrentUser = async function () {
+    return await GoogleSignin.getCurrentUser()
+  }
   static gmailFetch = async function (url, options, fresh=false) {
     console.log(url);
     let accessToken = await Gmail.getAccessToken(fresh);

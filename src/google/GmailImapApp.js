@@ -2,7 +2,7 @@ import { NativeModules } from 'react-native';
 import Gmail from "./Gmail"; 
 const { EmailModule } = NativeModules;
 
-
+import ActivityProcess from './../data/ActivityProcess';
 
 
 class GmailImapApp {
@@ -11,23 +11,40 @@ class GmailImapApp {
     static async init() {
 
         let access_token = await Gmail.getAccessToken();
-
+        let currentUser = await Gmail.getCurrentUser();
         console.log(access_token, "access_token");
         setTimeout(x=>{
 
-            EmailModule.connectToGmail('anoop.iitbhu@gmail.com', access_token)
+            EmailModule.connectToGmail(currentUser?.user?.email, access_token)
                 .then((message) => console.log(message, "Connected"))
                 .catch((error) => console.error(error, "Error"));
 
-                const socket = new WebSocket('ws://localhost:8765');
+                function WSConnect() {
+                    const ws = new WebSocket('ws://127.0.0.1:8765');
 
-                socket.addEventListener('open', (event) => {
-                    console.log('Connected to WebSocket server');
-                });
-
-                socket.addEventListener('message', (event) => {
-                    console.log('New email subject:', event.data);
-                });
+                    ws.onopen = () => {
+                    console.log('WebSocket connected');
+                  //  setIsConnected(true);
+                    };
+                
+                    ws.onmessage = (message) => {
+                    // Handle incoming messages
+                        console.log('Received message:', message.data);
+                        ActivityProcess.processNew();
+                    };
+                
+                    ws.onerror = (error) => {
+                    console.log('WebSocket error:', error.message);
+                    };
+                
+                    ws.onclose = (e) => {
+                        console.log('WebSocket closed:', e.code, e.reason);
+                        //setIsConnected(false);
+                        setTimeout(x=> WSConnect, 2000);
+                    };
+                }
+                WSConnect();
+               
         }, 1000)
 
           console.log("testing ------------------------- --- -- ")
