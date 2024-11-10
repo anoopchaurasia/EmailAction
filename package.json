@@ -10,6 +10,7 @@
     "start": "react-native start",
     "test": "jest",
     "android-clean": "cd android && gradlew clean && cd ..",
+    "android-release": "cd android && gradlew clean && gradlew assembleRelease && cd ..",
     "emulator": "emulator.lnk -avd Pixel_8_API_35"
   },
   "dependencies": {

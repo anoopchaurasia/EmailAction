@@ -43,7 +43,7 @@ public class GmailIMAP {
         inbox.open(Folder.READ_ONLY);
 
         System.out.println("addNewMessageListener: Open Inbox");
-
+        sendNewMessageToJS("Sending first message to test");
         inbox.addMessageCountListener(new MessageCountAdapter() {
             @Override
             public void messagesAdded(MessageCountEvent event) {
