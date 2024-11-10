@@ -83,7 +83,7 @@ public class GmailIMAP {
     }
 
     public static void initializeWebSocketServer() {
-        InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8765);
+        InetSocketAddress address = new InetSocketAddress("localhost", 8765);
         webSocketServer = new EmailWebSocketServer(address);
         webSocketServer.start();
     }

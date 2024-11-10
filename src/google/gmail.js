@@ -7,10 +7,28 @@ const base_gmail_url = "https://gmail.googleapis.com/gmail/v1/users/me/";
 let last_toke_fetch_time = 0;
 export default class Gmail extends Email{
   static _accessToken = null
-  static getAccessToken = async function (fresh=false) {
+  static _accessTokenInProgress = false
+  static getAccessToken = async function (fresh=false, ttt) {
+    if( Gmail._accessTokenInProgress) {
+       throw new Error("getTokens is already in progress ", ttt);
+    }
+    if(!Gmail._accessToken) {
+      let data =  JSON.parse(await Utility.getData("accessTokenData"));
+      if(data) {
+        Gmail._accessToken = data._accessToken || null;
+        last_toke_fetch_time = (data.last_toke_fetch_time || 1)*1;
+      }
+    }
     if(Gmail._accessToken && !fresh && last_toke_fetch_time &&  (new Date()).getTime() - last_toke_fetch_time < 50*60*1000) return Gmail._accessToken;
     last_toke_fetch_time = (new Date()).getTime();
-    Gmail._accessToken = (await GoogleSignin.getTokens()).accessToken;
+    console.trace("_accessToken ----------------------- in", ttt)
+    Gmail._accessTokenInProgress = true;
+    let tokens = await GoogleSignin.getTokens();
+    Gmail._accessTokenInProgress = false;
+    Gmail._accessToken = tokens.accessToken;
+    Utility.saveData('accessTokenData', JSON.stringify({_accessToken: Gmail._accessToken, last_toke_fetch_time}))
+    console.log("_accessToken ----------------------- out", ttt)
+
     return Gmail._accessToken;
   }
 
