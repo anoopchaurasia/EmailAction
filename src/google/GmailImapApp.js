@@ -26,7 +26,7 @@ class GmailImapApp {
                 .catch((error) => console.error(error, "Error"));
 
             function WSConnect() {
-                const ws = new WebSocket('ws://localhost:8765');
+                const ws = new WebSocket('ws://localhost:8888');
 
                 ws.onopen = () => {
                     console.log('WebSocket connected');

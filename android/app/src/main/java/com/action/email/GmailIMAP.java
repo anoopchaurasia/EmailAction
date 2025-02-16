@@ -53,42 +53,47 @@ public class GmailIMAP {
                     System.out.println("addNewMessageListener: Open Inbox messagesAdded");
                 } catch (MessagingException e) {
                     e.printStackTrace();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-                
             }
         });
 
         // Keep the connection alive to listen for new messages
-        while (true) {
-            try {
-                Thread.sleep(10000); // Check for new messages every 10 seconds
-                inbox.getMessageCount(); // Trigger the listener
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(10000); // Check for new messages every 10 seconds
+                    inbox.getMessageCount(); // Trigger the listener
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    break; // Exit the loop if interrupted
+                } catch (MessagingException e) {
+                    e.printStackTrace();
+                }
             }
-        }
+        }).start();
     }
 
     private static void sendNewMessageToJS(String message) {
         if (webSocketServer != null) {
-            System.out.println("sendNewMessageToJS, sendMessageToAll "+ message);
-            webSocketServer.sendMessageToAll(message);
+            try {
+                System.out.println("sendNewMessageToJS, sendMessageToAll " + message);
+                webSocketServer.sendMessageToAll(message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else {
             System.out.println("webSocketServer is not available");
         }
-
     }
 
     public static void initializeWebSocketServer() {
-        InetSocketAddress address = new InetSocketAddress("localhost", 8765);
+        InetSocketAddress address = new InetSocketAddress("localhost", 8888);
         webSocketServer = new EmailWebSocketServer(address);
         webSocketServer.start();
     }
 
-    
     public static String messagesToJson(Message[] messages) throws Exception {
         JSONArray messageArray = new JSONArray();
 
@@ -97,7 +102,12 @@ public class GmailIMAP {
 
             emailJson.put("from", message.getFrom() != null ? message.getFrom()[0].toString() : "");
             emailJson.put("subject", message.getSubject());
-            emailJson.put("content", message.getContent() instanceof String ? message.getContent() : "Non-text content");
+            Object content = message.getContent();
+            if (content instanceof String) {
+                emailJson.put("content", content);
+            } else {
+                emailJson.put("content", "Non-text content");
+            }
 
             messageArray.put(emailJson);
         }

@@ -34,7 +34,7 @@ public class EmailForegroundService extends Service {
         System.out.println("EmailForegroundService on create");
 
         executorService.execute(() -> {
-            InetSocketAddress address = new InetSocketAddress("localhost", 8765);
+            InetSocketAddress address = new InetSocketAddress("localhost", 8888);
             webSocketServer = new EmailWebSocketServer(address);
             webSocketServer.start();
             System.out.println("WebSocket server started in EmailForegroundService");
