@@ -1,6 +1,7 @@
 import { NativeModules } from 'react-native';
 import Gmail from "./Gmail";
 const { EmailModule } = NativeModules;
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 import ActivityProcess from './../data/ActivityProcess';
 
@@ -10,7 +11,9 @@ class GmailImapApp {
 
     static async init() {
         setTimeout(x => {
-           GmailImapApp.connectToSocket();
+            GoogleSignin.signInSilently().then(user => {
+                GmailImapApp.connectToSocket();
+              })
         }, 1000);
     }
 

@@ -3,7 +3,7 @@ import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-goo
 import { View, Button, Text, TouchableOpacity, StyleSheet, Image, Linking } from 'react-native';
 import MyText from '../pages/component/MyText';
 GoogleSignin.configure({
-  webClientId:   '977286924231-mil75iap3q03f0fj7c6h6flcp0b124nk.apps.googleusercontent.com',
+  webClientId:   '748789095337-256vrs3gubnoc5qsilsv4qvs13cscbll.apps.googleusercontent.com',
   scopes: ['https://mail.google.com/'], // what API you want to access on behalf of the user, default is email and profile
   offlineAccess: false, // if you want to access Google API on behalf of the user FROM YOUR SERVER
   //  hostedDomain: '', // specifies a hosted domain restriction
