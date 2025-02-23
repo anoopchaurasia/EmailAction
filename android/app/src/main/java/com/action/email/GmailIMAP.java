@@ -79,6 +79,7 @@ public class GmailIMAP {
         if (webSocketServer != null) {
             try {
                 System.out.println("sendNewMessageToJS, sendMessageToAll " + message);
+                LocalNotification.sendNotification(MainApplication.instance);
                 webSocketServer.sendMessageToAll(message);
             } catch (Exception e) {
                 e.printStackTrace();
