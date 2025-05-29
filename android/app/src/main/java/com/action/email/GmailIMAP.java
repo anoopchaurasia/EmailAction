@@ -9,22 +9,22 @@ import org.java_websocket.server.WebSocketServer;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.action.email.google.GmailEmailFetcher;
+import com.facebook.react.bridge.ReactApplicationContext;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import com.action.email.google.AccessTokenHelper;
 
 public class GmailIMAP {
 
     private static final String HOST = "imap.gmail.com";
     private static final String PORT = "993";
     private static EmailWebSocketServer webSocketServer;
+    private static String accessToken ;
 
-    public static Store connectToGmail(String userId, String accessToken) throws MessagingException {
+    public static Store connectToGmail(String userId, ReactApplicationContext reactContext) throws MessagingException {
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imaps");
         props.setProperty("mail.imaps.host", HOST);
@@ -34,44 +34,62 @@ public class GmailIMAP {
 
         Session session = Session.getInstance(props);
         Store store = session.getStore("imaps");
-        store.connect(HOST, userId, accessToken);
-        return store;
-    }
-
-    public static void addNewMessageListener(Store store) throws MessagingException {
-        Folder inbox = store.getFolder("INBOX");
-        inbox.open(Folder.READ_ONLY);
-
-        System.out.println("addNewMessageListener: Open Inbox");
-        sendNewMessageToJS("Sending first message to test");
-        inbox.addMessageCountListener(new MessageCountAdapter() {
+        AccessTokenHelper.fetchAccessToken(reactContext, new AccessTokenHelper.TokenCallback() {
             @Override
-            public void messagesAdded(MessageCountEvent event) {
-                Message[] messages = event.getMessages();
+            public void onTokenReceived(String token) {
                 try {
-                    sendNewMessageToJS(messagesToJson(messages));
-                    System.out.println("addNewMessageListener: Open Inbox messagesAdded");
-                } catch (MessagingException e) {
-                    e.printStackTrace();
+                  //  store.connect(HOST, userId, token);
+                    accessToken = token;
+                    System.out.println("Wait: Connected to Gmail IMAP server");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+            @Override
+            public void onError(Exception e) {
+                e.printStackTrace();
+            }
         });
+        return store;
+    }
+
+    public static void addNewMessageListener(Store store) throws MessagingException {
+        // Folder inbox = store.getFolder("INBOX");
+        // inbox.open(Folder.READ_ONLY);
+
+        // System.out.println("addNewMessageListener: Open Inbox");
+        // sendNewMessageToJS("Sending first message to test");
+        // inbox.addMessageCountListener(new MessageCountAdapter() {
+        //     @Override
+        //     public void messagesAdded(MessageCountEvent event) {
+        //         Message[] messages = event.getMessages();
+        //         try {
+        //             sendNewMessageToJS(messagesToJson(messages));
+        //             System.out.println("addNewMessageListener: Open Inbox messagesAdded");
+        //         } catch (MessagingException e) {
+        //             e.printStackTrace();
+        //         } catch (Exception e) {
+        //             e.printStackTrace();
+        //         }
+        //     }
+        // });
 
         // Keep the connection alive to listen for new messages
         new Thread(() -> {
-            while (true) {
+           // while (true) {
                 try {
-                    Thread.sleep(10000); // Check for new messages every 10 seconds
-                    inbox.getMessageCount(); // Trigger the listener
-                } catch (InterruptedException e) {
+                    System.out.println("Wait : Before start");
+                    Thread.sleep(10000);
+                    System.out.println("Wait : After start" + accessToken);
+                    GmailEmailFetcher gmailEmailFetcher= new GmailEmailFetcher(accessToken);
+                    gmailEmailFetcher.fetchInboxEmails();
+                   // Thread.sleep(10000); // Check for new messages every 10 seconds
+                    //inbox.getMessageCount(); // Trigger the listener
+                } catch (Exception e) {
                     e.printStackTrace();
-                    break; // Exit the loop if interrupted
-                } catch (MessagingException e) {
-                    e.printStackTrace();
+                    //break; // Exit the loop if interrupted
                 }
-            }
+           // }
         }).start();
     }
 

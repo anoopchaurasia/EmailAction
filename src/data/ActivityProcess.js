@@ -8,6 +8,7 @@ let in_progress = false;
 export default Activity = {
     processNew: async function (cb) {
         try {
+            return 
             let date = new Date();
             in_progress && Utility.saveData("ProcessAlreadyInProgress", date.toISOString());
             if (in_progress) return console.log("Activity.processNew", "in progress return");

@@ -22,6 +22,7 @@ export default class MyComponent {
     };
 
     static resumeSync = async function (aggregate) {
+        return
         console.log("SYNC in progress Wait")
         if ((await Utility.getData('sync_completed')) == "yes") return console.log("sync completed");
         do {

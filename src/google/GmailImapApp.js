@@ -49,7 +49,7 @@ class GmailImapApp {
                     setTimeout(x => WSConnect(), 2000);
                 };
             }
-            WSConnect();
+          //  WSConnect();
         }).catch(e=>{
             console.error(e);
             setTimeout(GmailImapApp.connectToSocket, 3000);

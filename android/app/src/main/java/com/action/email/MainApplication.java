@@ -12,6 +12,8 @@ import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
 import java.util.List;
 
+import com.action.email.realm.config.RealmManager;
+
 
 public class MainApplication extends Application implements ReactApplication {
    public static MainApplication instance;
@@ -62,6 +64,7 @@ public class MainApplication extends Application implements ReactApplication {
       DefaultNewArchitectureEntryPoint.load();
     }
     ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    RealmManager.initRealm(getApplicationContext());
   }
 
 }

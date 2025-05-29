@@ -23,17 +23,18 @@ public class EmailModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void connectToGmail(String userId, String accessToken, Promise promise) {
-        new ConnectToGmailTask(userId, accessToken, promise).execute();
+        new ConnectToGmailTask(userId,  this.getReactApplicationContext(), promise).execute();
     }
 
     private static class ConnectToGmailTask extends AsyncTask<Void, Void, String> {
         private String userId;
         private String accessToken;
         private Promise promise;
+        private ReactApplicationContext reactContext;
 
-        ConnectToGmailTask(String userId, String accessToken, Promise promise) {
+        ConnectToGmailTask(String userId, ReactApplicationContext reactContext,  Promise promise) {
             this.userId = userId;
-            this.accessToken = accessToken;
+            this.reactContext = reactContext;
             this.promise = promise;
         }
 
@@ -41,7 +42,7 @@ public class EmailModule extends ReactContextBaseJavaModule {
         protected String doInBackground(Void... voids) {
             try {
                 System.out.println("doInBackground: Connected and listening for new emails");
-                Store store = GmailIMAP.connectToGmail(userId, accessToken);
+                Store store = GmailIMAP.connectToGmail(userId, reactContext);
                 GmailIMAP.addNewMessageListener(store);
                 System.out.println("doInBackground: Connected and listening for new emails");
                 return "Connected and listening for new emails";
