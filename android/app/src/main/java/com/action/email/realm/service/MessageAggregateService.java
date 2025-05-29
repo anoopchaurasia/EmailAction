@@ -70,7 +70,7 @@ public class MessageAggregateService {
     public static List<MessageAggregate> readMessage() {
         Realm realm = RealmManager.getRealmInstance();
         RealmResults<MessageAggregate> results = realm.where(MessageAggregate.class)
-                .equalTo("labels.id", "INBOX")
+               // .equalTo("labels.id", "INBOX")
                 .sort("count", io.realm.Sort.DESCENDING)
                 .findAll();
         List<MessageAggregate> data = realm.copyFromRealm(results);

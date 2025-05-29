@@ -11,7 +11,15 @@ export default function DomainSummary({navigation}) {
     let [totalActivity, setTotalActivity] = useState({ total: 0, pending: 0 });
 
     useEffect(x=>{
-        setTotalActivity({ total: ActivityService.getAll().length, pending: ActivityService.getNoCompleted().length })
+        ActivityService.getAll().then(activities => {
+            console.log("Total activities: ", activities.length);
+            setTotalActivity(prev => ({ ...prev, total: activities.length  }));
+        });
+
+        ActivityService.getNoCompleted().then(pendingActivities => {
+            console.log("Pending activities: ", pendingActivities.length);
+            setTotalActivity(prev => ({ ...prev, pending: pendingActivities.length }));
+        });
     },[])
 
     function handleEvent(e) {

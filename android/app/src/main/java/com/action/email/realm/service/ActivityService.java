@@ -7,6 +7,7 @@ import io.realm.RealmList;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import android.util.Log;
@@ -54,10 +55,12 @@ public class ActivityService {
         }
     }
 
-    public static RealmResults<Activity> getNoCompleted() {
+    public static List<Activity> getNoCompleted() {
         Realm realm = RealmManager.getRealmInstance();
         // Caller should close realm after usage
-        return realm.where(Activity.class).equalTo("completed", false).findAll();
+        List<Activity> activities = realm.copyFromRealm(realm.where(Activity.class).equalTo("completed", false).findAll());
+        realm.close();
+        return activities;
     }
 
     public static void deleteObjectById(String id) {
@@ -123,16 +126,20 @@ public class ActivityService {
         }
     }
 
-    public static RealmResults<Activity> getAll() {
+    public static List<Activity> getAll() {
         Realm realm = RealmManager.getRealmInstance();
         // Caller should close realm after usage
-        return realm.where(Activity.class).findAll();
+        List<Activity> activities = realm.copyFromRealm(realm.where(Activity.class).findAll());
+        realm.close();
+        return activities;
     }
 
-    public static RealmResults<Activity> getBySender(String sender) {
+    public static List<Activity> getBySender(String sender) {
         Realm realm = RealmManager.getRealmInstance();
         // Caller should close realm after usage
-        return realm.where(Activity.class).contains("from", sender).findAll();
+        List<Activity> activities = realm.copyFromRealm(realm.where(Activity.class).contains("from", sender).findAll());
+        realm.close();
+        return activities;
     }
 
     public static void validateFrom(String from) {

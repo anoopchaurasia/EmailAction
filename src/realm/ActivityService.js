@@ -1,92 +1,36 @@
-import Realm from 'realm';
+import { NativeModules } from 'react-native';
+const ActivityModule = NativeModules.ActivityModule;
 
-// Define the Activity schema
-const ActivitySchema = {
-  name: 'Activity',
-  properties: {
-    id: 'string', // Add an id attribute
-    from: {type:'string[]'}, ///[senders, domains, sub domains ]
-    to: {type: 'string[]'},  /// sender
-    subject: {type: "string?", indexed: true}, /// subject of the message for query
-    created_at:{type:'date', indexed: true}, ///  
-    body: {type: "string?", indexed: true}, /// part of body for the query
-    delay: {type: 'int', default: 0}, /// delay in execustion of the rule
-    action: "string", /// actions [trash, delete, move]
-    type: 'string', /// options are [sender, domain, sub domain]
-    from_label: "string?", /// default inbox
-    to_label: "string?", /// 
-    title: "string",
-    delete_at: 'date?', /// no longer excecuted 
-    completed: {type:"bool", indexed: true, default: false}, /// completed first execution.
-    ran_at: 'date?'
-  },
-  primaryKey: 'id', // Set the id as the primary key
-};
 
-// Create a realm instance with the schemas
-const realm = new Realm({ schema: [ActivitySchema],  schemaVersion: 20, path:"activity"  });
-
-const EMAIL_REGEX = /^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$/;
-const DOMAIN_REGEX= new RegExp(/^(?!-)[A-Za-z0-9-]+([\-\.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/);
-
-// Create an object to store the methods
 const ActivityMethods = {
   // Define a method to create a new object in the realm
-  createObject(data) {
-    data.id = data.id || Math.random().toString(36).slice(2);
-    data.created_at = new Date;
-    console.log(data);
-    ActivityMethods.validate(data)
-    try {
-      realm.write(() => {
-        realm.create('Activity', data);
-      });
-    } catch (error) {
-      console.error(error);
-    }
-    return data;
+  async createObject(data) {
+    await ActivityModule.createObject(data);
   },
 
-  deleteAll: () => {
-    realm.write(() => {
-        realm.delete(realm.objects("Activity"));
-    });
-},
+  deleteAll: async () => {
+    await ActivityModule.deleteAll();
+  },
 
-  getNoCompleted() {
-    return realm.objects('Activity').filtered('completed == $0', false);
+  getNoCompleted: async () => {
+    let a = await ActivityModule.getNoCompleted();
+    console.log("getNoCompleted: ", a);
+    return a;
   },
 
   // Define a method to delete an object from the realm by id
-  deleteObjectById( id) {
-    try {
-      realm.write(() => {
-        const object = realm.objectForPrimaryKey('Activity', id);
-        if (object) {
-          realm.delete(object);
-        }
-      });
-    } catch (error) {
-      console.error(error);
-    }
+  async deleteObjectById(id) {
+    await ActivityModule.deleteObjectById(id);
   },
 
   // Define a method to update an object in the realm by id
-  updateObjectById(id, data) {
-    console.log(id, data);
-    ActivityMethods.validate(data, true);
-    try {
-      realm.write(() => {
-        const object = realm.objectForPrimaryKey('Activity', id);
-        if (object) {
-          Object.assign(object, data);
-        }
-      });
-    } catch (error) {
-      console.error(error);
-    }
+  async updateObjectById(id, data) {
+      await ActivityModule.updateObjectById(id, data);
   },
-  validate(activity, isUpdate=false) {
+
+
+  async validate(activity, isUpdate=false) {
+    ActivityModule.validate(activity, isUpdate);
     if(isUpdate) {
         activity.from && activity.from.forEach(f=> ActivityMethods.validateFrom(f));
         activity.title && ActivityMethods.validateTitle(activity.title);
@@ -97,11 +41,28 @@ const ActivityMethods = {
       ActivityMethods.validateToLabel(activity.to_label);
     }
   },
-  getAll() {
-      return realm.objects('Activity').toJSON();
+  // Define a method to get all objects from the realm
+    async getAll() {
+      return await ActivityModule.getAll();
     },
-    getBySender(sender) {
-      return realm.objects('Activity').filtered('from CONTAINS $0', sender);
+
+    // Define a method to get objects by sender
+    async getBySender(sender) {
+      return await ActivityModule.getBySender(sender);
+    },
+
+    // Define a method to get objects by id
+    async getById(id) {
+      return await ActivityModule.getById(id);
+    },
+
+    // Define a method to get all activities
+    async getAllActivities() {
+      return await ActivityModule.getAllActivities();
+    },
+
+    async getBySender(sender) {
+      return await ActivityModule.getBySender(sender);
     },
 
     validateFrom(from) {

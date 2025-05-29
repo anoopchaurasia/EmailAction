@@ -9,9 +9,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
-import com.facebook.react.bridge.WritableMap;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ActivityModule extends ReactContextBaseJavaModule {
@@ -26,11 +24,11 @@ public class ActivityModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void createActivity(ReadableMap map, Promise promise) {
+    public void createObject(ReadableMap map, Promise promise) {
         try {
             Activity activity = Activity.fromMap(map);
             Activity result = ActivityService.createObject(activity);
-            promise.resolve(Arguments.makeNativeMap(result.toMap()));
+            promise.resolve(result.toMap());
         } catch (Exception e) {
             promise.reject("CREATE_ERROR", e);
         }
@@ -52,9 +50,8 @@ public class ActivityModule extends ReactContextBaseJavaModule {
             List<Activity> activities = ActivityService.getAll();
             WritableArray array = Arguments.createArray();
             for (Activity activity : activities) {
-                array.pushMap(Arguments.makeNativeMap(activity.toMap()));
+                array.pushMap(activity.toMap());
             }
-            activities.get(0).getRealm().close();
             promise.resolve(array);
         } catch (Exception e) {
             promise.reject("GET_ALL_ERROR", e);
@@ -67,9 +64,8 @@ public class ActivityModule extends ReactContextBaseJavaModule {
             List<Activity> activities = ActivityService.getNoCompleted();
             WritableArray array = Arguments.createArray();
             for (Activity activity : activities) {
-                array.pushMap(Arguments.makeNativeMap(activity.toMap()));
+                array.pushMap(activity.toMap());
             }
-            activities.get(0).getRealm().close();
             promise.resolve(array);
         } catch (Exception e) {
             promise.reject("GET_NO_COMPLETED_ERROR", e);
@@ -82,9 +78,8 @@ public class ActivityModule extends ReactContextBaseJavaModule {
             List<Activity> activities = ActivityService.getBySender(sender);
             WritableArray array = Arguments.createArray();
             for (Activity activity : activities) {
-                array.pushMap(Arguments.makeNativeMap(activity.toMap()));
+                array.pushMap(activity.toMap());
             }
-            activities.get(0).getRealm().close();
             promise.resolve(array);
         } catch (Exception e) {
             promise.reject("GET_BY_SENDER_ERROR", e);

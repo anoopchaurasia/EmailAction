@@ -39,8 +39,8 @@ export default ListView = ({ navigation, removeFromList }) => {
         let rm1 = MessageEvent.on('message_aggregation_changed', x=>{
             setActive(false);
           ///  setSelectedList({}); will create problem incase we fetch messages
-            let list = MessageAggregateService.readMessage();
-            setList(list);
+            MessageAggregateService.readMessage().then(x=>setList(x));
+           
         }, true);
         let rm2 = MessageEvent.on('email_list_view_trash', ({sender, type})=>{
             trashSelectedSenders([sender]);
@@ -66,8 +66,7 @@ export default ListView = ({ navigation, removeFromList }) => {
     }
 
     useEffect(x => {
-        let list = MessageAggregateService.readMessage();
-        setList(list);
+        MessageAggregateService.readMessage().then(x => setList(x));
     }, []);
 
     useEffect(() => {

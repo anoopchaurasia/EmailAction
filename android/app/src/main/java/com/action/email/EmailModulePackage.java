@@ -1,5 +1,6 @@
 package com.action.email;
 
+import com.action.email.realm.reactmodule.ActivityModule;
 import com.action.email.realm.reactmodule.MessageAggregateModule;
 import com.action.email.realm.reactmodule.MessageModule;
 import com.facebook.react.ReactPackage;
@@ -19,6 +20,7 @@ public class EmailModulePackage implements ReactPackage {
         modules.add(new EmailModule(reactContext));
         modules.add(new MessageAggregateModule(reactContext));
         modules.add(new MessageModule(reactContext));
+        modules.add(new ActivityModule(reactContext));
         return modules;
     }
 
