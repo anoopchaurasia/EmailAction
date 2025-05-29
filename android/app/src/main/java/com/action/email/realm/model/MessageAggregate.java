@@ -4,6 +4,9 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 
+import java.util.List;
+import java.util.Optional;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Index;
@@ -27,8 +30,13 @@ public class MessageAggregate extends RealmObject {
 
     public void setLabelCount(MessageAggregate newData) {
 //        for (MessageAggregateLabel label : newData.getLabels()) {
-//            MessageAggregateLabel existingLabel = r.createObject(MessageAggregateLabel.class, label.getId());
-//            this.setCount(existingLabel.getCount() + label.getCount());
+//            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+//                MessageAggregateLabel existingLabel = this.labels.stream().filter(l-> l.getId().equals(label.getId()) ).findFirst();
+//                if(existingLabel==null) {
+//
+//                }
+//
+//            }
 //        }
     }
 
@@ -63,6 +71,14 @@ public class MessageAggregate extends RealmObject {
         map.putInt("count", getCount());
         // add other fields
         return map;
+    }
+
+    public void incrementCount() {
+        count += 1;
+    }
+
+    public void decrementCount() {
+        count -= 1;
     }
 }
 

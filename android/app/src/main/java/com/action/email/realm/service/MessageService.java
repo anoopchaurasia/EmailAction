@@ -138,9 +138,9 @@ public class MessageService {
 
      public static Message getById(String messageId) {
         Realm realm = Realm.getDefaultInstance();
-        Message message = realm.copyFromRealm(Objects.requireNonNull(realm.where(Message.class)
+        Message message = realm.where(Message.class)
                 .equalTo("message_id", messageId)
-                .findFirst()));
+                .findFirst();
         realm.close();
         return message;
     }

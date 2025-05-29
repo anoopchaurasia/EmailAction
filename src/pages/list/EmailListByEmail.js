@@ -11,7 +11,7 @@ export default ListView = ({ navigation, removeFromList }) => {
     const [text, setText] = useState('');
 
     useEffect(x => {
-        let list = EMailMessageSerive.getLatestMessages(page, 20).then(messages => {
+        EMailMessageSerive.getLatestMessages(page, 20).then(messages => {
             setList(messages);
         });
     }, []);

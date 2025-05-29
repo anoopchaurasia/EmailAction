@@ -14,4 +14,8 @@ public class MessageAggregateLabel extends RealmObject {
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+
+    public void increment() {
+        count +=1;
+    }
 }

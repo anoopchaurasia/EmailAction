@@ -11,7 +11,9 @@ export default function SenderSummary({navigation}) {
     let colors = useTheme().colors;
     const [count, setCount]=useState(-1);
     useEffect(x => {
-        setCount(MessageAggregateService.count());
+        MessageAggregateService.count().then(c => {
+            setCount(c);
+        });
     }, [fetchCount]);
 
     useEffect(x=> {

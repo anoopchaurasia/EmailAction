@@ -2,8 +2,6 @@ package com.action.email.google;
 
 import static java.lang.Thread.sleep;
 
-import android.nfc.Tag;
-import android.os.Build;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -15,12 +13,12 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.*;
-import java.util.stream.Collectors;
 
+import com.action.email.data.MessageAggregateData;
 import com.action.email.realm.model.Attachment;
 import com.action.email.realm.model.Message;
+import com.action.email.realm.service.MessageAggregateService;
 import com.action.email.realm.service.MessageService;
-import com.google.api.client.util.Sleeper;
 
 import io.realm.RealmList;
 
@@ -34,6 +32,7 @@ public class GmailEmailFetcher {
     private final OkHttpClient client;
     private final String accessToken;
     private static final int MAX_RETRIES = 4;
+    private static final int MAX_EMAIL_RESULT_COUNT = 30;
 
     public GmailEmailFetcher(String accessToken) {
         this.accessToken = accessToken;
@@ -47,10 +46,11 @@ public class GmailEmailFetcher {
             try {
                 int attempt = 0;
                 String pageToken = null;
+                MessageAggregateData.aggregate(MessageService.readAll());
                 do {
                     HttpUrl.Builder urlBuilder = HttpUrl.parse(GMAIL_LIST_URL).newBuilder();
                     urlBuilder.addQueryParameter("q", "-in:trash -in:spam");
-                    urlBuilder.addQueryParameter("maxResults", "50");
+                    urlBuilder.addQueryParameter("maxResults", String.valueOf(MAX_EMAIL_RESULT_COUNT));
                     if (pageToken != null) {
                         urlBuilder.addQueryParameter("pageToken", pageToken);
                     }
@@ -79,7 +79,6 @@ public class GmailEmailFetcher {
                     for (int i = 0; i < messages.length(); i++) {
                         messageIds.add(messages.getJSONObject(i).getString("id"));
                     }
-
                     retryBatch(messageIds);
                     sleep(1000);
                 } while (pageToken != null);
@@ -87,6 +86,7 @@ public class GmailEmailFetcher {
             } catch (Exception e) {
                 Log.e(TAG, "Inbox fetch failed", e);
             }
+
       //  }).start();
     }
     private int count = 0;

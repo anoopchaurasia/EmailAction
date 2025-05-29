@@ -125,7 +125,7 @@ public class MessageAggregateService {
                 result.set(newData);
             } else {
                 existing.setCount(existing.getCount() + newData.getCount());
-                existing.setLabelCount( newData);
+                existing.setLabelCount(newData);
                 result.set(existing);
             }
         });

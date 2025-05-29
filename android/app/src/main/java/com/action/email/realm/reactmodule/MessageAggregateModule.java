@@ -119,4 +119,6 @@ public class MessageAggregateModule extends ReactContextBaseJavaModule {
             promise.reject("UPDATE_COUNT_ERROR", e);
         }
     }
+
+
 }
