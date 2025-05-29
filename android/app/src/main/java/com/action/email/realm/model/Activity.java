@@ -1,10 +1,13 @@
 package com.action.email.realm.model;
 
+import com.facebook.react.bridge.ReadableMap;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Index;
 import io.realm.RealmList;
 import java.util.Date;
+import java.util.Map;
 
 public class Activity extends RealmObject {
     @PrimaryKey
@@ -37,6 +40,10 @@ public class Activity extends RealmObject {
     private boolean completed = false; // default false
 
     private Date ran_at;
+
+    public static Activity fromMap(ReadableMap map) {
+        return null;
+    }
 
     // Getters and setters for all fields
 
@@ -84,4 +91,8 @@ public class Activity extends RealmObject {
 
     public Date getRan_at() { return ran_at; }
     public void setRan_at(Date ran_at) { this.ran_at = ran_at; }
+
+    public Map<String, Object> toMap() {
+        return null;
+    }
 }
