@@ -9,11 +9,15 @@ import io.realm.Sort;
 
 import com.action.email.realm.model.Attachment;
 import com.action.email.realm.model.Message;
+import com.action.email.realm.model.MessageAggregate;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class MessageService {
     private Realm realm;
@@ -22,40 +26,56 @@ public class MessageService {
         
     }
 
-    public void create(Message message) {
+     public static void create(Message message) {
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(r -> r.insert(message));
+        realm.close();
     }
 
-    public List<Message> readMessage() {
-        return realm.where(Message.class)
+     public static List<Message> readMessage() {
+        Realm realm = Realm.getDefaultInstance();
+        List<Message> messages = realm.copyFromRealm(realm.where(Message.class)
                 .sort("date", Sort.DESCENDING)
                 .limit(10)
-                .findAll();
+                .findAll());
+        realm.close();
+        return messages;
     }
 
-    public RealmResults<Message> readAll() {
-        return realm.where(Message.class)
+     public static List<Message> readAll() {
+        Realm realm = Realm.getDefaultInstance();
+        List<Message> messages = realm.copyFromRealm(realm.where(Message.class)
                 .notEqualTo("labels", "TRASH")
-                .findAll();
+                .findAll());
+        realm.close();
+        return messages;
     }
 
-    public Message readById(String id) {
-        return realm.where(Message.class).equalTo("message_id", id).findFirst();
+     public static Message readById(String id) {
+        Realm realm = Realm.getDefaultInstance();
+        Message message = realm.copyFromRealm(Objects.requireNonNull(realm.where(Message.class).equalTo("message_id", id).findFirst()));
+        realm.close();
+        return message;
     }
 
-    public void update(Message message) {
+     public static void update(Message message) {
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(r -> r.insertOrUpdate(message));
+        realm.close();
     }
 
-    public void delete(Message message) {
+     public static void delete(Message message) {
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(r -> message.deleteFromRealm());
+        realm.close();
     }
 
-    public boolean checkMessageId(String id) {
+     public static boolean checkMessageId(String id) {
         return readById(id) != null;
     }
 
-    public List<Map<String, Object>> getCountBySenderDomain() {
+     public static List<Map<String, Object>> getCountBySenderDomain() {
+        Realm realm = Realm.getDefaultInstance();
         RealmResults<Message> messages = realm.where(Message.class)
             .equalTo("labels", "INBOX")
             .findAll();
@@ -75,48 +95,63 @@ public class MessageService {
             entry.put("v", countMap.get(key));
             results.add(entry);
         }
+        realm.close();
         return results;
     }
 
-    public RealmResults<Message> getCountBySender(String sender) {
-        return realm.where(Message.class)
+     public static List<Message> getCountBySender(String sender) {
+
+        Realm realm = Realm.getDefaultInstance();
+        List<Message> messages =  realm.copyFromRealm(realm.where(Message.class)
             .equalTo("labels", "INBOX")
             .equalTo("sender", sender)
-            .findAll();
+            .findAll());
+        realm.close();
+        return messages;
     }
 
-    public List<Message> getBySender(String sender, int page, int pageSize) {
+     public static List<Message> getBySender(String sender, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
-        return realm.where(Message.class)
+        Realm realm = Realm.getDefaultInstance();
+        List<Message> messages =  realm.where(Message.class)
             .equalTo("sender", sender)
             .equalTo("labels", "INBOX")
             .sort("date", Sort.DESCENDING)
-            .findAll()
-            .subList(offset, offset + pageSize);
+            .findAll();
+        messages = realm.copyFromRealm(messages.subList(offset, Math.min(offset + pageSize, messages.size()) ));
+        realm.close();
+        return messages;
     }
 
-    public List<Message> getByDomain(String domain, int page, int pageSize) {
+     public static List<Message> getByDomain(String domain, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
-        return realm.where(Message.class)
+        Realm realm = Realm.getDefaultInstance();
+        List<Message> messages = realm.copyFromRealm(realm.where(Message.class)
             .equalTo("sender_domain", domain)
             .equalTo("labels", "INBOX")
             .sort("date", Sort.DESCENDING)
             .findAll()
-            .subList(offset, offset + pageSize);
+            .subList(offset, offset + pageSize));
+        realm.close();
+        return messages;
     }
 
-    public Message getById(String messageId) {
-        return realm.where(Message.class)
-            .equalTo("message_id", messageId)
-            .findFirst();
+     public static Message getById(String messageId) {
+        Realm realm = Realm.getDefaultInstance();
+        Message message = realm.copyFromRealm(Objects.requireNonNull(realm.where(Message.class)
+                .equalTo("message_id", messageId)
+                .findFirst()));
+        realm.close();
+        return message;
     }
 
-    public List<Map<String, Object>> fetchMessageIdBySenders(List<String> senders) {
+     public static List<Map<String, Object>> fetchMessageIdBySenders(List<String> senders) {
+        Realm realm = Realm.getDefaultInstance();
         List<Map<String, Object>> result = new ArrayList<>();
         for (String sender : senders) {
-            RealmResults<Message> messages = realm.where(Message.class)
+            List<Message> messages = realm.copyFromRealm(realm.where(Message.class)
                 .equalTo("sender", sender)
-                .findAll();
+                .findAll());
 
             for (Message m : messages) {
                 Map<String, Object> obj = new HashMap<>();
@@ -125,51 +160,52 @@ public class MessageService {
                 result.add(obj);
             }
         }
+        realm.close();
         return result;
     }
 
-    public List<Message> getLatestMessages(int page, int pageSize) {
+     public static List<Message> getLatestMessages(int page, int pageSize) {
+        Realm realm = Realm.getDefaultInstance();
         int offset = (page - 1) * pageSize;
-        return realm.where(Message.class)
+        List<Message> messages= realm.copyFromRealm(realm.where(Message.class)
             .equalTo("labels", "INBOX")
             .sort("date", Sort.DESCENDING)
             .findAll()
-            .subList(offset, offset + pageSize);
+            .subList(offset, offset + pageSize));
+        realm.close();
+        return messages;
     }
 
-    public void deleteAll() {
+     public static void deleteAll() {
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(r -> {
             r.delete(Message.class);
             r.delete(Attachment.class);
         });
+        realm.close();
     }
 
-    public void updateAttachmentById(Attachment attachment) {
+     public static void updateAttachmentById(Attachment attachment) {
+        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(r -> r.insertOrUpdate(attachment));
+        realm.close();
     }
 
-    public void close() {
+     public static void close() {
+        Realm realm = Realm.getDefaultInstance();
         if (!realm.isClosed()) realm.close();
+        realm.close();
     }
 
-    public List<String> checkMessageIds(List<String> messageIds) {
-        this.start();
+     public static List<String> checkMessageIds(List<String> messageIds) {
+        Realm realm = Realm.getDefaultInstance();
         List<String> pending = new ArrayList<>();
         for (int i=0; i<messageIds.size(); i++) {
             if(getById(messageIds.get(i)) == null) {
                 pending.add(messageIds.get(i));
             }
         }
-        this.stop();
+        realm.close();
         return pending;
-    }
-
-    public MessageService start() {
-        this.realm = Realm.getDefaultInstance();
-        return this;
-    }
-    public void stop() {
-         this.realm.close();
-         this.realm = null;
     }
 }

@@ -34,11 +34,9 @@ public class GmailEmailFetcher {
     private final OkHttpClient client;
     private final String accessToken;
     private static final int MAX_RETRIES = 4;
-    private final MessageService messageService;
 
     public GmailEmailFetcher(String accessToken) {
         this.accessToken = accessToken;
-        this.messageService = new MessageService();
         this.client = new OkHttpClient.Builder()
                 .callTimeout(60, TimeUnit.SECONDS)
                 .build();
@@ -47,11 +45,12 @@ public class GmailEmailFetcher {
     public void fetchInboxEmails() {
       //  new Thread(() -> {
             try {
+                int attempt = 0;
                 String pageToken = null;
                 do {
                     HttpUrl.Builder urlBuilder = HttpUrl.parse(GMAIL_LIST_URL).newBuilder();
                     urlBuilder.addQueryParameter("q", "-in:trash -in:spam");
-                    urlBuilder.addQueryParameter("maxResults", "30");
+                    urlBuilder.addQueryParameter("maxResults", "50");
                     if (pageToken != null) {
                         urlBuilder.addQueryParameter("pageToken", pageToken);
                     }
@@ -63,10 +62,12 @@ public class GmailEmailFetcher {
 
                     Response response = client.newCall(listRequest).execute();
                     if (!response.isSuccessful()) {
-                        Log.e(TAG, "Failed to list messages: " + response.code());
-                        return;
+                        Log.e(TAG, "Failed to list messages: " + response.code() + " retry # " + attempt);
+                        attempt += 1;
+                        if(attempt>=MAX_RETRIES) return;
+                        continue;
                     }
-
+                    attempt = 0;
                     String responseBody = response.body().string();
                     JSONObject json = new JSONObject(responseBody);
                     JSONArray messages = json.optJSONArray("messages");
@@ -91,12 +92,10 @@ public class GmailEmailFetcher {
     private int count = 0;
     private void retryBatch(List<String> ids) {
         count += ids.size();
-        ids = new MessageService().checkMessageIds(ids);
+        ids = MessageService.checkMessageIds(ids);
         Set<String> pending = new HashSet<>(ids);
         Log.d(TAG, "Total Count Set " + pending.size() + " total ids: "+ count);
-        MessageService messageService = new MessageService();
-        Log.d(TAG, "Total Count in DB " + messageService.start().readAll().size());
-        messageService.stop();
+        Log.d(TAG, "Total Count in DB " + MessageService.readAll().size());
         if(pending.size()==0) return;
         for (int attempt = 0; attempt < MAX_RETRIES && !pending.isEmpty(); attempt++) {
             Log.d(TAG, "Batch attempt #" + (attempt + 1) + " for " + pending.size() + " ids");
@@ -160,7 +159,8 @@ public class GmailEmailFetcher {
             }
 
 
-            parseMultipartResponse(response, failedIds); // ✅ you’ll need a good parser here
+           List<Message> messages = GmailEmailFetcher.parseMultipartResponse(response, failedIds);
+           messages.forEach(msg-> MessageService.update(msg));
 
         } catch (IOException e) {
             Log.e(TAG, "IOException in batch call", e);
@@ -170,7 +170,7 @@ public class GmailEmailFetcher {
         return failedIds;
     }
 
-    private String getBoundary(Response response) {
+    private static String getBoundary(Response response) {
 
         String contentType = response.header("Content-Type");
 
@@ -185,13 +185,14 @@ public class GmailEmailFetcher {
         return boundary;
     }
 
-    private void parseMultipartResponse(Response response, Set<String> failedIds) throws IOException {
+    public static List<Message> parseMultipartResponse(Response response, Set<String> failedIds) throws IOException {
         String boundary = getBoundary(response);
         String body = response.body().string();
         String[] parts = body.split("--" + Pattern.quote(boundary) + "(--)?\\r?\\n");
         Pattern statusLine = Pattern.compile("HTTP/1.1 (\\d{3}) .*");
         Pattern idPattern = Pattern.compile("Content-ID: <(.+?)>");
         Log.d(TAG, "total parts: " + parts.length);
+        List<Message> messages = new ArrayList<>();
         for (String part : parts) {
             if (part.trim().isEmpty() ) continue;
             Matcher statusMatcher = statusLine.matcher(part);
@@ -201,6 +202,9 @@ public class GmailEmailFetcher {
 
             if (idMatcher.find()) {
                 messageId = idMatcher.group(1);
+                if (messageId.startsWith("response-")) {
+                    messageId = messageId.substring("response-".length());
+                }
             }
 
             if (statusMatcher.find()) {
@@ -210,14 +214,18 @@ public class GmailEmailFetcher {
                 Log.w(TAG, "Failed msg ID " + messageId + ": " + statusCode);
                 failedIds.add(messageId);
             } else if (messageId != null) {
-               parseMetadata(part);
+              Message msg = GmailEmailFetcher.parseMetadata(part);
+                if (msg != null) {
+                    messages.add(msg);
+                }
             }
         }
+        return messages;
     }
-    private void parseMetadata(String responsePart) {
+    private static Message parseMetadata(String responsePart) {
     try {
         int jsonStart = responsePart.indexOf("{");
-        if (jsonStart == -1) return;
+        if (jsonStart == -1) return null;
 
         String json = responsePart.substring(jsonStart);
         JSONObject root = new JSONObject(json);
@@ -276,18 +284,6 @@ public class GmailEmailFetcher {
             }
         }
 
-        // Log all extracted data
-//        Log.d(TAG, "Parsed email: \n" +
-//                "message_id: " + messageId + "\n" +
-//                "subject: " + subject + "\n" +
-//                "sender_name: " + senderName + "\n" +
-//                "sender: " + senderEmail + "\n" +
-//                "sender_domain: " + senderDomain + "\n" +
-//                "date: " + dateStr + "\n" +
-//                "labels: " + labels + "\n" +
-//                "attachments: " + attachments + "\n" +
-//                "has_attachment: " + hasAttachment
-//        );
         Message msg = new Message(messageId);
         msg.setSubject(subject);
         msg.setAttachments(attachments);
@@ -299,13 +295,12 @@ public class GmailEmailFetcher {
         msg.setCreated_at(new Date());
         msg.setSender_name(senderName);
         msg.setHas_attachement(hasAttachment);
-        messageService.start().create(msg);
-
-        messageService.close();
+        return msg;
         
     } catch (Exception e) {
         Log.e(TAG, "Error parsing metadata", e);
     }
+    return null;
 }
 
 }

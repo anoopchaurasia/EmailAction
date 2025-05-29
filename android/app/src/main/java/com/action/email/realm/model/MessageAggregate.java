@@ -1,5 +1,9 @@
 package com.action.email.realm.model;
 
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Index;
@@ -42,6 +46,24 @@ public class MessageAggregate extends RealmObject {
 
     public String getSender_domain() { return sender_domain; }
     public void setSender_domain(String sender_domain) { this.sender_domain = sender_domain; }
+
+    public static MessageAggregate fromMap(ReadableMap map) {
+        MessageAggregate agg = new MessageAggregate();
+        agg.setSender(map.getString("sender"));
+        agg.setSender_domain(map.getString("sender_domain"));
+        agg.setCount(map.getInt("count"));
+        // set other fields as needed
+        return agg;
+    }
+
+    public WritableMap toMap() {
+        WritableMap map = Arguments.createMap();
+        map.putString("sender", getSender());
+        map.putString("sender_domain", getSender_domain());
+        map.putInt("count", getCount());
+        // add other fields
+        return map;
+    }
 }
 
 

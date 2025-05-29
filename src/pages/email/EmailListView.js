@@ -19,7 +19,7 @@ import MyText from './../component/MyText'
 import { useTheme } from '@react-navigation/native';
 const formatDate = (date) => {
     
-    return date.toDateString();
+    return new Date(date).toDateString();
 };
 
 const EmailList = ({ route, navigation }) => {
@@ -54,11 +54,14 @@ const EmailList = ({ route, navigation }) => {
         setLoading(true);
         if(route.params.type==="domain") {
             ll = MessageService.getByDomain(route.params.sender, page, 10);
+            setList(l => { l.push(...ll); return l; });
+            setLoading(false);
         } else {
-            ll = MessageService.getBySender(route.params.sender, page, 10);
+          MessageService.getBySender(route.params.sender, page, 10).then(messages => {
+            setList(l => { l.push(...messages); return l; });
+            setLoading(false);
+          });
         }
-        setList(l => { l.push(...ll); return l; });
-        setLoading(false);
     }, [page]);
 
     const renderFooter = () => {

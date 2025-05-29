@@ -14,13 +14,14 @@ import { useTheme } from '@react-navigation/native';
 
 export default function EmailSummary({ navigation }) {
 
-    let [count, setCount] = useState(MessageService.readAll().length || 0);
+    let [count, setCount] = useState( 0);
     let [inboxInfo, setInboxInfo] = useState({});
     let [processRunningStatus, setProcessRunningStatus] = useState({});
 
     let colors = useTheme().colors;
-
-
+    MessageService.readAll().then(messages => {
+        setCount(messages.length);
+    });
     let [prgressPer, setProgressPer] = useState(0);
     let [fetchCompleted, setFetchCompleted] = useState(false);
     let [fetchCompleted1, setFetchCompleted1] = useState(false);
