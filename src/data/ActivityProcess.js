@@ -8,6 +8,7 @@ let in_progress = false;
 export default Activity = {
     processNew: async function (cb) {
         try {
+            await DataSync.getLabels(true);
             return 
             let date = new Date();
             in_progress && Utility.saveData("ProcessAlreadyInProgress", date.toISOString());
@@ -15,7 +16,7 @@ export default Activity = {
             console.log("Process New")
             Utility.saveData("ProcessStarted", date.toISOString());
             in_progress = true;
-            await DataSync.getLabels(true);
+            
             console.log("1. starting resume sync", ) // dont change the sequence  first one should be 
             //one time sync then sync left over , then process tasks
             ///other wise tasks may add random message casusing logic to stop sync 

@@ -50,12 +50,12 @@ const EmailList = ({ route, navigation }) => {
     }
 
     useEffect(x => {
-        let ll;
         setLoading(true);
         if(route.params.type==="domain") {
-            ll = MessageService.getByDomain(route.params.sender, page, 10);
-            setList(l => { l.push(...ll); return l; });
-            setLoading(false);
+           MessageService.getByDomain(route.params.sender, page, 10).then(messages => {
+                setList(l => { l.push(...messages); return l; });
+                setLoading(false);
+            });
         } else {
           MessageService.getBySender(route.params.sender, page, 10).then(messages => {
             setList(l => { l.push(...messages); return l; });

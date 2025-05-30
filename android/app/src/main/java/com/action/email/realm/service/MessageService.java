@@ -126,12 +126,13 @@ public class MessageService {
      public static List<Message> getByDomain(String domain, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
         Realm realm = Realm.getDefaultInstance();
-        List<Message> messages = realm.copyFromRealm(realm.where(Message.class)
-            .equalTo("sender_domain", domain)
-            .equalTo("labels", "INBOX")
-            .sort("date", Sort.DESCENDING)
-            .findAll()
-            .subList(offset, offset + pageSize));
+        List<Message> messages = realm.where(Message.class)
+                .equalTo("sender_domain", domain)
+                .equalTo("labels", "INBOX")
+                .sort("date", Sort.DESCENDING)
+                .findAll();
+        messages = realm.copyFromRealm(messages
+            .subList(offset, Math.min(messages.size(), offset+pageSize)));
         realm.close();
         return messages;
     }
@@ -167,11 +168,12 @@ public class MessageService {
      public static List<Message> getLatestMessages(int page, int pageSize) {
         Realm realm = Realm.getDefaultInstance();
         int offset = (page - 1) * pageSize;
-        List<Message> messages= realm.copyFromRealm(realm.where(Message.class)
+        List<Message> messages =  realm.where(Message.class)
             .equalTo("labels", "INBOX")
             .sort("date", Sort.DESCENDING)
             .findAll()
-            .subList(offset, offset + pageSize));
+            ;
+         messages = realm.copyFromRealm(messages .subList(offset, Math.min(offset + pageSize, messages.size()) ));
         realm.close();
         return messages;
     }

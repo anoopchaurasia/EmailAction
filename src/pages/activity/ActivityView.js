@@ -26,17 +26,17 @@ function handlePress() {
 const renderItem = (item, onPlay, onDelete, onEdit, colors) => {
   let title = item.title || `${item.action} from ${item.to.toString()} ${item.from.toString()}`
   return (
-    <View style={{flexDirection: "row", padding: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0',}}>
-      <View style={{flexDirection: "column", flex:1, marginRight: 70, }}>
+    <View style={{ flexDirection: "row", padding: 10, borderBottomWidth: 1, borderBottomColor: '#f0f0f0', }}>
+      <View style={{ flexDirection: "column", flex: 1, marginRight: 70, }}>
         <MyText style={{}}>{title}</MyText>
-        <View style={{flexDirection:"row"}}>
+        <View style={{ flexDirection: "row" }}>
           <MyText>{Date.dateView(item.ran_at)} </MyText>
-          <MyText style={{...styles.label, borderColor: colors.border}}>{LabelService.getNameById(item.from_label)}</MyText>
+          <MyText style={{ ...styles.label, borderColor: colors.border }}>{LabelService.getNameById(item.from_label)}</MyText>
           <Icon name="arrow-right" />
-          <MyText style={{...styles.label, borderColor: colors.border}}>{LabelService.getNameById(item.to_label)}</MyText>
+          <MyText style={{ ...styles.label, borderColor: colors.border }}>{LabelService.getNameById(item.to_label)}</MyText>
         </View>
       </View>
-      <View style={{width:70, flexDirection:"row"}}>
+      <View style={{ width: 70, flexDirection: "row" }}>
         {MyIcon(item, "pencil-outline", onEdit)}
         {item.completed ? MyIcon(item, "play", onPlay) : MyIcon(item, "circle-outline", handlePress)}
         {MyIcon(item, "delete", onDelete)}
@@ -53,18 +53,21 @@ const ActivityView = ({ navigation }) => {
   const isFocused = useIsFocused();
 
   function createRuleList() {
-    console.log(ActivityView.toString(), "fetch new data");
-    let all = [...ActivityModel.getAll()];
-    all.filter(x => !x.action).forEach(task => {
-      if (task.to_label === 'trash') {
-        ActivityModel.updateObjectById(task.id, { action: 'trash' });
-      } else if (task.from_label && task.to_label) {
-        ActivityModel.updateObjectById(task.id, { action: 'move' });
-      } else if (task.to_label) { ////copy if we are not removing existing labels
-        ActivityModel.updateObjectById(task.id, { action: 'copy' });
-      }
-    })
-    setActivities(all);
+    ActivityModel.getAll().then(activities => {
+      let all = [...activities];
+      all.filter(x => !x.action).forEach(task => {
+       
+        if (task.to_label === 'trash') {
+          ActivityModel.updateObjectById(task.id, { action: 'trash' });
+        } else if (task.from_label && task.to_label) {
+          ActivityModel.updateObjectById(task.id, { action: 'move' });
+        } else if (task.to_label) { ////copy if we are not removing existing labels
+          ActivityModel.updateObjectById(task.id, { action: 'copy' });
+        }
+      })
+      setActivities(all);
+    });
+
   }
 
 
@@ -102,7 +105,7 @@ const ActivityView = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <SearchPage onChangeText={value => setText(value)}  placeholder="Search Rules"  value={text} name="magnify" />
+      <SearchPage onChangeText={value => setText(value)} placeholder="Search Rules" value={text} name="magnify" />
       <FlatList
         data={filterItems(text)}
         renderItem={({ item }) => renderItem(item, onPlay, onDelete, onEdit, colors)}

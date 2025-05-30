@@ -2,8 +2,7 @@ package com.action.email;
 
 import java.util.Properties;
 import javax.mail.*;
-import javax.mail.event.MessageCountAdapter;
-import javax.mail.event.MessageCountEvent;
+
 import java.net.InetSocketAddress;
 import org.java_websocket.server.WebSocketServer;
 import org.java_websocket.WebSocket;
