@@ -2,6 +2,9 @@ package com.action.email.google;
 
 import android.os.Build;
 import android.util.Log;
+
+import com.action.email.realm.model.Message;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
@@ -16,7 +19,7 @@ public class GmailBatchRequestSender {
     private static final OkHttpClient client = new OkHttpClient();
 
 
-    public static Response sendBatchRequest(
+    public static List<Message> sendBatchRequest(
             List<String> ids,
             Function<String, String> methodPathBuilder,       // e.g., id -> "POST /gmail/v1/users/me/messages/{id}/modify"
             Function<String, Map<String, String>> headersBuilder, // e.g., id -> headers
@@ -67,7 +70,12 @@ public class GmailBatchRequestSender {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            return response;
+
+            if (!response.isSuccessful()) {
+                Log.e(TAG, "Batch request failed: " + response.code() + " -> " + response.message());
+                failedIds.addAll(ids);
+            }
+            return null;
 
         } catch (IOException e) {
             Log.e(TAG, "IOException during batch request", e);

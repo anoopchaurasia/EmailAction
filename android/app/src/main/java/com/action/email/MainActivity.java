@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.core.content.ContextCompat;
+
 //import AppCenter
 
 public class MainActivity extends ReactActivity {
@@ -19,11 +21,12 @@ public class MainActivity extends ReactActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
-
-        Intent serviceIntent = new Intent(this, EmailForegroundService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent);
-        }
+        Intent serviceIntent = new Intent(this, ImapService.class);
+        ContextCompat.startForegroundService(this, serviceIntent);
+        // Intent serviceIntent = new Intent(this, EmailForegroundService.class);
+        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        //     startForegroundService(serviceIntent);
+        // }
     }
   // @Override
 

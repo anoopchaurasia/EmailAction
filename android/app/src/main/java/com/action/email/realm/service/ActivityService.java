@@ -28,21 +28,19 @@ public class ActivityService {
         }
         data.setCreated_at(new Date());
 
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         try {
             realm.executeTransaction(r -> {
                 r.copyToRealmOrUpdate(Collections.singleton(data));
             });
         } catch (RealmException e) {
             Log.e(TAG, "Error creating Activity object", e);
-        } finally {
-            realm.close();
-        }
+        } 
         return data;
     }
 
     public static void deleteAll() {
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         try {
             realm.executeTransaction(r -> {
                 RealmResults<Activity> results = r.where(Activity.class).findAll();
@@ -50,21 +48,18 @@ public class ActivityService {
             });
         } catch (RealmException e) {
             Log.e(TAG, "Error deleting all Activity objects", e);
-        } finally {
-            realm.close();
-        }
+        } 
     }
 
     public static List<Activity> getNoCompleted() {
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         // Caller should close realm after usage
         List<Activity> activities = realm.copyFromRealm(realm.where(Activity.class).equalTo("completed", false).findAll());
-        realm.close();
         return activities;
     }
 
     public static void deleteObjectById(String id) {
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         try {
             realm.executeTransaction(r -> {
                 Activity obj = r.where(Activity.class).equalTo("id", id).findFirst();
@@ -74,14 +69,12 @@ public class ActivityService {
             });
         } catch (RealmException e) {
             Log.e(TAG, "Error deleting Activity by id", e);
-        } finally {
-            realm.close();
-        }
+        } 
     }
 
     public static void updateObjectById(String id, Activity data) {
         validate(data, true);
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         try {
             realm.executeTransaction(r -> {
                 Activity obj = r.where(Activity.class).equalTo("id", id).findFirst();
@@ -105,9 +98,7 @@ public class ActivityService {
             });
         } catch (RealmException e) {
             Log.e(TAG, "Error updating Activity", e);
-        } finally {
-            realm.close();
-        }
+        } 
     }
 
     public static void validate(Activity activity, boolean isUpdate) {
@@ -127,18 +118,16 @@ public class ActivityService {
     }
 
     public static List<Activity> getAll() {
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         // Caller should close realm after usage
         List<Activity> activities = realm.copyFromRealm(realm.where(Activity.class).findAll());
-        realm.close();
         return activities;
     }
 
     public static List<Activity> getBySender(String sender) {
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         // Caller should close realm after usage
         List<Activity> activities = realm.copyFromRealm(realm.where(Activity.class).contains("from", sender).findAll());
-        realm.close();
         return activities;
     }
 

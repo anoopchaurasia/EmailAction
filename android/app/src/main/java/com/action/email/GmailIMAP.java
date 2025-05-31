@@ -1,29 +1,39 @@
 package com.action.email;
 
+import static java.lang.Thread.sleep;
+
+import android.content.Context;
+import android.util.Log;
+
 import java.util.Properties;
+
 import javax.mail.*;
+import javax.mail.event.MessageCountAdapter;
+import javax.mail.event.MessageCountEvent;
 
-import java.net.InetSocketAddress;
-import org.java_websocket.server.WebSocketServer;
-import org.java_websocket.WebSocket;
-import org.java_websocket.handshake.ClientHandshake;
-
+import com.action.email.data.TokenInfo;
+import com.action.email.event.LoginEventBus;
 import com.action.email.google.GmailEmailFetcher;
-import com.facebook.react.bridge.ReactApplicationContext;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import com.action.email.google.AccessTokenHelper;
+import com.action.email.google.GmailHistoryFetcher;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.sun.mail.imap.IMAPFolder;
+import com.sun.mail.imap.IMAPMessage;
 
 public class GmailIMAP {
 
     private static final String HOST = "imap.gmail.com";
     private static final String PORT = "993";
-    private static EmailWebSocketServer webSocketServer;
-    private static String accessToken ;
+    private static final String TAG = "GmailIMAP";
 
-    public static Store connectToGmail(String userId, ReactApplicationContext reactContext) throws MessagingException {
+    private static Store getImapInbox(Context context) throws MessagingException {
+        TokenInfo tokenInfo;
+        try {
+            tokenInfo = AccessTokenHelper.fetchAccessToken(context);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imaps");
         props.setProperty("mail.imaps.host", HOST);
@@ -33,142 +43,114 @@ public class GmailIMAP {
 
         Session session = Session.getInstance(props);
         Store store = session.getStore("imaps");
-        AccessTokenHelper.fetchAccessToken(reactContext, new AccessTokenHelper.TokenCallback() {
-            @Override
-            public void onTokenReceived(String token) {
-                try {
-                  //  store.connect(HOST, userId, token);
-                    accessToken = token;
-                    System.out.println("Wait: Connected to Gmail IMAP server");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            @Override
-            public void onError(Exception e) {
-                e.printStackTrace();
-            }
-        });
+        store.connect(HOST, tokenInfo.emailId, tokenInfo.accessToken);
+
         return store;
     }
 
-    public static void addNewMessageListener(Store store) throws MessagingException {
-        // Folder inbox = store.getFolder("INBOX");
-        // inbox.open(Folder.READ_ONLY);
 
-        // System.out.println("addNewMessageListener: Open Inbox");
-        // sendNewMessageToJS("Sending first message to test");
-        // inbox.addMessageCountListener(new MessageCountAdapter() {
-        //     @Override
-        //     public void messagesAdded(MessageCountEvent event) {
-        //         Message[] messages = event.getMessages();
-        //         try {
-        //             sendNewMessageToJS(messagesToJson(messages));
-        //             System.out.println("addNewMessageListener: Open Inbox messagesAdded");
-        //         } catch (MessagingException e) {
-        //             e.printStackTrace();
-        //         } catch (Exception e) {
-        //             e.printStackTrace();
-        //         }
-        //     }
-        // });
+    public static void addNewMessageListener(Context context) throws MessagingException {
+
+        GmailEmailFetcher gmailEmailFetcher= null;
+        GmailHistoryFetcher gmailHistoryFetcher = null;
+        try {
+            gmailEmailFetcher = new GmailEmailFetcher(context);
+            gmailHistoryFetcher = new GmailHistoryFetcher(context);
+            gmailEmailFetcher.fetchInboxEmails();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         // Keep the connection alive to listen for new messages
+        GmailHistoryFetcher finalGmailHistoryFetcher = gmailHistoryFetcher;
         new Thread(() -> {
-           // while (true) {
+            System.out.println("Wait : After start" );
+            Store store = null;
+            IMAPFolder inbox = null;
+            while (true) {
                 try {
-                    System.out.println("Wait : Before start");
-                    Thread.sleep(10000);
-                    System.out.println("Wait : After start" + accessToken);
-                    GmailEmailFetcher gmailEmailFetcher= new GmailEmailFetcher(accessToken);
-                    gmailEmailFetcher.fetchInboxEmails();
-                   // Thread.sleep(10000); // Check for new messages every 10 seconds
-                    //inbox.getMessageCount(); // Trigger the listener
+                    if (store == null || !store.isConnected()) {
+                        store = getImapInbox(context);
+                        inbox = (IMAPFolder) store.getFolder("INBOX");
+                        inbox.open(Folder.READ_ONLY);
+                        IMAPFolder finalInbox = inbox;
+                        inbox.addMessageCountListener(new MessageCountAdapter() {
+                            @Override
+                            public void messagesAdded(MessageCountEvent event) {
+                                try {
+                                    System.out.println("----------new Message received");
+                                    finalGmailHistoryFetcher.fetchHistoryAndSync();
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        });
+                    }
+
+                    // Enter IDLE mode to wait for new messages
+                    inbox.idle();
+                } catch (AuthenticationFailedException e) {
+                    // Token expired, force reconnect
+                    closeSafely(inbox, store);
+                    inbox = null;
+                    store = null;
+
+                } catch (FolderClosedException e){
+                    e.printStackTrace();
+                    if (!inbox.isOpen()) {
+                        try {
+                            inbox.open(Folder.READ_WRITE); // or READ_ONLY if needed
+                        } catch (MessagingException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    //break; // Exit the loop if interrupted
+                    // Optional delay before retry
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
-           // }
+
+            }
         }).start();
     }
 
-    private static void sendNewMessageToJS(String message) {
-        if (webSocketServer != null) {
-            try {
-                System.out.println("sendNewMessageToJS, sendMessageToAll " + message);
-                LocalNotification.sendNotification(MainApplication.instance);
-                webSocketServer.sendMessageToAll(message);
-            } catch (Exception e) {
-                e.printStackTrace();
+    private static void closeSafely(Folder folder, Store store) {
+        try {
+            if (folder != null && folder.isOpen()) {
+                folder.close(false); // false = don't expunge deleted messages
             }
-        } else {
-            System.out.println("webSocketServer is not available");
+        } catch (MessagingException e) {
+            e.printStackTrace();
         }
-    }
 
-    public static void initializeWebSocketServer() {
-        InetSocketAddress address = new InetSocketAddress("localhost", 8888);
-        webSocketServer = new EmailWebSocketServer(address);
-        webSocketServer.start();
-    }
-
-    public static String messagesToJson(Message[] messages) throws Exception {
-        JSONArray messageArray = new JSONArray();
-
-        for (Message message : messages) {
-            JSONObject emailJson = new JSONObject();
-
-            emailJson.put("from", message.getFrom() != null ? message.getFrom()[0].toString() : "");
-            emailJson.put("subject", message.getSubject());
-            Object content = message.getContent();
-            if (content instanceof String) {
-                emailJson.put("content", content);
-            } else {
-                emailJson.put("content", "Non-text content");
+        try {
+            if (store != null && store.isConnected()) {
+                store.close();
             }
-
-            messageArray.put(emailJson);
-        }
-
-        return messageArray.toString();
-    }
-}
-
-class EmailWebSocketServer extends WebSocketServer {
-
-    public EmailWebSocketServer(InetSocketAddress address) {
-        super(address);
-    }
-
-    @Override
-    public void onOpen(WebSocket conn, ClientHandshake handshake) {
-        System.out.println("New connection: " + conn.getRemoteSocketAddress());
-    }
-
-    @Override
-    public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        System.out.println("Closed connection: " + conn.getRemoteSocketAddress());
-    }
-
-    @Override
-    public void onMessage(WebSocket conn, String message) {
-        System.out.println("Received message: " + message);
-    }
-
-    @Override
-    public void onError(WebSocket conn, Exception ex) {
-        ex.printStackTrace();
-    }
-
-    @Override
-    public void onStart() {
-        System.out.println("Server started successfully");
-    }
-
-    public void sendMessageToAll(String messages) {
-        for (WebSocket conn : getConnections()) {
-            conn.send(messages);
+        } catch (MessagingException e) {
+            e.printStackTrace();
         }
     }
 
+
+    public void connectAndListen(Context context) throws Exception {
+        System.out.println("doInBackground: Connected and listening for new emails");
+        if (!AccessTokenHelper.isUserLoggedIn(context)) {
+            Log.w("GmailImap", "User not logged in. Waiting...");
+            // You can send a broadcast or store a pending task flag
+            LoginEventBus.getInstance().setPendingSync(true); // custom singleton
+            return;
+        }
+        Log.d(TAG, "connectAndListen");
+        try {
+            GmailIMAP.addNewMessageListener(context);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("doInBackground: Connected and listening for new emails");
+    }
 }

@@ -1,5 +1,6 @@
 package com.action.email.realm.reactmodule;
 
+import com.action.email.data.ProcessRule;
 import com.action.email.realm.model.Activity;
 import com.action.email.realm.service.ActivityService;
 import com.facebook.react.bridge.Arguments;
@@ -29,6 +30,7 @@ public class ActivityModule extends ReactContextBaseJavaModule {
             Activity activity = Activity.fromMap(map);
             Activity result = ActivityService.createObject(activity);
             promise.resolve(result.toMap());
+            ProcessRule.takeAction(result, this.getReactApplicationContext().getApplicationContext());
         } catch (Exception e) {
             promise.reject("CREATE_ERROR", e);
         }

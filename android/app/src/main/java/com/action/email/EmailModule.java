@@ -1,10 +1,19 @@
 package com.action.email;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
+
+import com.action.email.event.LoginEventBus;
+import com.action.email.google.AccessTokenHelper;
+import com.action.email.google.GmailHistoryFetcher;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Promise;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.mail.MessagingException;
 import javax.mail.Store;
@@ -13,7 +22,6 @@ public class EmailModule extends ReactContextBaseJavaModule {
 
     public EmailModule(ReactApplicationContext reactContext) {
         super(reactContext);
-        GmailIMAP.initializeWebSocketServer();
     }
 
     @Override
@@ -23,42 +31,19 @@ public class EmailModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void connectToGmail(String userId, String accessToken, Promise promise) {
-        new ConnectToGmailTask(userId,  this.getReactApplicationContext(), promise).execute();
-    }
-
-    private static class ConnectToGmailTask extends AsyncTask<Void, Void, String> {
-        private String userId;
-        private String accessToken;
-        private Promise promise;
-        private ReactApplicationContext reactContext;
-
-        ConnectToGmailTask(String userId, ReactApplicationContext reactContext,  Promise promise) {
-            this.userId = userId;
-            this.reactContext = reactContext;
-            this.promise = promise;
+        GmailHistoryFetcher gmailHistoryFetcher = new GmailHistoryFetcher(getReactApplicationContext());
+        try {
+            gmailHistoryFetcher.fetchHistoryAndSync();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            try {
-                System.out.println("doInBackground: Connected and listening for new emails");
-                Store store = GmailIMAP.connectToGmail(userId, reactContext);
-                GmailIMAP.addNewMessageListener(store);
-                System.out.println("doInBackground: Connected and listening for new emails");
-                return "Connected and listening for new emails";
-            } catch (MessagingException e) {
-                 System.out.println("doInBackground Error: Connected and listening for new emails");
-                return "Error: " + e.getMessage();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            if (result.startsWith("Error:")) {
-                promise.reject("Error", result);
-            } else {
-                promise.resolve(result);
-            }
+        ;
+        System.out.println("------------------------------connectToGmail");
+        if (LoginEventBus.getInstance().isPendingSync()) {
+            System.out.println("connectToGmail start service");
+            Context context = getReactApplicationContext().getApplicationContext();
+            context.startForegroundService(new Intent(context, ImapService.class));
         }
     }
+
 }

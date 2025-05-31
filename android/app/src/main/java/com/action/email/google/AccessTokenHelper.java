@@ -1,54 +1,44 @@
 package com.action.email.google;
-
 import android.content.Context;
-import android.os.AsyncTask;
-import android.util.Log;
 
+import com.action.email.data.TokenInfo;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.common.Scopes;
-
-import java.io.IOException;
 
 public class AccessTokenHelper {
+    private static final String GMAIL_SCOPE = "https://mail.google.com/";
+    private static final long TOKEN_VALIDITY_MILLIS = 57 * 60 * 1000; // 57 minutes
 
-    public interface TokenCallback {
-        void onTokenReceived(String token);
-        void onError(Exception e);
-    }
+    private static TokenInfo cachedTokenInfo = null;
+    private static long lastFetchedTime = 0;
 
-    public static void fetchAccessToken(Context context, TokenCallback callback) {
+    public static synchronized TokenInfo fetchAccessToken(Context context) throws Exception {
+        long currentTime = System.currentTimeMillis();
+
+        if (cachedTokenInfo != null && (currentTime - lastFetchedTime) < TOKEN_VALIDITY_MILLIS) {
+            return cachedTokenInfo; // Return cached token if still valid
+        }
+
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
 
         if (account == null || account.getAccount() == null) {
-            callback.onError(new Exception("No signed-in account found"));
-            return;
+            throw new Exception("No signed-in account found");
         }
 
-        new AsyncTask<Void, Void, String>() {
-            Exception exception;
+        String email = account.getEmail();
+        String scope = "oauth2:" + GMAIL_SCOPE;
+        String token = GoogleAuthUtil.getToken(context, account.getAccount(), scope);
 
-            @Override
-            protected String doInBackground(Void... voids) {
-                try {
-                    String scope = "oauth2:" + Scopes.EMAIL + " " + Scopes.PROFILE;
-                    return GoogleAuthUtil.getToken(context, account.getAccount(), scope);
-                } catch (IOException | com.google.android.gms.auth.GoogleAuthException e) {
-                    exception = e;
-                    e.printStackTrace();
-                    return null;
-                }
-            }
+        cachedTokenInfo = new TokenInfo(email, token);
+        lastFetchedTime = currentTime;
 
-            @Override
-            protected void onPostExecute(String token) {
-                if (token != null) {
-                    callback.onTokenReceived(token);
-                } else {
-                    callback.onError(exception);
-                }
-            }
-        }.execute();
+        return cachedTokenInfo;
+    }
+
+    public static boolean isUserLoggedIn(Context context) {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
+
+        return account != null && account.getAccount() != null;
     }
 }

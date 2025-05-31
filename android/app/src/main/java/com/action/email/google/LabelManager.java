@@ -2,6 +2,7 @@ package com.action.email.google;
 
 import android.util.Log;
 
+import com.action.email.realm.model.Activity;
 import com.action.email.realm.model.Message;
 import com.google.gson.Gson;
 
@@ -23,11 +24,13 @@ public class LabelManager {
         void onProcessed(List<Map<String, Object>> processedMessages);
     }
 
-    public static void trash(List<String> messageIds, String accessToken) {
-        LabelManager.changeLabel(messageIds, accessToken, "trash", new ArrayList<>(), new ArrayList<>());
+    public static List<Message> trash(Activity task, List<String> messageIds, String accessToken) {
+      return  LabelManager.changeLabel(messageIds,
+                accessToken,
+                "trash", new ArrayList<>(), new ArrayList<>());
     }
 
-    private static List<Message> changeLabel (List<String> messageIds, String accessToken, String labelName,
+    private static List<Message> changeLabel (List<String> messageIds, String accessToken ,String labelName,
                                               List<String> addLabels, List<String> removeLabels ) {
         final int BATCH_SIZE = 25;
         final String label = labelName.equals("trash")? labelName : "modify";
@@ -36,7 +39,7 @@ public class LabelManager {
 
             List<String> batch = messageIds.subList(i, Math.min(i + BATCH_SIZE, messageIds.size()));
             Set<String> failedIds = new HashSet<>();
-            Response response = GmailBatchRequestSender.sendBatchRequest(
+            return GmailBatchRequestSender.sendBatchRequest(
                     messageIds,
                     id -> "POST /gmail/v1/users/me/messages/" + id + "/"+label,
                     id -> Map.of("Content-Type", "application/json"),
@@ -47,19 +50,7 @@ public class LabelManager {
                     accessToken
             );
 
-            if(response==null) {
-                Log.e(TAG, "response is null");
-            }
-            else if (!response.isSuccessful()) {
-                Log.e(TAG, "Batch request failed: " + response.code() + " -> " + response.message());
-                failedIds.addAll(batch);
-            } else {
-                try {
-                    return GmailEmailFetcher.parseMultipartResponse(response, failedIds);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+
         }
         return null;
     }

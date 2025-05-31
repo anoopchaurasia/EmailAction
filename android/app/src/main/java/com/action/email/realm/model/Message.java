@@ -33,6 +33,9 @@ public class Message extends RealmObject {
     @Index
     private boolean has_attachement = false;
 
+    private String history_id;
+
+
     public Message(String messageId) {
         this.message_id = messageId;
     }
@@ -103,6 +106,14 @@ public class Message extends RealmObject {
         this.has_attachement = has_attachement;
     }
 
+    public String getHistory_id() {
+        return history_id;
+    }
+
+    public void setHistory_id(String history_id) {
+        this.history_id = history_id;
+    }
+
     public static Message fromMap(ReadableMap map) {
         Message agg = new Message();
         agg.setSender(map.getString("sender"));
@@ -157,6 +168,15 @@ public class Message extends RealmObject {
     }
 
 
+    public void removeLabel(String labelId) {
+        labels.remove(labelId);
+    }
+
+    public void addLabel(String labelId) {
+        if (!labels.contains(labelId)) {
+            labels.add(labelId);
+        }
+    }
 }
 
 

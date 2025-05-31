@@ -1,5 +1,8 @@
 package com.action.email.realm.reactmodule;
 
+import android.os.Build;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.action.email.realm.model.Attachment;
@@ -20,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MessageModule extends ReactContextBaseJavaModule {
+
+    private static final String TAG = "MessageModule";
 
     public MessageModule(@NonNull ReactApplicationContext reactContext) {
         super(reactContext);
@@ -48,6 +53,10 @@ public class MessageModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void readAll(Promise promise) {
         List<Message> messages = MessageService.readAll();
+        List<Message> m2 = MessageService.getBySender("info@nykaa.com", 1, 5);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            m2.forEach(msg-> Log.d(TAG, "message: "+ msg.toMap()));
+        }
         WritableArray result = Arguments.createArray();
         for (Message msg : messages) result.pushMap(msg.toMap());
         promise.resolve(result);

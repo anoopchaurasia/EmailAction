@@ -18,7 +18,7 @@ public class LabelService {
     }
 
     public void deleteById(String id) {
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         realm.executeTransaction(r -> {
             Label label = r.where(Label.class).equalTo("id", id).findFirst();
             if (label != null) {
@@ -29,7 +29,7 @@ public class LabelService {
     }
 
     public void updateById(String id, String newName) {
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         realm.executeTransaction(r -> {
             Label label = r.where(Label.class).equalTo("id", id).findFirst();
             if (label != null) {
@@ -40,19 +40,19 @@ public class LabelService {
     }
 
     public Label getById(String id) {
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         return realm.where(Label.class).equalTo("id", id).findFirst();
     }
 
     public Label create(Label labelData) {
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         realm.executeTransaction(r -> r.insert(labelData));
         getMap();
         return labelData;
     }
 
     public RealmResults<Label> readAll() {
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         return realm.where(Label.class).findAll();
     }
 
@@ -71,7 +71,7 @@ public class LabelService {
     }
 
     public void deleteAll() {
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         realm.executeTransaction(r -> {
             r.delete(Label.class);
         });
@@ -79,7 +79,7 @@ public class LabelService {
     }
 
     public void close() {
-        Realm realm = RealmManager.getRealmInstance();
+        Realm realm = RealmManager.getRealm();
         if (!realm.isClosed()) realm.close();
     }
 }

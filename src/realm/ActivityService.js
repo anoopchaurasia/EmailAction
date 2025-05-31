@@ -14,7 +14,6 @@ const ActivityMethods = {
 
   getNoCompleted: async () => {
     let a = await ActivityModule.getNoCompleted();
-    console.log("getNoCompleted: ", a);
     return a;
   },
 

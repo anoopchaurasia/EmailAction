@@ -18,7 +18,19 @@ public class RealmManager {
         Realm.setDefaultConfiguration(realmConfig);
     }
 
-    public static Realm getRealmInstance() {
-        return Realm.getDefaultInstance();
+
+     private static Realm realmInstance;
+
+    public static Realm getRealm() {
+        if (realmInstance == null || realmInstance.isClosed()) {
+            realmInstance = Realm.getDefaultInstance();
+        }
+        return realmInstance;
+    }
+
+    public static void closeRealm() {
+        if (realmInstance != null && !realmInstance.isClosed()) {
+            realmInstance.close();
+        }
     }
 }

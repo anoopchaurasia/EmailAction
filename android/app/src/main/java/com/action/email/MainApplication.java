@@ -2,6 +2,9 @@ package com.action.email;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
+
+import androidx.core.content.ContextCompat;
 
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
@@ -63,6 +66,7 @@ public class MainApplication extends Application implements ReactApplication {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
       DefaultNewArchitectureEntryPoint.load();
     }
+
     ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     RealmManager.initRealm(getApplicationContext());
   }
