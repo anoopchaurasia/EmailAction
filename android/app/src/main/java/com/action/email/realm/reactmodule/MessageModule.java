@@ -172,8 +172,4 @@ public class MessageModule extends ReactContextBaseJavaModule {
         promise.resolve(array);
     }
 
-    @ReactMethod
-    public void close() {
-        MessageService.close();
-    }
 }

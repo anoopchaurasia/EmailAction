@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class MessageService {
     private Realm realm;
@@ -48,8 +49,11 @@ public class MessageService {
         List<Message> messages = realm.copyFromRealm(realm.where(Message.class)
                 .notEqualTo("labels", "TRASH")
                 .findAll());
-       
-        return messages;
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+             messages= messages.stream().filter(x-> !x.getLabels().contains("TRASH")).collect(Collectors.toList());
+         }
+
+         return messages;
     }
 
      public static Message readById(String id) {
@@ -203,5 +207,30 @@ public class MessageService {
         }
        
         return pending;
+    }
+
+    public static void removeLabel(String messageId, String labelId) {
+        Realm realm = RealmManager.getRealm();
+        realm.executeTransaction(r -> {
+            Message msg = r.where(Message.class)
+                    .equalTo("message_id", messageId)
+                    .findFirst();
+
+            if (msg != null) {
+                msg.removeLabel(labelId);
+            }
+        });
+    }
+    public static void addlabel(String messageId, String labelId) {
+        Realm realm = RealmManager.getRealm();
+        realm.executeTransaction(r -> {
+            Message msg = r.where(Message.class)
+                    .equalTo("message_id", messageId)
+                    .findFirst();
+
+            if (msg != null) {
+                msg.addLabel(labelId);
+            }
+        });
     }
 }

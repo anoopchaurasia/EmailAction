@@ -19,18 +19,22 @@ public class RealmManager {
     }
 
 
-     private static Realm realmInstance;
+    private static final ThreadLocal<Realm> threadLocalRealm = new ThreadLocal<>();
 
     public static Realm getRealm() {
-        if (realmInstance == null || realmInstance.isClosed()) {
-            realmInstance = Realm.getDefaultInstance();
+        Realm realm = threadLocalRealm.get();
+        if (realm == null || realm.isClosed()) {
+            realm = Realm.getDefaultInstance();
+            threadLocalRealm.set(realm);
         }
-        return realmInstance;
+        return realm;
     }
 
     public static void closeRealm() {
-        if (realmInstance != null && !realmInstance.isClosed()) {
-            realmInstance.close();
+        Realm realm = threadLocalRealm.get();
+        if (realm != null && !realm.isClosed()) {
+            realm.close();
+            threadLocalRealm.remove();
         }
     }
 }

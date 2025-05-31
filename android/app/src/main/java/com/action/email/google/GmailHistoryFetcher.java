@@ -172,17 +172,13 @@ public class GmailHistoryFetcher {
 
     private void handleLabelAdded(String messageId, String labelId) {
         Log.d(TAG, "Label Added: messageId=" + messageId + " labelId=" + labelId);
-        Message message = MessageService.getById(messageId);
-        message.addLabel(labelId);
-        MessageService.update(message);
+        MessageService.addlabel(messageId, labelId);
     }
 
     private void handleLabelRemoved(String messageId, String labelId) {
         Log.d(TAG, "Label Removed: messageId=" + messageId + " labelId=" + labelId);
         // Your logic: remove labelId from message labels in Realm
-        Message message = MessageService.getById(messageId);
-        message.removeLabel(labelId);
-        MessageService.update(message);
+        MessageService.removeLabel(messageId, labelId);
     }
 
 

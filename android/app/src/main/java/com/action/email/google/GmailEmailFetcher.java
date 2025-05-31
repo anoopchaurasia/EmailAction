@@ -19,6 +19,7 @@ import java.util.regex.*;
 import com.action.email.data.MessageAggregateData;
 import com.action.email.data.MessageList;
 import com.action.email.data.TokenInfo;
+import com.action.email.realm.config.RealmManager;
 import com.action.email.realm.model.Attachment;
 import com.action.email.realm.model.Message;
 import com.action.email.realm.service.GmailSyncStateService;
@@ -79,6 +80,11 @@ public class GmailEmailFetcher {
 
             } catch (Exception e) {
                 Log.e(TAG, "Inbox fetch failed", e);
+            }
+             finally {
+                // Notify the UI or any listeners that the fetch is complete
+                Log.d(TAG, "Inbox fetch completed");
+                RealmManager.closeRealm();
             }
 
         }).start();

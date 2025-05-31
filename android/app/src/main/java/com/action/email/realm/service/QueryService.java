@@ -18,7 +18,7 @@ public class QueryService {
 
     public QueryService(Context context) {
         Realm.init(context);
-        realm = RealmManager.getRealmInstance();
+        realm = RealmManager.getRealm();
     }
 
     public boolean create(Query query) {

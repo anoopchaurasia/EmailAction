@@ -17,6 +17,7 @@ import com.action.email.google.GmailEmailFetcher;
 
 import com.action.email.google.AccessTokenHelper;
 import com.action.email.google.GmailHistoryFetcher;
+import com.action.email.realm.config.RealmManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPMessage;
@@ -64,6 +65,7 @@ public class GmailIMAP {
         // Keep the connection alive to listen for new messages
         GmailHistoryFetcher finalGmailHistoryFetcher = gmailHistoryFetcher;
         new Thread(() -> {
+            try{
             System.out.println("Wait : After start" );
             Store store = null;
             IMAPFolder inbox = null;
@@ -114,6 +116,9 @@ public class GmailIMAP {
                     }
                 }
 
+            }
+            }   finally {
+                RealmManager.closeRealm();
             }
         }).start();
     }
