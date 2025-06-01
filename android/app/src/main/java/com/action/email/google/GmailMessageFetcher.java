@@ -25,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.RealmList;
+import io.realm.RealmSet;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -177,7 +178,6 @@ public class GmailMessageFetcher {
                 Log.w(TAG, "Failed msg ID " + messageId + ": " + statusCode);
                 failedIds.add(messageId);
             } else if (messageId != null) {
-                Log.d(TAG, "part: "+ part + " messageID: "+ messageId);
                 Message msg = parseMetadata(part);
                 if (msg != null) {
                     messages.add(msg);
@@ -226,7 +226,7 @@ public class GmailMessageFetcher {
             }
 
             // Labels
-            RealmList<String> labels = new RealmList<>();
+            RealmSet<String> labels = new RealmSet<>();
             if (labelIds != null) {
                 for (int i = 0; i < labelIds.length(); i++) {
                     labels.add(labelIds.getString(i));

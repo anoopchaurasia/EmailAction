@@ -1,5 +1,4 @@
 import notifee, { AndroidColor } from '@notifee/react-native';
-import { interpolate } from 'react-native-reanimated';
 import MessageEvent from '../../event/MessageEvent';
 import DataSync from './../../data/DataSync';
 import MessageService from './../../realm/EmailMessageService';

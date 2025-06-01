@@ -19,6 +19,10 @@ const MessageService = {
         return  messages;
     },
 
+    getCount: async () => {
+        return await MessageServiceModule.getCount();
+    },
+
     readById: (id) => {
         return MessageServiceModule.readById(id);
     },

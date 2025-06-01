@@ -47,13 +47,23 @@ public class MessageService {
      public static List<Message> readAll() {
        Realm realm = RealmManager.getRealm();
         List<Message> messages = realm.copyFromRealm(realm.where(Message.class)
-                .notEqualTo("labels", "TRASH")
                 .findAll());
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-             messages= messages.stream().filter(x-> !x.getLabels().contains("TRASH")).collect(Collectors.toList());
+             //messages= messages.stream().filter(x-> !x.getLabels().contains("TRASH")).collect(Collectors.toList());
          }
 
          return messages;
+    }
+
+    public static Integer getCount() {
+        Realm realm = RealmManager.getRealm();
+        Integer count = realm.where(Message.class)
+                .findAll().size();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            //messages= messages.stream().filter(x-> !x.getLabels().contains("TRASH")).collect(Collectors.toList());
+        }
+
+        return count;
     }
 
      public static Message readById(String id) {

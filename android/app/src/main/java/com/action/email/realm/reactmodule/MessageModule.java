@@ -53,13 +53,16 @@ public class MessageModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void readAll(Promise promise) {
         List<Message> messages = MessageService.readAll();
-        List<Message> m2 = MessageService.getBySender("info@nykaa.com", 1, 5);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            m2.forEach(msg-> Log.d(TAG, "message: "+ msg.toMap()));
-        }
+
         WritableArray result = Arguments.createArray();
         for (Message msg : messages) result.pushMap(msg.toMap());
         promise.resolve(result);
+    }
+
+    @ReactMethod
+    public void getCount(Promise promise) {
+        Integer count = MessageService.getCount();
+        promise.resolve(count);
     }
 
     @ReactMethod
@@ -171,5 +174,9 @@ public class MessageModule extends ReactContextBaseJavaModule {
         for (String id : pending) array.pushString(id);
         promise.resolve(array);
     }
+
+
+
+
 
 }

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Text, View, TouchableHighlight } from "react-native";
 
 import ActivityProcess from './../../data/ActivityProcess'
-import * as Progress from 'react-native-progress';
 import MessageService from "../../realm/EmailMessageService";
 import Utility from "../../utility/Utility";
 import MessageEvent from "../../event/MessageEvent";
@@ -19,8 +18,8 @@ export default function EmailSummary({ navigation }) {
     let [processRunningStatus, setProcessRunningStatus] = useState({});
 
     let colors = useTheme().colors;
-    MessageService.readAll().then(messages => {
-        setCount(messages.length);
+    MessageService.getCount().then(count => {
+        setCount(count);
     });
     let [prgressPer, setProgressPer] = useState(0);
     let [fetchCompleted, setFetchCompleted] = useState(false);
@@ -36,14 +35,14 @@ export default function EmailSummary({ navigation }) {
 
     useEffect(x => {
         
-        DataSync.getTotalEmails().then(data => {
-            setInboxInfo(data);
-            count && data.messagesTotal && setProgressPer(count / data.messagesTotal);
-            ActivityProcess.processNew();
-        }).catch(x => {
-            console.log("GetTotal failed", x)
-            ActivityProcess.processNew();
-        });
+        // DataSync.getTotalEmails().then(data => {
+        //     setInboxInfo(data);
+        //     count && data.messagesTotal && setProgressPer(count / data.messagesTotal);
+        //     ActivityProcess.processNew();
+        // }).catch(x => {
+        //     console.log("GetTotal failed", x)
+        //     ActivityProcess.processNew();
+        // });
 
         MessageEvent.on('new_message_received', (messages) => {
             setCount(t => t + messages.length);

@@ -5,6 +5,7 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 
 import io.realm.RealmObject;
+import io.realm.RealmSet;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Index;
 import io.realm.RealmList;
@@ -28,7 +29,8 @@ public class Message extends RealmObject {
     @Index
     private Date date;
     private Date created_at;
-    private RealmList<String> labels;
+    private RealmSet<String> labels;
+
     private RealmList<Attachment> attachments;
     @Index
     private boolean has_attachement = false;
@@ -87,10 +89,10 @@ public class Message extends RealmObject {
     public void setCreated_at(Date created_at) {
         this.created_at = created_at;
     }
-    public RealmList<String> getLabels() {
+    public RealmSet<String> getLabels() {
         return labels;
     }
-    public void setLabels(RealmList<String> labels) {
+    public void setLabels(RealmSet<String> labels) {
         this.labels = labels;
     }
     public RealmList<Attachment> getAttachments() {
@@ -123,7 +125,7 @@ public class Message extends RealmObject {
         agg.setSender_name(map.getString("sender_name"));
         agg.setDate(new Date(map.getString("date")));
         if (map.hasKey("labels")) {
-            RealmList<String> labels = new RealmList<>();
+            RealmSet<String> labels = new RealmSet<>();
             for (int i = 0; i < map.getArray("labels").size(); i++) {
                 labels.add(map.getArray("labels").getString(i));
             }
@@ -150,7 +152,7 @@ public class Message extends RealmObject {
         map.putString("sender_domain", getSender_domain());
         map.putString("date", getDate().toString());
         map.putString("subject", getSubject());
-        map.putArray("labels", Arguments.fromList(getLabels()));
+        map.putArray("labels", Arguments.fromList(new ArrayList<>(getLabels())));
         map.putBoolean("has_attachement",
                 isHas_attachement());
         map.putString("sender_name", getSender_name());
