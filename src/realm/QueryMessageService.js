@@ -1,44 +1,11 @@
-const Realm = require("realm");
-
-const QuerySchema = {
-  name: "Query",
-  primaryKey: "id",
-  properties: {
-    query: {type:"QueryData"},
-    id: "string",
-    name: "string",
-    pdf_password: "string?",
-    message_ids: "string[]",
-    nextPageToken: 'string?',
-    completed: {type:'bool', default: false}
-  }
-};
-
-const QueryDataSchema = {
-  name:"QueryData",
-  properties:{
-    from:  "string?",
-    to:  "string?",
-    subject:  "string?",
-    body:  "string?",
-    notHas:  "string?",
-    has:  "bool?",
-    after:  "date?",
-    before:  "date?",
-  }
-}
+import { NativeModules } from 'react-native';
+const QueryModule = NativeModules.QueryModule;
 
 const QueryService = {
-  realm: null,
-  async init() {
-    this.realm = await Realm.open({path: "querymessage",schema: [QuerySchema, QueryDataSchema], schemaVersion: 12});
-  },
+  
   async create(query) {
     try {
-      query.id = query.id || Math.random().toString(36).slice(2);
-      await this.realm.write(() => {
-        this.realm.create("Query", query);
-      });
+      await QueryModule.create(query);
       return true;
     } catch (error) {
       console.error(error, "QueryService.create");
@@ -47,39 +14,33 @@ const QueryService = {
   },
 
   async deleteAll () {
-    this.realm.write(() => {
-      this.realm.delete(this.realm.objects("Query"));  
-      this.realm.delete(this.realm.objects("QueryData"));
-    });
+    try {
+      await QueryModule.deleteAll();
+    } catch (error) {
+      console.error(error, "QueryService.deleteAll");
+    }
   },
   async update(query) {
     try {
-      query.id = query.id || Math.random().toString(36).slice(2);
-      await this.realm.write(() => {
-        this.realm.create("Query", query, true);
-      });
+      await QueryModule.update(query);
       return true;
     } catch (error) {
       console.error(error, "QueryService.update");
       return false;
     }
   },
-  async delete(query) {
+  async delete(id) {
     try {
-      await this.realm.write(() => {
-        let obj = this.realm.objectForPrimaryKey("Query", query);
-        this.realm.delete(obj);
-      });
+      await QueryModule.delete(id);
       return true;
     } catch (error) {
       console.error(error);
       return false;
     }
   },
-  getAll() {
+  async getAll() {
     try {
-      let results = this.realm.objects("Query");
-      return results.map((obj) => obj.toJSON());
+      return await QueryModule.getAll();
     } catch (error) {
       console.error(error, "QueryService.getAll");
       return [];
@@ -106,6 +67,5 @@ function setValue(key, value, raw_value) {
   return `${key}:(${value})`;
 }
 
-QueryService.init();
 
 export default QueryService;

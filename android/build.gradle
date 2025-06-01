@@ -18,10 +18,10 @@ buildscript {
     allprojects {
         repositories {
             jcenter()
-            maven {
-                // react-native-background-fetch
-                url("${project(':react-native-background-fetch').projectDir}/libs")
-            }
+//            maven {
+//                // react-native-background-fetch
+//               // url("${project(':react-native-background-fetch').projectDir}/libs")
+//            }
         }
 
     }

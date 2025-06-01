@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.action.email.realm.config.RealmManager;
 import com.action.email.realm.model.QueryData;
+import com.facebook.react.bridge.ReadableMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,15 +15,15 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 
 public class QueryService {
-    private final Realm realm;
 
     public QueryService(Context context) {
         Realm.init(context);
-        realm = RealmManager.getRealm();
+
     }
 
     public boolean create(Query query) {
         try {
+            Realm realm = RealmManager.getRealm();
             if (query.getId() == null || query.getId().isEmpty()) {
                 query.setId(UUID.randomUUID().toString());
             }
@@ -36,6 +37,7 @@ public class QueryService {
 
     public boolean update(Query query) {
         try {
+            Realm realm = RealmManager.getRealm();
             if (query.getId() == null || query.getId().isEmpty()) {
                 query.setId(UUID.randomUUID().toString());
             }
@@ -49,6 +51,7 @@ public class QueryService {
 
     public boolean delete(String id) {
         try {
+            Realm realm = RealmManager.getRealm();
             realm.executeTransaction(r -> {
                 Query query = r.where(Query.class).equalTo("id", id).findFirst();
                 if (query != null) {
@@ -63,6 +66,7 @@ public class QueryService {
     }
 
     public void deleteAll() {
+        Realm realm = RealmManager.getRealm();
         realm.executeTransaction(r -> {
             r.delete(Query.class);
             r.delete(QueryData.class);
@@ -70,6 +74,7 @@ public class QueryService {
     }
 
     public List<Query> getAll() {
+        Realm realm = RealmManager.getRealm();
         RealmResults<Query> results = realm.where(Query.class).findAll();
         return realm.copyFromRealm(results);
     }
@@ -100,7 +105,4 @@ public class QueryService {
         return sdf.format(date);
     }
 
-    public void close() {
-        if (!realm.isClosed()) realm.close();
-    }
 }

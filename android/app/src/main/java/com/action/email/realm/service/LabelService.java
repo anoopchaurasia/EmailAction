@@ -2,33 +2,27 @@ package com.action.email.realm.service;
 
 import com.action.email.realm.config.RealmManager;
 import com.action.email.realm.model.Label;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LabelService {
-    private Map<String, String> idNameMap = new HashMap<>();
 
     public LabelService() {
-        getMap(); // preload
+        // preload
     }
 
-    public void deleteById(String id) {
-        Realm realm = RealmManager.getRealm();
-        realm.executeTransaction(r -> {
-            Label label = r.where(Label.class).equalTo("id", id).findFirst();
-            if (label != null) {
-                label.deleteFromRealm();
-            }
-        });
-        getMap();
-    }
 
-    public void updateById(String id, String newName) {
+    public static void updateNameById(String id, String newName) {
         Realm realm = RealmManager.getRealm();
         realm.executeTransaction(r -> {
             Label label = r.where(Label.class).equalTo("id", id).findFirst();
@@ -36,50 +30,56 @@ public class LabelService {
                 label.setName(newName);
             }
         });
-        getMap();
     }
 
-    public Label getById(String id) {
+    public static void deleteById(String id) {
+        Realm realm = RealmManager.getRealm();
+        realm.executeTransaction(r -> {
+            Label label = r.where(Label.class).equalTo("id", id).findFirst();
+            if (label != null) {
+                label.deleteFromRealm();
+            }
+        });
+    }
+
+    public static void updateById(String id, String newName) {
+        Realm realm = RealmManager.getRealm();
+        realm.executeTransaction(r -> {
+            Label label = r.where(Label.class).equalTo("id", id).findFirst();
+            if (label != null) {
+                label.setName(newName);
+            }
+        });
+    }
+
+    public static Label getById(String id) {
         Realm realm = RealmManager.getRealm();
         return realm.where(Label.class).equalTo("id", id).findFirst();
     }
 
-    public Label create(Label labelData) {
+    public static Label create(Label labelData) {
         Realm realm = RealmManager.getRealm();
         realm.executeTransaction(r -> r.insert(labelData));
-        getMap();
         return labelData;
     }
 
-    public RealmResults<Label> readAll() {
+    public static List<Label> readAll() {
         Realm realm = RealmManager.getRealm();
         return realm.where(Label.class).findAll();
     }
 
-    public Map<String, String> getMap() {
-        RealmResults<Label> labels = readAll();
-        Map<String, String> map = new HashMap<>();
-        for (Label label : labels) {
-            map.put(label.getId(), label.getName());
-        }
-        idNameMap = map;
-        return idNameMap;
-    }
 
-    public String getNameById(String id) {
-        return idNameMap.get(id);
-    }
-
-    public void deleteAll() {
+    public static void deleteAll() {
         Realm realm = RealmManager.getRealm();
         realm.executeTransaction(r -> {
             r.delete(Label.class);
         });
-        idNameMap.clear();
     }
 
-    public void close() {
+    public static void close() {
         Realm realm = RealmManager.getRealm();
         if (!realm.isClosed()) realm.close();
     }
+
+
 }

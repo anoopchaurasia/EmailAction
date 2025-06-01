@@ -1,51 +1,39 @@
-import Realm from 'realm';
-
+import { NativeModules } from 'react-native';
+const LabelModule = NativeModules.LabelModule;
 
     // =  Define a Label class with the methods and the new propertie=> s
 let idNameMap = {};
 export default  Label ={
-    deleteById : (id) => {
-        realm.write(() => {
-            let label = realm.objects('Label').filtered('id == $0', id)[0];
-            if (label) {
-                realm.delete(label);
-            }
-        });
+    deleteById : async(id) => {
+        await LabelModule.deleteById(id);
         Label.getMap();
     }
     ,
     // Update a Label object's name by id
-    updateById : (id, newName) => {
-        realm.write(() => {
-            let label = realm.objects('Label').filtered('id == $0', id)[0];
-            if (label) {
-                label.name = newName;
-            }
-        });
+    updateById : async(id, newName) => {
+        await LabelModule.updateById(id, newName);
         Label.getMap();
     }
     ,
-    getById : (id) =>{
-        return realm.objects('Label').filtered('id == $0', id)[0];;
+    getById :async(id) =>{
+        return await LabelModule.getById(id);
+        Label.getMap();
     }
     ,
     // Create and return a new Label object with the given name and other properties
-    create : (label) => {
-        realm.write(() => {
-            realm.create('Label', label);
-        });
+    create : async(label) => {
+        label = await LabelModule.create(label);
         Label.getMap();
         return label;
     }
     ,
     // Read and return all Label objects from the Realm
-    readAll : () => {
-        let labels = realm.objects('Label');
-        return labels;
+    readAll : async () => {
+        return await LabelModule.readAll();
     },
 
-    getMap : () =>{
-        let labels = Label.readAll();
+    getMap : async() =>{
+        let labels = await Label.readAll();
         let map = {};
         labels.forEach(x=> {
             map[x.id] = x.name;
@@ -59,25 +47,8 @@ export default  Label ={
     },
 
     deleteAll: () => {
-        realm.write(() => {
-            realm.delete(realm.objects("Label"));
-        });
+        LabelModule.deleteAll();
     },
 }
 
-// Define the schema for the Label model with the new properties
-const LabelSchema = {
-    name: 'Label',
-    properties: {
-        name: 'string',
-        type: 'string',
-        messagesTotal: 'int?',
-        messagesUnread: 'int?',
-        id: 'string'
-    },
-    primaryKey: 'id',
-};
-
-// Create a new Realm instance with the Label schema
-const realm = new Realm({path: "labels",  schemaVersion: 8,  schema: [LabelSchema] });
 Label.getMap();

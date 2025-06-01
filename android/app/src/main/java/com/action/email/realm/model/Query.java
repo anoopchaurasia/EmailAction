@@ -1,5 +1,11 @@
 package com.action.email.realm.model;
 
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
+
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -38,4 +44,67 @@ public class Query extends RealmObject {
 
     public QueryData getQuery() { return query; }
     public void setQuery(QueryData query) { this.query = query; }
+
+    public static Query fromMap(ReadableMap map) {
+        Query query = new Query();
+
+        if (map.hasKey("name") && !map.isNull("name")) {
+            query.setName(map.getString("name"));
+        }
+
+        if (map.hasKey("pdf_password") && !map.isNull("pdf_password")) {
+            query.setPdf_password(map.getString("pdf_password"));
+        }
+
+        if (map.hasKey("message_ids") && !map.isNull("message_ids")) {
+            ReadableArray ids = map.getArray("message_ids");
+            RealmList<String> messageIds = new RealmList<>();
+            for (int i = 0; i < ids.size(); i++) {
+                messageIds.add(ids.getString(i));
+            }
+            query.setMessage_ids(messageIds);
+        }
+
+        if (map.hasKey("nextPageToken") && !map.isNull("nextPageToken")) {
+            query.setNextPageToken(map.getString("nextPageToken"));
+        }
+
+        if (map.hasKey("completed") && !map.isNull("completed")) {
+            query.setCompleted(map.getBoolean("completed"));
+        }
+
+        if (map.hasKey("query") && !map.isNull("query")) {
+            ReadableMap queryMap = map.getMap("query");
+            query.setQuery(QueryData.fromMap(queryMap));
+        }
+
+        return query;
+    }
+
+    public WritableMap toMap( ) {
+        WritableMap map = Arguments.createMap();
+        Query query = this;
+        map.putString("name", query.getName());
+        map.putString("pdf_password", query.getPdf_password());
+
+        WritableArray messageIds = Arguments.createArray();
+        if (query.getMessage_ids() != null) {
+            for (String id : query.getMessage_ids()) {
+                messageIds.pushString(id);
+            }
+        }
+        map.putArray("message_ids", messageIds);
+
+        map.putString("nextPageToken", query.getNextPageToken());
+        map.putBoolean("completed", query.isCompleted());
+
+        if (query.getQuery() != null) {
+            map.putMap("query", query.getQuery().toMap() );
+        }
+
+        return map;
+    }
+
+
+
 }
