@@ -1,13 +1,16 @@
 package com.action.email.realm.model;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 
 import java.util.List;
 import java.util.Optional;
 
 import io.realm.RealmObject;
+import io.realm.RealmSet;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Index;
 import io.realm.RealmList;
@@ -18,7 +21,7 @@ public class MessageAggregate extends RealmObject {
     @Index
     private String sender;
 
-    private RealmList<MessageAggregateLabel> labels;
+    private RealmSet<MessageAggregateLabel> labels;
 
     private int count;
 
@@ -43,8 +46,8 @@ public class MessageAggregate extends RealmObject {
     public String getSender() { return sender; }
     public void setSender(String sender) { this.sender = sender; }
 
-    public RealmList<MessageAggregateLabel> getLabels() { return labels; }
-    public void setLabels(RealmList<MessageAggregateLabel> labels) { this.labels = labels; }
+    public RealmSet<MessageAggregateLabel> getLabels() { return labels; }
+    public void setLabels(RealmSet<MessageAggregateLabel> labels) { this.labels = labels; }
 
     public int getCount() { return count; }
     public void setCount(int count) { this.count = count; }
@@ -60,7 +63,17 @@ public class MessageAggregate extends RealmObject {
         agg.setSender(map.getString("sender"));
         agg.setSender_domain(map.getString("sender_domain"));
         agg.setCount(map.getInt("count"));
-        // set other fields as needed
+        if (map.hasKey("labels") && map.getType("labels").name().equals("Array")) {
+            ReadableArray labelArray = map.getArray("labels");
+            RealmSet<MessageAggregateLabel> set = new RealmSet<>();
+
+            for (int i = 0; i < labelArray.size(); i++) {
+                ReadableMap labelMap = labelArray.getMap(i);
+                set.add(MessageAggregateLabel.fromMap(labelMap));
+            }
+
+            agg.setLabels(set);
+        }
         return agg;
     }
 
@@ -69,7 +82,13 @@ public class MessageAggregate extends RealmObject {
         map.putString("sender", getSender());
         map.putString("sender_domain", getSender_domain());
         map.putInt("count", getCount());
-        // add other fields
+        WritableArray labelArray = Arguments.createArray();
+        if (labels != null) {
+            for (MessageAggregateLabel label : labels) {
+                labelArray.pushMap(label.toMap());
+            }
+        }
+        map.putArray("labels", labelArray);
         return map;
     }
 

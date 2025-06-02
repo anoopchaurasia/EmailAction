@@ -4,6 +4,8 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 
+import org.json.JSONObject;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
@@ -53,6 +55,16 @@ public class Label extends RealmObject {
         map.putInt("messagesTotal", this.getMessagesTotal() != null ? this.getMessagesTotal() : 0);
         map.putInt("messagesUnread", this.getMessagesUnread() != null ? this.getMessagesUnread() : 0);
         return map;
+    }
+
+    public static Label fromGmailJson(JSONObject json) {
+        Label label = new Label();
+        label.setId(json.optString("id", null));
+        label.setName(json.optString("name", null));
+        label.setType(json.optString("type", null));
+        label.setMessagesTotal(json.has("messagesTotal") ? json.optInt("messagesTotal") : null);
+        label.setMessagesUnread(json.has("messagesUnread") ? json.optInt("messagesUnread") : null);
+        return label;
     }
 
 }

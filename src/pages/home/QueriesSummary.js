@@ -10,8 +10,9 @@ export default function QueriesSummary({navigation}) {
     const colors = useTheme().colors;
 
     useEffect(x => {
-      let count = QueryService.getAll().length;
-      setCount(count);
+     QueryService.getAll().then(x => {
+        setCount(x.length);
+      });
     }, []);
 
 

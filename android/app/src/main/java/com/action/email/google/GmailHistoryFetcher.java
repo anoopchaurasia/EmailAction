@@ -18,7 +18,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import com.action.email.data.MessageAggregateData;
 import com.action.email.realm.model.Message;
+import com.action.email.realm.model.MessageAggregate;
 import com.action.email.realm.service.GmailSyncStateService;
 import com.action.email.realm.service.MessageService;
 
@@ -159,6 +161,7 @@ public class GmailHistoryFetcher {
     private void handleMessageAdded(List<String> messageIds) {
         Log.d(TAG, "Message Added: " + messageIds);
         try {
+            ///aggregater is being called from the inside only
             gmailMessageFetcher.retryBatch(messageIds);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -167,18 +170,26 @@ public class GmailHistoryFetcher {
 
     private void handleMessageDeleted(String messageId) {
         Log.d(TAG, "Message Deleted: " + messageId);
+        Message message = MessageService.getById(messageId);
+        MessageAggregateData.onMessageDeleted(message);
+        MessageService.delete(message);
+
        // deleteMessageFromRealm(messageId);
     }
 
     private void handleLabelAdded(String messageId, String labelId) {
         Log.d(TAG, "Label Added: messageId=" + messageId + " labelId=" + labelId);
-        MessageService.addlabel(messageId, labelId);
+        Message message = MessageService.getById(messageId);
+        MessageAggregateData.onLabelAdded(message, labelId);
+        MessageService.addlabel(message, labelId);
     }
 
     private void handleLabelRemoved(String messageId, String labelId) {
         Log.d(TAG, "Label Removed: messageId=" + messageId + " labelId=" + labelId);
         // Your logic: remove labelId from message labels in Realm
-        MessageService.removeLabel(messageId, labelId);
+        Message message = MessageService.getById(messageId);
+        MessageAggregateData.onLabelRemoved(message, labelId);
+        MessageService.removeLabel(message, labelId);
     }
 
 

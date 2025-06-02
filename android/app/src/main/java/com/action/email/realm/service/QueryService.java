@@ -2,6 +2,7 @@ package com.action.email.realm.service;
 
 import com.action.email.realm.model.Query;
 import android.content.Context;
+import android.util.Log;
 
 import com.action.email.realm.config.RealmManager;
 import com.action.email.realm.model.QueryData;
@@ -16,6 +17,8 @@ import io.realm.RealmResults;
 
 public class QueryService {
 
+    private static final String TAG = "QueryService" ;
+
     public QueryService(Context context) {
         Realm.init(context);
 
@@ -26,7 +29,9 @@ public class QueryService {
             Realm realm = RealmManager.getRealm();
             if (query.getId() == null || query.getId().isEmpty()) {
                 query.setId(UUID.randomUUID().toString());
+
             }
+            Log.d(TAG, "query id: "+ query.getId()+ " new: "+ UUID.randomUUID().toString());
             realm.executeTransaction(r -> r.insert(query));
             return true;
         } catch (Exception e) {
@@ -104,5 +109,4 @@ public class QueryService {
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy/MM/dd");
         return sdf.format(date);
     }
-
 }

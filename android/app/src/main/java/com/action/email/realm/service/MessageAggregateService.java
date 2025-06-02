@@ -133,4 +133,18 @@ public class MessageAggregateService {
        // MessageEvent.emit("message_aggregation_changed", "update");
         return result.get();
     }
+
+    public interface AggregateTransaction {
+        void execute(Realm realm, MessageAggregate agg);
+    }
+
+    public static void withTransaction(AggregateTransaction logic, String sender) {
+        Realm realm = RealmManager.getRealm();
+        realm.executeTransaction(r -> {
+            MessageAggregate agg = r.where(MessageAggregate.class)
+                    .equalTo("sender", sender)
+                    .findFirst();
+            logic.execute(r, agg);
+        });
+    }
 }

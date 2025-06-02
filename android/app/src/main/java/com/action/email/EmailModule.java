@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import com.action.email.event.LoginEventBus;
 import com.action.email.google.AccessTokenHelper;
 import com.action.email.google.GmailHistoryFetcher;
+import com.action.email.google.GmailLabelFetcher;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -33,6 +34,7 @@ public class EmailModule extends ReactContextBaseJavaModule {
     public void connectToGmail(String userId, String accessToken, Promise promise) {
         GmailHistoryFetcher gmailHistoryFetcher = new GmailHistoryFetcher(getReactApplicationContext());
         try {
+            GmailLabelFetcher.fetchLabels(getReactApplicationContext());
             gmailHistoryFetcher.fetchHistoryAndSync();
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -54,27 +54,4 @@ public class LabelManager {
         }
         return null;
     }
-
-
-   // public static void create(String name) {
-//        Gmail.createLabel(name);
-//    }
-
-//    public static void moveToFolder(Task task, List<String> messageIds, String accessToken) {
-//        changeLabel(messageIds, accessToken, "", List.of(task.toLabel), List.of(task.fromLabel));
-//    }
-//
-//    public static void copyToFolder(Task task, List<String> messageIds, String accessToken) {
-//        changeLabel(messageIds, accessToken, "", List.of(task.toLabel), new ArrayList<>());
-//    }
-
-    public static class Task {
-        public String fromLabel;
-        public String toLabel;
-
-        public Task(String fromLabel, String toLabel) {
-            this.fromLabel = fromLabel;
-            this.toLabel = toLabel;
-        }
-    }
 }

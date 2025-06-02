@@ -9,12 +9,14 @@ import MyText from './../component/MyText';
 import { useTheme } from '@react-navigation/native';
 import SearchPage from './../component/SearchPage';
 import MyCheckbox from "../component/MyCheckbox";
+import LabelService from "../../realm/LabelService";
 
 
 export default ListView = ({ navigation, removeFromList }) => {
     let [list, setList] = useState([]);
     let [page, setPage] = useState(1);
     let [active, setActive] = useState(false);
+    let [labelMap, setLabelMap] = useState({});
     let [selectedList, setSelectedList] = useState({});
     let colors = useTheme().colors;
     // Declare a state variable to store the text input value
@@ -22,51 +24,57 @@ export default ListView = ({ navigation, removeFromList }) => {
     let actionList = [{
         name: "Trash",
         icon: "trash-can",
-        action: x=> trashSelectedSenders()
+        action: x => trashSelectedSenders()
     },
     {
         name: "Copy",
         icon: "content-copy",
-        action: x=> copySelectedSenders()
+        action: x => copySelectedSenders()
     }
-    , {
+        , {
         name: "Rule",
         icon: "set-merge",
-        action: x=> createRuleForSelectedSenders()
+        action: x => createRuleForSelectedSenders()
     }];
 
-    useEffect(x=>{
-        let rm1 = MessageEvent.on('message_aggregation_changed', x=>{
+    useEffect(x => {
+        let rm1 = MessageEvent.on('message_aggregation_changed', x => {
             setActive(false);
-          ///  setSelectedList({}); will create problem incase we fetch messages
-            MessageAggregateService.readMessage().then(x=>setList(x));
-           
+            ///  setSelectedList({}); will create problem incase we fetch messages
+            MessageAggregateService.readMessage().then(x => {
+                console.log("MessageAggregateService.readMessage", x[0]);
+                setList(x);
+            });
+
         }, true);
-        let rm2 = MessageEvent.on('email_list_view_trash', ({sender, type})=>{
+        let rm2 = MessageEvent.on('email_list_view_trash', ({ sender, type }) => {
             trashSelectedSenders([sender]);
         }, true);
-        let rm3 = MessageEvent.on("email_list_view_create_rule", ({sender,type})=>{
+        let rm3 = MessageEvent.on("email_list_view_create_rule", ({ sender, type }) => {
             createRuleForSelectedSenders([sender]);
         }, true);
-        return x=> {[rm1, rm2, rm3].forEach(x=>x())}
+        return x => { [rm1, rm2, rm3].forEach(x => x()) }
     }, []);
 
     function trashSelectedSenders(senders) {
         let from = senders || Object.keys(selectedList);
-        let activity = ActivityService.createObject({from, type:"sender", to_label:"TRASH", action: "trash", from_label:"INBOX", title: `All emails from ${from.join(", ").slice(0, 70)}`});
+        let activity = ActivityService.createObject({ from, type: "sender", to_label: "TRASH", action: "trash", from_label: "INBOX", title: `All emails from ${from.join(", ").slice(0, 70)}` });
         MessageEvent.emit("created_new_rule", activity);
     }
 
     function copySelectedSenders(senders) {
-       createRuleForSelectedSenders(senders, 'copy');
+        createRuleForSelectedSenders(senders, 'copy');
     }
 
-    function createRuleForSelectedSenders(senders, action="move") {
-        navigation.navigate('CreateRuleView', {activity: {from: senders || Object.keys(selectedList), action, type:"sender"}})
+    function createRuleForSelectedSenders(senders, action = "move") {
+        navigation.navigate('CreateRuleView', { activity: { from: senders || Object.keys(selectedList), action, type: "sender" } })
     }
 
     useEffect(x => {
-        MessageAggregateService.readMessage().then(x => setList(x));
+        MessageAggregateService.readMessage().then(x => {
+            console.log("MessageAggregateService.readMessage", x.length, x[0]);
+            setList(x);
+        });
     }, []);
 
     useEffect(() => {
@@ -102,14 +110,22 @@ export default ListView = ({ navigation, removeFromList }) => {
         return list.filter((item) => item.sender.toLowerCase().includes(value)).slice(0, page * 20);
     };
 
-    function RenderItem({ item, selected=false, handleLongPress, hanldePress }) {
+    function RenderItem({ item, selected = false, handleLongPress, hanldePress }) {
         return (
-            <TouchableOpacity style={{...SenderListstyles.item, backgroundColor: selected? colors.selected: colors.card,}} onLongPress={()=> handleLongPress(item)} onPress={x=>hanldePress(item)}>
-                <MyCheckbox onPress={()=> handleLongPress(item)} selected={selected}/>
+            <TouchableOpacity style={{ ...SenderListstyles.item, backgroundColor: selected ? colors.selected : colors.card, }} onLongPress={() => handleLongPress(item)} onPress={x => hanldePress(item)}>
+                <MyCheckbox onPress={() => handleLongPress(item)} selected={selected} />
                 <View style={SenderListstyles.details}>
-                    <MyText style={SenderListstyles.title}>{item.sender_name} ({item.sender}) </MyText>
-                    <MyText style={{...SenderListstyles.label, borderColor: colors.border, backgroundColor:colors.border}}>{item.count}</MyText>
+                    <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+                        <MyText style={SenderListstyles.title}>{item.sender_name} ({item.sender}) </MyText>
+                        <MyText style={{ ...SenderListstyles.label, borderColor: colors.border, backgroundColor: colors.border }}>{item.count}</MyText>
+                    </View>
+                    <View style={{ height: 20, flexDirection: "row", justifyContent: "flex-end", marginTop: 5, marginLeft: 10 }}>
+                        {item.labels && item.labels.map((label, index) => (
+                            <MyText key={index} style={{ ...SenderListstyles.label, borderColor: colors.border, backgroundColor: colors.border }}>{LabelService.getNameById(label.id)}: {label.count}</MyText>
+                        ))}
+                    </View>
                 </View>
+
             </TouchableOpacity>
         )
     }
@@ -128,7 +144,7 @@ export default ListView = ({ navigation, removeFromList }) => {
 
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>
-             <SearchPage  onChangeText={handleChangeText}  placeholder="Search Sender"  value={text} name="magnify" />
+            <SearchPage onChangeText={handleChangeText} placeholder="Search Sender" value={text} name="magnify" />
             <FlatList
                 data={filterItems(text)}
                 initialNumToRender={20}
@@ -149,24 +165,21 @@ export default ListView = ({ navigation, removeFromList }) => {
 
 const SenderListstyles = StyleSheet.create({
     label: {
-        backgroundColor:"#ccc",
-        fontSize: 12,
-        padding: 6,
-        paddingHorizontal:10,
-        paddingTop: 2,
-        lineHeight: 20,
-        height: 25,
+        backgroundColor: "#ccc",
+        fontSize: 10,
+        paddingHorizontal: 5,
+        height: 14,
         borderColor: "#ccc",
         borderRadius: 5,
     },
-    item : {
+    item: {
         elevation: 0,
         backgroundColor: 'white',
         borderRadius: 0,
-        flexDirection:"row",
+        flexDirection: "row",
         marginTop: 0,
-        borderBottomColor:"#ddd",
-        borderBottomWidth:1,
+        borderBottomColor: "#ddd",
+        borderBottomWidth: 1,
     },
 
 
@@ -174,20 +187,20 @@ const SenderListstyles = StyleSheet.create({
         padding: 5,
         paddingLeft: 0,
         paddingVertical: 13,
-        flexDirection:"row",
-        flex:1
+        flexDirection: "column",
+        flex: 1
     },
     email: {
         fontSize: 12,
     },
     title: {
-      fontSize: 14,
-      flex:1
-      
+        fontSize: 14,
+        flex: 1
+
     },
     count: {
-      fontSize: 11,
-      textAlign: "right",
-      color: '#888',
+        fontSize: 11,
+        textAlign: "right",
+        color: '#888',
     },
 });

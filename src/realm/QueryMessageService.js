@@ -5,6 +5,7 @@ const QueryService = {
   
   async create(query) {
     try {
+      console.log("QueryService.create", query);
       await QueryModule.create(query);
       return true;
     } catch (error) {

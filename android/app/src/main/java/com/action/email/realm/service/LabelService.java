@@ -82,4 +82,10 @@ public class LabelService {
     }
 
 
+    public static void update(Label label) {
+        Realm realm = RealmManager.getRealm();
+        realm.executeTransaction(r -> {
+            realm.insertOrUpdate(label);
+        });
+    }
 }

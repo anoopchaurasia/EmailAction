@@ -31,8 +31,15 @@ const App = ({ navigation }) => {
   let [openSearch, setOpenSearch] = useState(false);
   let [editQuery, setEditQuery] = useState(null);
   useEffect(x => {
-    let queryList = QueryService.getAll();
-    setList(queryList);
+   QueryService.getAll().then(x => {
+      console.log("QueryService.getAll", x.map(q => q.id));
+      let i = 0;
+      x.forEach(element => {
+        console.log("element", element.id, i);
+        element.id = i++;
+      });
+      setList(x);
+    });
   }, [])
 
   function onEdit(item) {
@@ -61,8 +68,8 @@ const App = ({ navigation }) => {
   }];
 
   return (
-    <View style={{flexDirection:"column", flex:1, marginBottom:10}}>
-      <View style={{flex:1}}>
+    <View style={{ flexDirection: "column", flex: 1, marginBottom: 10 }}>
+      <View style={{ flex: 1 }}>
 
         <FlatList
           data={list}
@@ -70,9 +77,9 @@ const App = ({ navigation }) => {
           keyExtractor={item => item.id}
         />
       </View>
-     
+
       <View style={{ height: 40, }}>
-        <BottomBar style={{backgroundColor:"#ddd"}} list={actionList} />
+        <BottomBar style={{ backgroundColor: "#ddd" }} list={actionList} />
       </View>
       <Modal
         animationType="slide"
@@ -86,9 +93,24 @@ const App = ({ navigation }) => {
           query.message_ids = [];
           query.completed = false;
           cleanQuery(query.query);
-          QueryService.update(query);
-          let queryList = QueryService.getAll();
-          setList(queryList);
+          if(query.id === undefined) {
+            QueryService.create(query).then(x => {
+              if (x) {
+                QueryService.getAll().then(x => {
+                  setList(x);
+                });
+              }
+            });
+          } else {
+            QueryService.update(query).then(x => {
+          
+            QueryService.getAll().then(x => {
+              setList(x);
+            });
+          });
+          }
+          
+
           setOpenSearch(false);
         }} />
       </Modal>

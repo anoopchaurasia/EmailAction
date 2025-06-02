@@ -123,7 +123,7 @@ public class GmailMessageFetcher {
             Log.d(TAG, "message: "+ messages.get(0).getHistory_id());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 messages.forEach(msg-> MessageService.update(msg));
-                MessageAggregateData.aggregate(messages);
+                MessageAggregateData.buildAggregatesFromMessages(messages);
             }
 
         } catch (IOException e) {

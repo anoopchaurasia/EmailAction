@@ -82,7 +82,6 @@ public class MessageService {
      public static void delete(Message message) {
        Realm realm = RealmManager.getRealm();
         realm.executeTransaction(r -> message.deleteFromRealm());
-       
     }
 
      public static boolean checkMessageId(String id) {
@@ -219,27 +218,21 @@ public class MessageService {
         return pending;
     }
 
-    public static void removeLabel(String messageId, String labelId) {
+    public static void removeLabel(Message message, String labelId) {
         Realm realm = RealmManager.getRealm();
         realm.executeTransaction(r -> {
-            Message msg = r.where(Message.class)
-                    .equalTo("message_id", messageId)
-                    .findFirst();
 
-            if (msg != null) {
-                msg.removeLabel(labelId);
+            if (message != null) {
+                message.removeLabel(labelId);
             }
         });
     }
-    public static void addlabel(String messageId, String labelId) {
+    public static void addlabel(Message message, String labelId) {
         Realm realm = RealmManager.getRealm();
         realm.executeTransaction(r -> {
-            Message msg = r.where(Message.class)
-                    .equalTo("message_id", messageId)
-                    .findFirst();
 
-            if (msg != null) {
-                msg.addLabel(labelId);
+            if (message != null) {
+                message.addLabel(labelId);
             }
         });
     }
