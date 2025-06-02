@@ -53,7 +53,7 @@ export default AttachementView = ({ navigation, route }) => {
                     let nonstored_message_ids = message_ids.filter(id=> MessageService.checkMessageId(id) == false)
                     if (nonstored_message_ids.length) {
                         messages = await DataSync.fetchMessageMeta(nonstored_message_ids);
-                        await Activity.newMessages(messages);
+                     //   await Activity.newMessages(messages);
                         messages.map(x => { try { MessageService.update(x) } catch (e) { console.error(e, "update failed getList", x) } });
                     }
                     message_ids.filter(mid=> MessageService.update({message_id:mid, has_attachement: true}));

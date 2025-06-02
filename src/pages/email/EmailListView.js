@@ -14,7 +14,6 @@ import BottomBar from '../component/BottomBarView';
 
 import MessageService from '../../realm/EmailMessageService';
 import MessageEvent from '../../event/MessageEvent';
-import LabelService from '../../realm/LabelService';
 import MyText from './../component/MyText'
 import { useTheme } from '@react-navigation/native';
 const formatDate = (date) => {

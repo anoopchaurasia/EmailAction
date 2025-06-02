@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React, { Node, useState, useEffect } from 'react';
+import React, { Node, useState } from 'react';
 import {
     LogBox, Text, View, useColorScheme
 } from 'react-native';
@@ -14,7 +14,6 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 import { NavigationContainer,  DarkTheme, DefaultTheme, } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -22,8 +21,6 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import LoginView from './google/LoginView'
 import LogoutView from './google/LogoutView';
-
-import SubjectView from './pages/filter/SubjectView';
 
 import QueryListView from './pages/query/QueryListView';
 import AttachementView from './pages/query/EmailListView'
@@ -41,7 +38,6 @@ import EmailListByEmail from './pages/list/EmailListByEmail';
 
 import CreateRuleView from './pages/component/CreateRuleView'
 
-import GmailImapApp from './google/GmailImapApp';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -74,14 +70,12 @@ const App: () => Node = () => {
             <Drawer.Screen name="Home" component={Home} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Home" name="home-circle-outline" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Home" name="home-circle-outline" /> }}/>
             <Drawer.Screen name="Domain" component={EmailListByDomain} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Sender Domain" name="domain" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Sender Domain" name="domain" /> }}/>
             <Drawer.Screen name="Sender" component={EmailListBySender} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Sender" name="call-received" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Sender" name="call-received" /> }}/>
-            <Drawer.Screen name="Email" component={EmailListByEmail} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Email" name="at" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Email" name="at" /> }}/>
+            <Drawer.Screen name="EmailListByEmail" component={EmailListByEmail} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Email" name="at" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Email" name="at" /> }}/>
             <Drawer.Screen name="QueryListView" component={QueryListView} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Saved Queries" name="database-search" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Saved Queries" name="database-search" /> }}/>
             <Drawer.Screen name="ActivityView" component={ActivityView} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Saved Rules" name="gate-xor" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Saved Rules" name="gate-xor" /> }}/>
         </Drawer.Navigator>
     };
-    if(isAuthenticated) {
-        GmailImapApp.init();
-    }
+
     return <NavigationContainer theme={selectedTheme}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             {isAuthenticated ? (
@@ -89,7 +83,6 @@ const App: () => Node = () => {
                     <Stack.Screen name="DrawerNavigation" component={DrawerNavigation} />
                     <Stack.Screen name="AttachementView" component={AttachementView} />
                     <Stack.Screen name="EmailListView" component={EmailListView} />
-                    <Stack.Screen name="SubjectView" component={SubjectView} />
                     <Stack.Screen name="LoginView" component={LoginView} />
                     <Stack.Screen name="CreateRuleView" component={CreateRuleView} />
                     <Stack.Screen name="EmailView" component={EmailView} />
