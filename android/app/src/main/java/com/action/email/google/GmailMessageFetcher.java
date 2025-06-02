@@ -17,8 +17,10 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -50,18 +52,19 @@ public class GmailMessageFetcher {
                 .build();
     }
 
-    public void retryBatch(List<String> ids) throws Exception {
+    public List<Message> retryBatch(List<String> ids) throws Exception {
         count += ids.size();
         ids = MessageService.checkMessageIds(ids);
         Set<String> pending = new HashSet<>(ids);
         Log.d(TAG, "Total Count Set " + pending.size() + " total ids: "+ count);
         Log.d(TAG, "Total Count in DB " + MessageService.readAll().size());
-        if(pending.size()==0) return;
+        if(pending.size()==0) return null;
+        List<Message> messages = new ArrayList<>();
         for (int attempt = 0; attempt < MAX_RETRIES && !pending.isEmpty(); attempt++) {
             Log.d(TAG, "Batch attempt #" + (attempt + 1) + " for " + pending.size() + " ids");
-            Set<String> failed = fetchBatch(new ArrayList<>(pending));
-            pending = failed;
-
+            MessageResponse messageResponse = fetchBatch(new ArrayList<>(pending));
+            pending = messageResponse.getFailed();
+            messages.addAll(messageResponse.getMessages());
             if (!pending.isEmpty()) {
                 try {
                     long backoff = (long) Math.pow(2, attempt + 1) * 1000;
@@ -75,9 +78,10 @@ public class GmailMessageFetcher {
         if (!pending.isEmpty()) {
             Log.w(TAG, "Failed to fetch metadata for these messageIds: " + pending);
         }
+        return messages;
     }
 
-    private Set<String> fetchBatch(List<String> messageIds) throws Exception {
+    private MessageResponse fetchBatch(List<String> messageIds) throws Exception {
 
         Set<String> failedIds = new HashSet<>();
         String boundary = "batch_" + System.currentTimeMillis();
@@ -112,26 +116,25 @@ public class GmailMessageFetcher {
                 .post(RequestBody.create(bodyBuilder.toString(), MediaType.parse("multipart/mixed; boundary=" + boundary)))
                 .build();
 
+        List<Message> messages = new ArrayList<>();
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 Log.e(TAG, "Batch request failed: " + response.code() + " -> " + response.message());
-                return new HashSet<>(messageIds); // all failed
+                return new MessageResponse(messages, new HashSet<>(messageIds))  ; // all failed
             }
 
 
-            List<Message> messages = parseMultipartResponse(response, failedIds);
-            Log.d(TAG, "message: "+ messages.get(0).getHistory_id());
+            messages = parseMultipartResponse(response, failedIds);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                messages.forEach(msg-> MessageService.update(msg));
+                messages.forEach(msg -> MessageService.update(msg));
                 MessageAggregateData.buildAggregatesFromMessages(messages);
             }
 
         } catch (IOException e) {
             Log.e(TAG, "IOException in batch call", e);
-            return new HashSet<>(messageIds);
+            return new MessageResponse(messages, new HashSet<>(messageIds)) ;
         }
-
-        return failedIds;
+        return new MessageResponse(messages, failedIds);
     }
 
     private static String getBoundary(Response response) {
@@ -268,4 +271,30 @@ public class GmailMessageFetcher {
         }
         return null;
     }
+
+    private class MessageResponse{
+        private List<Message> messages;
+        private Set<String> failed;
+        public MessageResponse(List<Message> messages, Set<String> failed) {
+            this.messages = messages;
+            this.failed = failed;
+        }
+
+        public void setMessages(List<Message> messages) {
+            this.messages = messages;
+        }
+
+        public void setFailed(Set<String> failed) {
+            this.failed = failed;
+        }
+
+        public List<Message> getMessages() {
+            return messages;
+        }
+
+        public Set<String> getFailed() {
+            return failed;
+        }
+    }
 }
+

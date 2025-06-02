@@ -17,7 +17,10 @@ import com.action.email.realm.model.Message;
 import com.action.email.realm.service.ActivityService;
 import com.action.email.realm.service.MessageService;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProcessRule {
     private static final int MAX_RETRIES = 4;
@@ -62,9 +65,9 @@ public class ProcessRule {
 
 
 
-   public static void moveToFolder(Activity task, List<String> messageIds) {
+   public static void moveToFolder(Activity task, List<String> messageIds, String accessToken) {
        try {
-          // LabelManager.moveToFolder(task, messageIds);
+           LabelManager.moveToFolder(task, messageIds, accessToken);
        } catch (Exception e) {
            Log.e("ProcessRules", "Move failed", e);
        }
@@ -100,22 +103,77 @@ public class ProcessRule {
                 attempt += 1;
                 continue;
             }
-            Log.d(TAG, "message length: " +  messageIds.size());
-            switch (activity.getAction()) {
-                case "trash":
-                    trash(activity, messageIds, accessToken);
-                    gmailHistoryFetcher.fetchHistoryAndSync();
-                    break;
-                case "move":
-                    moveToFolder(activity, messageIds);
-                    break;
-                case "copy":
-                    copyToFolder(activity, messageIds, accessToken);
-                    break;
-            }
+            applyRule(activity, messageIds, accessToken);
+            gmailHistoryFetcher.fetchHistoryAndSync();
         } while (pageToken != null);
    }
 
+   private static void applyRule(Activity activity, List<String> messageIds, String accessToken) {
+       Log.d(TAG, "message length: " +  messageIds.size());
+       switch (activity.getAction()) {
+           case "trash":
+               trash(activity, messageIds, accessToken);
 
+               break;
+           case "move":
+               moveToFolder(activity, messageIds, accessToken);
+               break;
+           case "copy":
+               copyToFolder(activity, messageIds, accessToken);
+               break;
+       }
+
+   }
+
+
+    public static void takeActionOnNewMessages(List<Message> messages, Context context)  {
+        List<Activity> rules = ActivityService.getAll();
+
+        Map<Activity, List<String>> appliedRules = new HashMap<>();
+
+        for (Message message : messages) {
+            for (Activity rule : rules) {
+                if (matches(message, rule)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        appliedRules
+                                .computeIfAbsent(rule, r -> new ArrayList<>())
+                                .add(message.getMessage_id());
+                    }
+                    break; // Only one rule per message
+                }
+            }
+        }
+
+        for (Map.Entry<Activity, List<String>> entry : appliedRules.entrySet()) {
+            Activity rule = entry.getKey();
+            List<String> messageIds = entry.getValue();
+            try {
+                applyRule(rule, messageIds, AccessTokenHelper.fetchAccessToken(context).accessToken);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+       // return appliedRules;
+    }
+
+
+
+    private static boolean matches(Message message, Activity rule) {
+        switch (rule.getType()) {
+            case "sender":
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    return rule.getFrom().stream()
+                            .noneMatch(x -> x.equalsIgnoreCase(message.getSender()));
+                }
+            case "domain":
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    return  rule.getFrom().stream()
+                            .noneMatch(x -> x.equalsIgnoreCase(message.getSender_domain()));
+                }
+            default:
+                return false;
+        }
+   }
 }
 

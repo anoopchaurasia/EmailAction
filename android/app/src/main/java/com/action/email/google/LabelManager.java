@@ -28,6 +28,16 @@ public class LabelManager {
                 "", toLabel, new ArrayList<>());
     }
 
+    public static List<Message> moveToFolder(Activity task, List<String> messageIds, String accessToken) {
+        List<String> toLabel = new ArrayList<>();
+        toLabel.add(task.getTo_label());
+        List<String> fromLabel = new ArrayList<>();
+        fromLabel.add(task.getFrom_label());
+        return  LabelManager.changeLabel(messageIds,
+                accessToken,
+                "", toLabel, fromLabel);
+    }
+
     public interface ProcessCallback {
         void onProcessed(List<Map<String, Object>> processedMessages);
     }

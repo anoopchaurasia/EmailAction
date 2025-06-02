@@ -19,7 +19,7 @@ const MessageAggregateService = {
     },
 
     deleteBySubDomain: async (subdomanis) =>{
-            await MessageServiceModule.deleteBySubDomain(subdomain);
+            await MessageServiceModule.deleteBySubDomain(subdomanis);
     },
 
     readMessage: async() => {
