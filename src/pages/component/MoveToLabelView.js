@@ -14,13 +14,15 @@ const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
   const [selectedLabelLocal, setSelectedLabelLocal] = useState({});
 
   useEffect(x => {
-    let list = LabelService.readAll();
-    list = [...list];
-    setLabels(list);
-    if(selectedLabelId) {
-      setSelectedLabelLocal(list.filter(x=>x.id===selectedLabelId)[0])
-    }
-    console.log(list.length, "label data")
+    LabelService.readAll().then(x => {
+      let list = [...x];
+      setLabels(list);
+      if (selectedLabelId) {
+        setSelectedLabelLocal(list.filter(x => x.id === selectedLabelId)[0])
+      }
+      console.log(list.length, "label data")
+    });
+
   }, []);
 
   async function setSelected(label) {
@@ -42,7 +44,7 @@ const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
 
   // Filter function
   const filterlabels = (text) => {
-    return labels.filter(({ name }) => name=="inputbox" || name.toLowerCase().includes(text.toLowerCase()));
+    return labels.filter(({ name }) => name == "inputbox" || name.toLowerCase().includes(text.toLowerCase()));
   };
 
   // Render item function
@@ -66,60 +68,60 @@ const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
   };
 
 
-const styles = StyleSheet.create({
-  inputView: {
-    shadowColor: colors.shadow,
-    shadowOffset: {
-      width: 0,
-      height: 2,
+  const styles = StyleSheet.create({
+    inputView: {
+      shadowColor: colors.shadow,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      alignSelf: "stretch"
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    alignSelf: "stretch"
-  },
-  buttonView: {
-    marginBottom: -10
+    buttonView: {
+      marginBottom: -10
 
-  },
-  createLabelButton : {
-    alignSelf:"stretch",
-    width: "100%",
-  },
-  input: {
-    height: 40,
-    width: "100%",
-    padding: 10,
-    borderWidth: .2,
-    borderBottomWidth: .2
-  },
-  centeredView: {
-    alignItems: 'center',
-  },
-  listView: {
-    flex: 1,
-  },
-  modalView: {
-    flexDirection: 'column',
-    backgroundColor: colors.background,
-    borderRadius: 5,
-    minWidth: 200,
-    alignItems: "flex-start",
-    shadowColor: colors.shadow,
-    shadowOffset: {
-      width: 0,
-      height: 2,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    paddingBottom: 10
-  }
-});
+    createLabelButton: {
+      alignSelf: "stretch",
+      width: "100%",
+    },
+    input: {
+      height: 40,
+      width: "100%",
+      padding: 10,
+      borderWidth: .2,
+      borderBottomWidth: .2
+    },
+    centeredView: {
+      alignItems: 'center',
+    },
+    listView: {
+      flex: 1,
+    },
+    modalView: {
+      flexDirection: 'column',
+      backgroundColor: colors.background,
+      borderRadius: 5,
+      minWidth: 200,
+      alignItems: "flex-start",
+      shadowColor: colors.shadow,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+      paddingBottom: 10
+    }
+  });
 
   return (
-    <View style={{ borderColor: colors.border, borderWidth:.5, margin: 10, marginLeft:0}}>
-      <MyText style={{padding:10}} onPress={x=> setModalVisible(true)}> {selectedLabelLocal.name||"Select Label"} </MyText>
-      <View style={{ }}>
+    <View style={{ borderColor: colors.border, borderWidth: .5, margin: 10, marginLeft: 0 }}>
+      <MyText style={{ padding: 10 }} onPress={x => setModalVisible(true)}> {selectedLabelLocal.name || "Select Label"} </MyText>
+      <View style={{}}>
         <Modal
           animationType="slide"
           transparent={true}
@@ -128,26 +130,26 @@ const styles = StyleSheet.create({
             setModalVisible(!modalVisible);
           }}
         >
-          <View style={{...styles.centeredView, marginTop: 130}}>
+          <View style={{ ...styles.centeredView, marginTop: 130 }}>
             <View style={styles.modalView}>
               <View style={styles.inputView}>
                 <TextInput
-                  style={{...styles.input, borderColor: colors.border}}
+                  style={{ ...styles.input, borderColor: colors.border }}
                   placeholder="Search Label"
                   value={searchText}
                   onChangeText={setSearchText}
-                  />
+                />
 
               </View>
               <View style={styles.listView}>
                 <FlatList
                   data={filterlabels(searchText)}
-                  renderItem={({item})=> <RenderItem item={item}/>}
+                  renderItem={({ item }) => <RenderItem item={item} />}
                   keyExtractor={(item) => item.id}
-                  />
+                />
               </View>
-              <View style={{...styles.inputView, ...styles.buttonView}}>
-                  {searchText.length>2 && <Button style={styles.createLabelButton} visible={false} title="Create New Label" onPress={createNewName} /> }
+              <View style={{ ...styles.inputView, ...styles.buttonView }}>
+                {searchText.length > 2 && <Button style={styles.createLabelButton} visible={false} title="Create New Label" onPress={createNewName} />}
               </View>
             </View>
           </View>

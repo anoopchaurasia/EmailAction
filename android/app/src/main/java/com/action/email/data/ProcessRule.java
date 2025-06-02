@@ -70,9 +70,9 @@ public class ProcessRule {
        }
    }
 
-   public static void copyToFolder(Activity task, List<String> messageIds) {
+   public static void copyToFolder(Activity task, List<String> messageIds, String accessToken) {
        try {
-           //LabelManager.copyToFolder(task);
+           LabelManager.copyToFolder(task, messageIds, accessToken);
        } catch (Exception e) {
            Log.e("ProcessRules", "Move failed", e);
        }
@@ -110,7 +110,7 @@ public class ProcessRule {
                     moveToFolder(activity, messageIds);
                     break;
                 case "copy":
-                    copyToFolder(activity, messageIds);
+                    copyToFolder(activity, messageIds, accessToken);
                     break;
             }
         } while (pageToken != null);

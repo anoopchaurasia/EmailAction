@@ -39,10 +39,14 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
         action: x => createRuleForSelectedDomain()
     }];
 
-    function trashSelectedDomains(senders) {
+    async function trashSelectedDomains(senders) {
         let from = senders || Object.keys(selectedList)
-        let activity = ActivityService.createObject({ from, type: "domain", to_label: "TRASH", action: "trash", from_label: "INBOX", title: `All emails from ${from.join(", ").slice(0, 70)}` });
-        MessageEvent.emit("created_new_rule", activity);
+        let activity = await ActivityService.createObject({ from, type: "domain", to_label: "TRASH", action: "trash", from_label: "INBOX", title: `All emails from ${from.join(", ").slice(0, 70)}` }).catch(err => {
+            console.error("Error creating activity for trashing domains: ", err);
+        }).then(activity => {
+            if (!activity) return; 
+            MessageEvent.emit('message_aggregation_changed', activity);
+        });
     }
 
     function createRuleForSelectedDomain(senders, action = "move") {

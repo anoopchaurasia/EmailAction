@@ -5,7 +5,7 @@ const ActivityModule = NativeModules.ActivityModule;
 const ActivityMethods = {
   // Define a method to create a new object in the realm
   async createObject(data) {
-    await ActivityModule.createObject(data);
+    return await ActivityModule.createObject(data);
   },
 
   deleteAll: async () => {

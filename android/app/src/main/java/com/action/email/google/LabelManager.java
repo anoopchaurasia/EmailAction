@@ -20,6 +20,14 @@ public class LabelManager {
     private static final String TAG = "LabelManager";
     private static final int BATCH_SIZE = 25;
 
+    public static List<Message> copyToFolder(Activity task, List<String> messageIds, String accessToken) {
+        List<String> toLabel = new ArrayList<>();
+        toLabel.add(task.getTo_label());
+        return  LabelManager.changeLabel(messageIds,
+                accessToken,
+                "", toLabel, new ArrayList<>());
+    }
+
     public interface ProcessCallback {
         void onProcessed(List<Map<String, Object>> processedMessages);
     }
