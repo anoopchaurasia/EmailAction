@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { FlatList, Text, View, StyleSheet, Dimensions, Modal, ActivityIndicator, TouchableOpacity } from 'react-native';
 import MessageService from "../../realm/EmailMessageService";
 import QueryService from '../../realm/QueryMessageService';
-import Activity from './../../data/ActivityProcess';
 import DataSync from '../../data/DataSync';
 import EmailAttachmentView from "./EmailAttachmentView";
 import MyText from './../component/MyText';

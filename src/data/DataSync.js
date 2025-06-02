@@ -2,6 +2,7 @@ import Gmail from '../google/Gmail';
  import Utility from './../utility/Utility';
  export default class MyComponent {
 
+    /// Fetch message IDs based on a query and pagination token for Query feature later move it to Java
     static fetchMessages = async (query, nextPageToken) => {
         try {
             console.log(query, nextPageToken, "query, nextPageToken");
@@ -33,21 +34,10 @@ import Gmail from '../google/Gmail';
     }
  
 
-    static getTotalEmails = async () => {
-        return Gmail.getTotal();
-    }
-
     static createLabel = async (name) => {
         return await Gmail.createLabel(name);
     }
-
-    static moveToFolder = async () => {
-        requestBody = {
-            addLabelIds: [ORDER_LABEL_ID], // Add the order label ID
-            removeLabelIds: ['INBOX'], // Remove the inbox label ID
-        };
-    }
-
+    ///Load message by id from Gmail API
     static getMessagebById = async (message_id) => {
         return await Gmail.getMessagebById(message_id);
     }
