@@ -2,9 +2,7 @@ package com.action.email;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 
-import androidx.core.content.ContextCompat;
 
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
@@ -16,6 +14,11 @@ import com.facebook.soloader.SoLoader;
 import java.util.List;
 
 import com.action.email.realm.config.RealmManager;
+
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainApplication extends Application implements ReactApplication {
@@ -69,6 +72,25 @@ public class MainApplication extends Application implements ReactApplication {
 
     ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     RealmManager.initRealm(getApplicationContext());
+    ImapScheduler.schedule(getApplicationContext());
   }
 
+}
+
+
+
+public class ImapScheduler {
+    private static final String WORK_NAME = "imap_service_scheduler";
+
+    public static void schedule(Context context) {
+        PeriodicWorkRequest workRequest =
+                new PeriodicWorkRequest.Builder(ImapServiceWorker.class, 16, TimeUnit.MINUTES)
+                        .build();
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                workRequest
+        );
+    }
 }

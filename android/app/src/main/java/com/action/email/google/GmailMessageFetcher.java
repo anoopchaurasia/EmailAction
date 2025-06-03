@@ -181,10 +181,15 @@ public class GmailMessageFetcher {
                 Log.w(TAG, "Failed msg ID " + messageId + ": " + statusCode);
                 failedIds.add(messageId);
             } else if (messageId != null) {
-                Message msg = parseMetadata(part);
-                if (msg != null) {
-                    messages.add(msg);
+                try {
+                    Message msg = parseMetadata(part);
+                    if (msg != null) {
+                        messages.add(msg);
+                    }
+                } catch (Exception e) {
+                   e.printStackTrace();
                 }
+
             }
         }
         return messages;

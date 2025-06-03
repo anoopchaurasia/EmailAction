@@ -19,14 +19,15 @@ public class ImapService extends Service {
 
     public static final String CHANNEL_ID = "IMAPServiceChannel";
     public static final String TAG = "ImapService";
+    private  boolean isAlreadyRunning;
     @Override
     public void onCreate() {
 
         Log.d(TAG, "onCreate");
         super.onCreate();
-        startForegroundService();
-        System.out.println("onCreate IMAP Service");
-        startImapListener();
+
+        Log.d(TAG, "onCreate IMAP Service");
+
     }
 
     private void startForegroundService() {
@@ -55,6 +56,7 @@ public class ImapService extends Service {
     private void startImapListener() {
         new Thread(() -> {
             try {
+
                 GmailIMAP imap = new GmailIMAP();
                 imap.connectAndListen(getApplicationContext()); // you'll implement this in the next step
             } catch (Exception e) {
@@ -66,13 +68,27 @@ public class ImapService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
+
         if(LoginEventBus.getInstance().isPendingSync()) {
             Log.d(TAG, "Pending sync detected, starting IMAP listener");
             LoginEventBus.getInstance().setPendingSync(false);
-            startImapListener();
+            if (isAlreadyRunning) {
+                startImapListener();
+            }
         } else {
+
             Log.w(TAG, "No pending sync, not starting IMAP listener");
-        } 
+        }
+        // Useful if your service can be called multiple times
+
+        if (isAlreadyRunning) {
+            return START_STICKY;
+        }
+
+        startForegroundService();
+        startImapListener();
+        isAlreadyRunning = true;
+
         return START_STICKY; // Restart if killed by system
     }
 

@@ -55,6 +55,7 @@ public class GmailLabelFetcher {
                        Label label = Label.fromGmailJson(labelsJson.getJSONObject(i));
                        LabelService.update(label);
                     }
+                    Log.d(TAG, "Label fetched");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

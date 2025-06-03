@@ -3,6 +3,7 @@ package com.action.email;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.action.email.event.LoginEventBus;
 import com.action.email.google.AccessTokenHelper;
@@ -21,6 +22,8 @@ import javax.mail.Store;
 
 public class EmailModule extends ReactContextBaseJavaModule {
 
+    private static final String TAG = "EmailModule" ;
+
     public EmailModule(ReactApplicationContext reactContext) {
         super(reactContext);
     }
@@ -31,9 +34,10 @@ public class EmailModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void connectToGmail(String userId, String accessToken, Promise promise) {
+    public void connectToGmail(Promise promise) {
         GmailHistoryFetcher gmailHistoryFetcher = new GmailHistoryFetcher(getReactApplicationContext());
         try {
+            Log.d(TAG, "connectToGmail");
             GmailLabelFetcher.fetchLabels(getReactApplicationContext());
             gmailHistoryFetcher.fetchHistoryAndSync();
         } catch (Exception e) {

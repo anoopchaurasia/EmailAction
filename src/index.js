@@ -8,7 +8,7 @@
 
 import React, { Node, useState } from 'react';
 import {
-    LogBox, Text, View, useColorScheme
+    LogBox, Text, View, useColorScheme, NativeModules
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -75,6 +75,10 @@ const App: () => Node = () => {
             <Drawer.Screen name="ActivityView" component={ActivityView} options={{ headerTitle:(props)=>  <LogoTitle colors={selectedTheme.colors} title="Saved Rules" name="gate-xor" />, title: (props) => <LogoTitle colors={selectedTheme.colors} title="Saved Rules" name="gate-xor" /> }}/>
         </Drawer.Navigator>
     };
+
+    if(isAuthenticated) {
+        NativeModules.EmailModule.connectToGmail();
+    }
 
     return <NavigationContainer theme={selectedTheme}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
