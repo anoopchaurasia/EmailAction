@@ -108,6 +108,7 @@ public class GmailIMAP {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                   // FirebaseCrashlytics.getInstance().recordException;(e)
                     // Optional delay before retry
                     try {
                         Thread.sleep(5000);
