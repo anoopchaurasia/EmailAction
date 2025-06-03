@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.action.email.realm.config.RealmManager;
 import com.action.email.realm.model.MessageAggregate;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class MessageAggregateService {
 
@@ -22,6 +23,7 @@ public class MessageAggregateService {
             });
             //MessageEvent.emit("message_aggregation_changed", "create");
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             Log.e("RealmError", "create failed: " + e.getMessage());
         } finally {
             

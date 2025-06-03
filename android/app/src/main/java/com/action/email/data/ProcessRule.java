@@ -16,6 +16,7 @@ import com.action.email.realm.model.Activity;
 import com.action.email.realm.model.Message;
 import com.action.email.realm.service.ActivityService;
 import com.action.email.realm.service.MessageService;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +60,7 @@ public class ProcessRule {
            LabelManager.trash(task, messageIds, accessToken);
 
        } catch (Exception e) {
+    FirebaseCrashlytics.getInstance().recordException(e);
            Log.e("ProcessRules", "Trash failed", e);
        }
    }
@@ -69,6 +71,7 @@ public class ProcessRule {
        try {
            LabelManager.moveToFolder(task, messageIds, accessToken);
        } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
            Log.e("ProcessRules", "Move failed", e);
        }
    }
@@ -77,6 +80,7 @@ public class ProcessRule {
        try {
            LabelManager.copyToFolder(task, messageIds, accessToken);
        } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
            Log.e("ProcessRules", "Move failed", e);
        }
    }
@@ -150,6 +154,7 @@ public class ProcessRule {
             try {
                 applyRule(rule, messageIds, AccessTokenHelper.fetchAccessToken(context).accessToken);
             } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
                 throw new RuntimeException(e);
             }
         }

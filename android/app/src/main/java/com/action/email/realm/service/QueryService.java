@@ -7,6 +7,7 @@ import android.util.Log;
 import com.action.email.realm.config.RealmManager;
 import com.action.email.realm.model.QueryData;
 import com.facebook.react.bridge.ReadableMap;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ public class QueryService {
             realm.executeTransaction(r -> r.insert(query));
             return true;
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
             return false;
         }
@@ -49,6 +51,7 @@ public class QueryService {
             realm.executeTransaction(r -> r.insertOrUpdate(query));
             return true;
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
             return false;
         }
@@ -65,6 +68,7 @@ public class QueryService {
             });
             return true;
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
             return false;
         }

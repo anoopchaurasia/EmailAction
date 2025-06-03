@@ -10,6 +10,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class ActivityModule extends ReactContextBaseJavaModule {
             promise.resolve(result.toMap());
             ProcessRule.takeAction(result, this.getReactApplicationContext().getApplicationContext());
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("CREATE_ERROR", e);
         }
     }
@@ -42,6 +44,7 @@ public class ActivityModule extends ReactContextBaseJavaModule {
             ActivityService.deleteAll();
             promise.resolve(true);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("DELETE_ALL_ERROR", e);
         }
     }
@@ -56,6 +59,7 @@ public class ActivityModule extends ReactContextBaseJavaModule {
             }
             promise.resolve(array);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("GET_ALL_ERROR", e);
         }
     }
@@ -70,6 +74,7 @@ public class ActivityModule extends ReactContextBaseJavaModule {
             }
             promise.resolve(array);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("GET_NO_COMPLETED_ERROR", e);
         }
     }
@@ -84,6 +89,7 @@ public class ActivityModule extends ReactContextBaseJavaModule {
             }
             promise.resolve(array);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("GET_BY_SENDER_ERROR", e);
         }
     }
@@ -94,6 +100,7 @@ public class ActivityModule extends ReactContextBaseJavaModule {
             ActivityService.deleteObjectById(id);
             promise.resolve(true);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("DELETE_BY_ID_ERROR", e);
         }
     }
@@ -105,6 +112,7 @@ public class ActivityModule extends ReactContextBaseJavaModule {
             ActivityService.updateObjectById(id, activity);
             promise.resolve(true);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("UPDATE_ERROR", e);
         }
     }

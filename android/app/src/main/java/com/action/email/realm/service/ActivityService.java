@@ -14,6 +14,7 @@ import android.util.Log;
 
 import com.action.email.realm.config.RealmManager;
 import com.action.email.realm.model.Activity;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class ActivityService {
     private static final String TAG = "ActivityMethods";
@@ -35,6 +36,7 @@ public class ActivityService {
             });
         } catch (RealmException e) {
             Log.e(TAG, "Error creating Activity object", e);
+            FirebaseCrashlytics.getInstance().recordException(e);
         } 
         return data;
     }
@@ -47,6 +49,7 @@ public class ActivityService {
                 results.deleteAllFromRealm();
             });
         } catch (RealmException e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
             Log.e(TAG, "Error deleting all Activity objects", e);
         } 
     }
@@ -68,6 +71,7 @@ public class ActivityService {
                 }
             });
         } catch (RealmException e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
             Log.e(TAG, "Error deleting Activity by id", e);
         } 
     }
@@ -97,6 +101,7 @@ public class ActivityService {
                 }
             });
         } catch (RealmException e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
             Log.e(TAG, "Error updating Activity", e);
         } 
     }

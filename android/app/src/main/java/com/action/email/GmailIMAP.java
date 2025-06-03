@@ -19,6 +19,7 @@ import com.action.email.google.AccessTokenHelper;
 import com.action.email.google.GmailHistoryFetcher;
 import com.action.email.realm.config.RealmManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPMessage;
 
@@ -33,6 +34,7 @@ public class GmailIMAP {
         try {
             tokenInfo = AccessTokenHelper.fetchAccessToken(context);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             throw new RuntimeException(e);
         }
         Properties props = new Properties();
@@ -59,6 +61,7 @@ public class GmailIMAP {
             gmailHistoryFetcher = new GmailHistoryFetcher(context);
             gmailEmailFetcher.fetchInboxEmails();
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             throw new RuntimeException(e);
         }
 
@@ -83,6 +86,7 @@ public class GmailIMAP {
                                     System.out.println("----------new Message received");
                                     finalGmailHistoryFetcher.fetchHistoryAndSync();
                                 } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
                                     throw new RuntimeException(e);
                                 }
                             }
@@ -108,7 +112,7 @@ public class GmailIMAP {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                   // FirebaseCrashlytics.getInstance().recordException;(e)
+                    FirebaseCrashlytics.getInstance().recordException(e);
                     // Optional delay before retry
                     try {
                         Thread.sleep(5000);
@@ -131,6 +135,7 @@ public class GmailIMAP {
             }
         } catch (MessagingException e) {
             e.printStackTrace();
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
 
         try {
@@ -139,6 +144,7 @@ public class GmailIMAP {
             }
         } catch (MessagingException e) {
             e.printStackTrace();
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 
@@ -156,6 +162,7 @@ public class GmailIMAP {
             GmailIMAP.addNewMessageListener(context);
         } catch (Exception e) {
             e.printStackTrace();
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
         System.out.println("doInBackground: Connected and listening for new emails");
     }

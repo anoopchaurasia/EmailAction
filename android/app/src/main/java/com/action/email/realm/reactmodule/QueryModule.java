@@ -5,6 +5,8 @@ import com.action.email.realm.model.Label;
 import com.action.email.realm.model.Query;
 import com.action.email.realm.service.QueryService;
 import com.facebook.react.bridge.*;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 import java.util.List;
 
 public class QueryModule extends ReactContextBaseJavaModule {
@@ -28,6 +30,7 @@ public class QueryModule extends ReactContextBaseJavaModule {
             queryService.create(Query.fromMap(query));
             promise.resolve(null);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("CREATE_QUERY_ERROR", e);
         }
     }
@@ -38,6 +41,7 @@ public class QueryModule extends ReactContextBaseJavaModule {
             queryService.deleteAll();
             promise.resolve(null);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("DELETE_ALL_ERROR", e);
         }
     }
@@ -48,6 +52,7 @@ public class QueryModule extends ReactContextBaseJavaModule {
             queryService.update(Query.fromMap(query));
             promise.resolve(null);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("UPDATE_QUERY_ERROR", e);
         }
     }
@@ -58,6 +63,7 @@ public class QueryModule extends ReactContextBaseJavaModule {
             queryService.delete(id);
             promise.resolve(null);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("DELETE_QUERY_ERROR", e);
         }
     }
@@ -70,6 +76,7 @@ public class QueryModule extends ReactContextBaseJavaModule {
             for (Query query : queries) result.pushMap(query.toMap());
             promise.resolve(result);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("GET_ALL_QUERIES_ERROR", e);
         }
     }

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.action.email.realm.model.Label;
 import com.action.email.realm.service.LabelService;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import okhttp3.*;
 import org.json.JSONArray;
@@ -57,6 +58,7 @@ public class GmailLabelFetcher {
                     }
                     Log.d(TAG, "Label fetched");
                 } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
                     e.printStackTrace();
                 }
             }

@@ -13,9 +13,9 @@ export default ListView = ({ navigation, removeFromList }) => {
     useEffect(x => {
         EMailMessageSerive.getLatestMessages(page, 20).then(messages => {
             console.log("EmailListByEmail", messages.length, messages[0]);
-            setList(messages);
+            setList(l=> [...l, ...messages]);
         });
-    }, []);
+    }, [page]);
 
     const filterItems = (value) => {
         if (value === '') {

@@ -25,6 +25,7 @@ import com.action.email.realm.model.Message;
 import com.action.email.realm.service.GmailSyncStateService;
 import com.action.email.realm.service.MessageAggregateService;
 import com.action.email.realm.service.MessageService;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import io.realm.RealmList;
 
@@ -79,6 +80,7 @@ public class GmailEmailFetcher {
                 GmailSyncStateService.setSyncState(GmailSyncStateService.SyncStatus.COMPLETED);
 
             } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
                 Log.e(TAG, "Inbox fetch failed", e);
             }
              finally {

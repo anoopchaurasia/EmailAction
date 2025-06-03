@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.action.email.event.LoginEventBus;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class ImapService extends Service {
 
@@ -60,6 +61,8 @@ public class ImapService extends Service {
                 GmailIMAP imap = new GmailIMAP();
                 imap.connectAndListen(getApplicationContext()); // you'll implement this in the next step
             } catch (Exception e) {
+
+FirebaseCrashlytics.getInstance().recordException(e);
                 e.printStackTrace();
             }
         }).start();

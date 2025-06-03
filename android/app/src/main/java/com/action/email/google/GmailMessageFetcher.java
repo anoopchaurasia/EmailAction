@@ -10,6 +10,7 @@ import com.action.email.data.MessageAggregateData;
 import com.action.email.realm.model.Attachment;
 import com.action.email.realm.model.Message;
 import com.action.email.realm.service.MessageService;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -187,6 +188,7 @@ public class GmailMessageFetcher {
                         messages.add(msg);
                     }
                 } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
                    e.printStackTrace();
                 }
 
@@ -272,6 +274,7 @@ public class GmailMessageFetcher {
             return msg;
 
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             Log.e(TAG, "Error parsing metadata", e);
         }
         return null;

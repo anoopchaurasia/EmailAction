@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.action.email.realm.model.MessageAggregate;
 import com.action.email.realm.service.MessageAggregateService;
 import com.facebook.react.bridge.*;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +72,7 @@ public class MessageAggregateModule extends ReactContextBaseJavaModule {
             }
             promise.resolve(result);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("READ_ERROR", e);
         }
     }
@@ -85,6 +87,7 @@ public class MessageAggregateModule extends ReactContextBaseJavaModule {
             }
             promise.resolve(result);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("READ_ALL_ERROR", e);
         }
     }
@@ -95,6 +98,7 @@ public class MessageAggregateModule extends ReactContextBaseJavaModule {
             MessageAggregate agg = MessageAggregateService.readBySender(sender);
             promise.resolve(agg != null ? agg.toMap() : null);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("READ_SENDER_ERROR", e);
         }
     }
@@ -105,6 +109,7 @@ public class MessageAggregateModule extends ReactContextBaseJavaModule {
             int total = MessageAggregateService.count();
             promise.resolve(total);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("COUNT_ERROR", e);
         }
     }
@@ -116,6 +121,7 @@ public class MessageAggregateModule extends ReactContextBaseJavaModule {
             MessageAggregate result = MessageAggregateService.updateCount(data);
             promise.resolve(result.toMap());
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("UPDATE_COUNT_ERROR", e);
         }
     }

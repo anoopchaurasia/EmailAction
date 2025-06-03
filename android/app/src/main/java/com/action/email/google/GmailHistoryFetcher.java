@@ -24,6 +24,7 @@ import com.action.email.realm.model.Message;
 import com.action.email.realm.model.MessageAggregate;
 import com.action.email.realm.service.GmailSyncStateService;
 import com.action.email.realm.service.MessageService;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class GmailHistoryFetcher {
 
@@ -154,6 +155,7 @@ public class GmailHistoryFetcher {
                     GmailSyncStateService.setGmailHistoryId(latestHistoryId);
 
                 } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
                     e.printStackTrace();
                 }
             }
@@ -169,6 +171,7 @@ public class GmailHistoryFetcher {
                ProcessRule.takeActionOnNewMessages(messages, appContext);
            }
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             throw new RuntimeException(e);
         }
     }

@@ -13,6 +13,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Promise;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,6 +42,7 @@ public class EmailModule extends ReactContextBaseJavaModule {
             GmailLabelFetcher.fetchLabels(getReactApplicationContext());
             gmailHistoryFetcher.fetchHistoryAndSync();
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             throw new RuntimeException(e);
         }
         ;

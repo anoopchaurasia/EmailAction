@@ -11,6 +11,7 @@ import com.action.email.realm.model.Label;
 import com.action.email.realm.service.LabelService;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +34,7 @@ public class LabelModule extends ReactContextBaseJavaModule {
             LabelService.create(label);
             promise.resolve("Label created");
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("CREATE_LABEL_ERROR", e);
         }
     }
@@ -43,6 +45,7 @@ public class LabelModule extends ReactContextBaseJavaModule {
             LabelService.updateNameById(id, newName);
             promise.resolve("Label updated");
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("UPDATE_LABEL_ERROR", e);
         }
     }
@@ -53,6 +56,7 @@ public class LabelModule extends ReactContextBaseJavaModule {
             LabelService.deleteById(id);
             promise.resolve("Label deleted");
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("DELETE_LABEL_ERROR", e);
         }
     }
@@ -67,6 +71,7 @@ public class LabelModule extends ReactContextBaseJavaModule {
                 promise.resolve(null);
             }
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("GET_LABEL_ERROR", e);
         }
     }
@@ -79,6 +84,7 @@ public class LabelModule extends ReactContextBaseJavaModule {
             for (Label label : labels) result.pushMap(label.toMap());
             promise.resolve(result);
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("READ_ALL_LABELS_ERROR", e);
         }
     }
@@ -89,6 +95,7 @@ public class LabelModule extends ReactContextBaseJavaModule {
             LabelService.deleteAll();
             promise.resolve("All labels deleted");
         } catch (Exception e) {
+FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("DELETE_ALL_LABELS_ERROR", e);
         }
     }
