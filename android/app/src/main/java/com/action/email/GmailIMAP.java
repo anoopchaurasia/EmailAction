@@ -86,27 +86,33 @@ FirebaseCrashlytics.getInstance().recordException(e);
                     FirebaseCrashlytics.getInstance().recordException(e);
                     inbox = null;
                     store = null;
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 } catch (FolderClosedException e){
                     e.printStackTrace();
-                    if (!inbox.isOpen()) {
-                        try {
-                            inbox.open(Folder.READ_WRITE); // or READ_ONLY if needed
-                        } catch (MessagingException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    }
+                    closeSafely(inbox, store);
                     FirebaseCrashlytics.getInstance().recordException(e);
+                    inbox = null;
+                    store = null;
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                     FirebaseCrashlytics.getInstance().recordException(e);
                     // Optional delay before retry
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(10000);
                     } catch (InterruptedException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
-
             }
             }   finally {
                 RealmManager.closeRealm();

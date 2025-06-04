@@ -36,6 +36,11 @@ public class AccessTokenHelper {
         return cachedTokenInfo;
     }
 
+    public synchronized static TokenInfo getFreshToken(Context context) throws Exception {
+        cachedTokenInfo = null;
+        return fetchAccessToken(context);
+    }
+
     public static boolean isUserLoggedIn(Context context) {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
 

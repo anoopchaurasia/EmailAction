@@ -35,7 +35,8 @@ export default  Label ={
     getMap : async() =>{
         let labels = await Label.readAll();
         let map = {};
-        labels.forEach(x=> {
+        console.log("Labels: ", labels[0]);
+        labels.filter(r=>r.type!="system").forEach(x=> {
             map[x.id] = x.name;
         });
         idNameMap = map;

@@ -120,8 +120,8 @@ export default ListView = ({ navigation, removeFromList }) => {
                         <MyText style={{ ...SenderListstyles.label, borderColor: colors.border, backgroundColor: colors.border }}>{item.count}</MyText>
                     </View>
                     <View style={{ height: 20, flexDirection: "row", justifyContent: "flex-end", marginTop: 5, marginLeft: 10 }}>
-                        {item.labels && item.labels.map((label, index) => (
-                            <MyText key={index} style={{ ...SenderListstyles.label, borderColor: colors.border, backgroundColor: colors.border }}>{LabelService.getNameById(label.id)}: {label.count}</MyText>
+                        {item.labels && item.labels.filter(label => LabelService.getNameById(label.id)).map((label, index) => (
+                            <MyText key={index} style={{ ...SenderListstyles.label, borderColor: colors.border, backgroundColor: colors.border }}>{LabelService.getNameById(label.id)}</MyText>
                         ))}
                     </View>
                 </View>
@@ -171,6 +171,7 @@ const SenderListstyles = StyleSheet.create({
         height: 14,
         borderColor: "#ccc",
         borderRadius: 5,
+        marginLeft: 5,
     },
     item: {
         elevation: 0,

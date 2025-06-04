@@ -75,6 +75,13 @@ public class GmailHistoryFetcher {
 
             @Override public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
+                    if(response.code()==401) {
+                        try {
+                            AccessTokenHelper.getFreshToken(appContext);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
                     Log.e(TAG, "failed to fetch history "+ response.message() + " Status: "+ response.code());
                     return;
                 }
