@@ -142,12 +142,12 @@ FirebaseCrashlytics.getInstance().recordException(e);
             case "sender":
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     return rule.getFrom().stream()
-                            .noneMatch(x -> x.equalsIgnoreCase(message.getSender()));
+                            .anyMatch(x -> x.equalsIgnoreCase(message.getSender()));
                 }
             case "domain":
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     return  rule.getFrom().stream()
-                            .noneMatch(x -> x.equalsIgnoreCase(message.getSender_domain()));
+                            .anyMatch(x -> x.equalsIgnoreCase(message.getSender_domain()));
                 }
             default:
                 return false;

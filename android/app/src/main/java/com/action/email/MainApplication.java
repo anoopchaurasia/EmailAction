@@ -51,6 +51,7 @@ public class MainApplication extends Application implements ReactApplication {
     return mReactNativeHost;
   }
 
+
   @Override
   public void onCreate() {
     super.onCreate();
@@ -65,6 +66,8 @@ public class MainApplication extends Application implements ReactApplication {
     RealmManager.initRealm(getApplicationContext());
     ImapScheduler.schedule(getApplicationContext());
   }
+
+
 }
 
 
@@ -82,4 +85,6 @@ class ImapScheduler {
                 workRequest
         );
     }
+
+
 }

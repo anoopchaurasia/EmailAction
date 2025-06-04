@@ -135,7 +135,11 @@ public class MessageService {
             .equalTo("labels", "INBOX")
             .sort("date", Sort.DESCENDING)
             .findAll();
-        messages = realm.copyFromRealm(messages.subList(offset, Math.min(offset + pageSize, messages.size()) ));
+        int totalCount = messages.size();
+        if(offset >= totalCount) {
+            return new ArrayList<>(); // Return empty list if offset is out of bounds
+        }
+        messages = realm.copyFromRealm(messages.subList(offset, Math.min(offset + pageSize, totalCount) ));
        
         return messages;
     }
@@ -148,6 +152,10 @@ public class MessageService {
                 .equalTo("labels", "INBOX")
                 .sort("date", Sort.DESCENDING)
                 .findAll();
+        int totalCount = messages.size();
+        if(offset >= totalCount) {
+            return new ArrayList<>(); // Return empty list if offset is out of bounds
+        }  
         messages = realm.copyFromRealm(messages
             .subList(offset, Math.min(messages.size(), offset+pageSize)));
        
@@ -188,6 +196,10 @@ public class MessageService {
             .sort("date", Sort.DESCENDING)
             .findAll()
             ;
+        int totalCount = messages.size();
+        if(offset >= totalCount) {
+            return new ArrayList<>(); // Return empty list if offset is out of bounds
+        }
          messages = realm.copyFromRealm(messages .subList(offset, Math.min(offset + pageSize, messages.size()) ));
        
         return messages;
