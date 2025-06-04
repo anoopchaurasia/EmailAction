@@ -50,23 +50,9 @@ FirebaseCrashlytics.getInstance().recordException(e);
 
         return store;
     }
-
-
     public static void addNewMessageListener(Context context) throws MessagingException {
-
-        GmailEmailFetcher gmailEmailFetcher= null;
-        GmailHistoryFetcher gmailHistoryFetcher = null;
-        try {
-            gmailEmailFetcher = new GmailEmailFetcher(context);
-            gmailHistoryFetcher = new GmailHistoryFetcher(context);
-            gmailEmailFetcher.fetchInboxEmails();
-        } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
-            throw new RuntimeException(e);
-        }
-
+        GmailHistoryFetcher gmailHistoryFetcher = new GmailHistoryFetcher(context);
         // Keep the connection alive to listen for new messages
-        GmailHistoryFetcher finalGmailHistoryFetcher = gmailHistoryFetcher;
         new Thread(() -> {
             try{
             System.out.println("Wait : After start" );
@@ -78,29 +64,28 @@ FirebaseCrashlytics.getInstance().recordException(e);
                         store = getImapInbox(context);
                         inbox = (IMAPFolder) store.getFolder("INBOX");
                         inbox.open(Folder.READ_ONLY);
-                        IMAPFolder finalInbox = inbox;
+                        Log.d(TAG, "Imap socket connected");
                         inbox.addMessageCountListener(new MessageCountAdapter() {
                             @Override
                             public void messagesAdded(MessageCountEvent event) {
                                 try {
                                     System.out.println("----------new Message received");
-                                    finalGmailHistoryFetcher.fetchHistoryAndSync();
+                                    gmailHistoryFetcher.fetchHistoryAndSync();
                                 } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
+                                    FirebaseCrashlytics.getInstance().recordException(e);
                                     throw new RuntimeException(e);
                                 }
                             }
                         });
                     }
-
                     // Enter IDLE mode to wait for new messages
                     inbox.idle();
                 } catch (AuthenticationFailedException e) {
                     // Token expired, force reconnect
                     closeSafely(inbox, store);
+                    FirebaseCrashlytics.getInstance().recordException(e);
                     inbox = null;
                     store = null;
-
                 } catch (FolderClosedException e){
                     e.printStackTrace();
                     if (!inbox.isOpen()) {
@@ -110,6 +95,7 @@ FirebaseCrashlytics.getInstance().recordException(e);
                             throw new RuntimeException(ex);
                         }
                     }
+                    FirebaseCrashlytics.getInstance().recordException(e);
                 } catch (Exception e) {
                     e.printStackTrace();
                     FirebaseCrashlytics.getInstance().recordException(e);
@@ -159,11 +145,23 @@ FirebaseCrashlytics.getInstance().recordException(e);
         }
         Log.d(TAG, "connectAndListen");
         try {
+            syncAll(context);
             GmailIMAP.addNewMessageListener(context);
         } catch (Exception e) {
             e.printStackTrace();
             FirebaseCrashlytics.getInstance().recordException(e);
         }
         System.out.println("doInBackground: Connected and listening for new emails");
+    }
+
+    public void syncAll(Context context) {
+        GmailEmailFetcher gmailEmailFetcher= null;
+        try {
+            gmailEmailFetcher = new GmailEmailFetcher(context);
+            gmailEmailFetcher.fetchInboxEmails();
+        } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
+            throw new RuntimeException(e);
+        }
     }
 }

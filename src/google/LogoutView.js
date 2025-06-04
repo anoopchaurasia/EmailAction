@@ -10,6 +10,7 @@ import Utility from '../utility/Utility';
 
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import MessageEvent from '../event/MessageEvent';
+import MessageService from './../realm/EmailMessageService';
 
 
 const DrawerContent = (props) => {
@@ -31,7 +32,11 @@ const DrawerContent = (props) => {
       console.log(error.message, "logout");
     }
   };
-  
+
+  const resyncData = async () => {
+
+    MessageService.resyncData();
+  };
   return (
     <View style={styles.container}>
       <DrawerContentScrollView {...props}>
@@ -42,6 +47,9 @@ const DrawerContent = (props) => {
       </DrawerContentScrollView>
 
       {/* Sign Out button */}
+      <TouchableOpacity style={styles.resyncData} onPress={resyncData}>
+        <Text style={styles.signOutText}>ReSync</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
         <Text style={styles.signOutText}>Sign Out</Text>
       </TouchableOpacity>
@@ -62,6 +70,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     backgroundColor: 'white', // Add background color for better visibility
+  },
+  resyncData: {
+     borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    paddingVertical: 15,
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 60,
+    width: '100%',
+    backgroundColor: '#999', // Add background color for better visibility
   },
   signOutText: {
     fontSize: 16,

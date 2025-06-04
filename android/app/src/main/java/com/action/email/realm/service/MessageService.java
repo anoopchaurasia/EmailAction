@@ -7,6 +7,7 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
+import com.action.email.google.GmailEmailFetcher;
 import com.action.email.realm.config.RealmManager;
 import com.action.email.realm.model.Attachment;
 import com.action.email.realm.model.Message;
@@ -16,9 +17,11 @@ import com.facebook.react.bridge.WritableMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MessageService {
@@ -209,12 +212,28 @@ public class MessageService {
      public static List<String> checkMessageIds(List<String> messageIds) {
        Realm realm = RealmManager.getRealm();
         List<String> pending = new ArrayList<>();
-        for (int i=0; i<messageIds.size(); i++) {
-            if(getById(messageIds.get(i)) == null) {
-                pending.add(messageIds.get(i));
-            }
-        }
-       
+//        for (int i=0; i<messageIds.size(); i++) {
+//            if(getById(messageIds.get(i)) == null) {
+//                pending.add(messageIds.get(i));
+//            }
+//        }
+
+         RealmResults<Message> foundMessages = realm.where(Message.class)
+                 .in("message_id", messageIds.toArray(new String[0]))
+                 .findAll();
+
+// Convert found IDs to a Set
+         Set<String> foundIds = new HashSet<>();
+         for (Message m : foundMessages) {
+             foundIds.add(m.getMessage_id());
+         }
+
+// Now collect those not in DB
+         for (String id : messageIds) {
+             if (!foundIds.contains(id)) {
+                 pending.add(id);
+             }
+         }
         return pending;
     }
 
@@ -235,5 +254,10 @@ public class MessageService {
                 message.addLabel(labelId);
             }
         });
+    }
+
+    public static void resyncData() {
+        GmailSyncStateService.setSyncState(GmailSyncStateService.SyncStatus.INPROGRESS);
+
     }
 }

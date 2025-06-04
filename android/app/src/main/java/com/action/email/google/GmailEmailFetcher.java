@@ -51,7 +51,7 @@ public class GmailEmailFetcher {
                 .build();
     }
 
-    public void fetchInboxEmails() {
+    public synchronized void fetchInboxEmails() {
 
         new Thread(() -> {
 
@@ -115,7 +115,7 @@ FirebaseCrashlytics.getInstance().recordException(e);
         JSONArray messages = json.optJSONArray("messages");
         pageToken = json.optString("nextPageToken", null);
 
-        if (messages == null) return null;
+        if (messages == null) return new MessageList(null, pageToken);
 
         List<String> messageIds = new ArrayList<>();
         for (int i = 0; i < messages.length(); i++) {

@@ -76,6 +76,9 @@ const MessageService = {
     updateAttachmentById: (attachment) => {
         MessageServiceModule.updateAttachmentById(attachment);
     },
+     resyncData: async () => {
+        return await MessageServiceModule.resyncData();
+    },
 };
 
 export default MessageService;

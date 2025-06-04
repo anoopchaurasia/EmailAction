@@ -47,7 +47,7 @@ public class GmailHistoryFetcher {
         void onFailure(Exception e);
     }
 
-    public void fetchHistoryAndSync() throws Exception {
+    public synchronized void fetchHistoryAndSync() throws Exception {
         String startHistoryId = GmailSyncStateService.getGmailHistoryId();
         Log.d(TAG, "startHistoryId: "+ startHistoryId);
         if(startHistoryId==null) {

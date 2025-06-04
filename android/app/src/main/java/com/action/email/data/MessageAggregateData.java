@@ -162,7 +162,6 @@ public class MessageAggregateData {
             if (l.getId().equals(label)) {
                 int newCount = l.getCount() - 1;
                 if (newCount <= 0) {
-                    iterator.remove();
                     l.deleteFromRealm();
                 } else {
                     l.setCount(newCount);

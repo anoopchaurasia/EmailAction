@@ -26,7 +26,7 @@ public class ImapService extends Service {
 
         Log.d(TAG, "onCreate");
         super.onCreate();
-
+        FirebaseCrashlytics.getInstance().log(TAG+ " onCreate");
         Log.d(TAG, "onCreate IMAP Service");
 
     }
@@ -79,12 +79,12 @@ FirebaseCrashlytics.getInstance().recordException(e);
                 startImapListener();
             }
         } else {
-
             Log.w(TAG, "No pending sync, not starting IMAP listener");
         }
         // Useful if your service can be called multiple times
 
         if (isAlreadyRunning) {
+            Log.d(TAG, "Service is already running");
             return START_STICKY;
         }
 
@@ -98,6 +98,8 @@ FirebaseCrashlytics.getInstance().recordException(e);
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy");
+        FirebaseCrashlytics.getInstance().log(TAG+ " onDestroy");
         // Optionally close IMAP connection
     }
 

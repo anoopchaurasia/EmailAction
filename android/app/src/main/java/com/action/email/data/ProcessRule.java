@@ -26,34 +26,6 @@ import java.util.Map;
 public class ProcessRule {
     private static final int MAX_RETRIES = 4;
     private static final String TAG = "ProcessRule";
-//   public static void process() {
-//       List<Activity> pendingTasks = ActivityService.getNoCompleted();
-//       for (Activity task : pendingTasks) {
-//           if (task.getFrom() == null || task.getFrom().isEmpty()) {
-//               Log.e("ProcessRules", "Filter is not present, it should contain at least one sender email");
-//               break;
-//           }
-//
-//           Log.i("ProcessRules", String.format("%s %s %s %s", task.getAction(), task.getFrom_label(), task.getTo_label(), task.getFrom()));
-//
-//           switch (task.getAction()) {
-//               case "trash":
-//                   trash(task, null, accessToken);
-//                   break;
-//               case "move":
-//                   moveToFolder(task, null);
-//                   break;
-//               case "copy":
-//                   copyToFolder(task, null);
-//                   break;
-//               default:
-//                   Log.i("ProcessRules", "No action defined: " + task);
-//           }
-//           task.setRan_at(new Date());
-//           task.setCompleted(true);
-//           ActivityService.update(task);
-//       }
-//   }
 
    public static void trash(Activity task, List<String> messageIds, String accessToken) {
        try {
@@ -64,7 +36,6 @@ public class ProcessRule {
            Log.e("ProcessRules", "Trash failed", e);
        }
    }
-
 
 
    public static void moveToFolder(Activity task, List<String> messageIds, String accessToken) {
@@ -138,6 +109,7 @@ FirebaseCrashlytics.getInstance().recordException(e);
         for (Message message : messages) {
             for (Activity rule : rules) {
                 if (matches(message, rule)) {
+                    Log.d(TAG, "Rule matched: " + rule.getFrom() + " for message: " + message.getSender());
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         appliedRules
                                 .computeIfAbsent(rule, r -> new ArrayList<>())
@@ -153,6 +125,7 @@ FirebaseCrashlytics.getInstance().recordException(e);
             List<String> messageIds = entry.getValue();
             try {
                 applyRule(rule, messageIds, AccessTokenHelper.fetchAccessToken(context).accessToken);
+                Log.d(TAG, "Applied rule: " + rule.getFrom() + " to messages: " + messageIds);
             } catch (Exception e) {
 FirebaseCrashlytics.getInstance().recordException(e);
                 throw new RuntimeException(e);

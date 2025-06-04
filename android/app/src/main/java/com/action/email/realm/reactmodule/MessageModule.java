@@ -175,8 +175,14 @@ public class MessageModule extends ReactContextBaseJavaModule {
         promise.resolve(array);
     }
 
-
-
-
-
+    @ReactMethod
+    public void resyncData(Promise promise) {
+        try {
+            MessageService.resyncData();
+            promise.resolve(null);
+        } catch (Exception e) {
+            Log.e(TAG, "Error resyncing data", e);
+            promise.reject("RESYNC_ERROR", "Failed to resync data: " + e.getMessage());
+        }
+    }
 }

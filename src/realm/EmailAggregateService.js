@@ -43,7 +43,8 @@ const MessageAggregateService = {
     },
     updateCount: async(newData)=> {
         return await MessageServiceModule.updateCount(newData);
-    }
+    },
+   
 }
 
 export default MessageAggregateService;

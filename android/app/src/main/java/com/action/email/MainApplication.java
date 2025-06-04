@@ -1,7 +1,11 @@
 package com.action.email;
 
 import android.app.Application;
+import android.content.Context;
 
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.facebook.react.BuildConfig;
 import com.facebook.react.PackageList;
@@ -11,6 +15,7 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.action.email.realm.config.RealmManager;
 
@@ -58,25 +63,23 @@ public class MainApplication extends Application implements ReactApplication {
 
     ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     RealmManager.initRealm(getApplicationContext());
-   // ImapScheduler.schedule(getApplicationContext());
+    ImapScheduler.schedule(getApplicationContext());
   }
-
 }
 
-//
-//
-//public class ImapScheduler {
-//    private static final String WORK_NAME = "imap_service_scheduler";
-//
-//    public static void schedule(Context context) {
-//        PeriodicWorkRequest workRequest =
-//                new PeriodicWorkRequest.Builder(ImapServiceWorker.class, 16, TimeUnit.MINUTES)
-//                        .build();
-//
-//        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-//                WORK_NAME,
-//                ExistingPeriodicWorkPolicy.KEEP,
-//                workRequest
-//        );
-//    }
-//}
+
+class ImapScheduler {
+    private static final String WORK_NAME = "imap_service_scheduler";
+
+    public static void schedule(Context context) {
+        PeriodicWorkRequest workRequest =
+                new PeriodicWorkRequest.Builder(ImapServiceWorker.class, 16, TimeUnit.MINUTES)
+                        .build();
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                workRequest
+        );
+    }
+}

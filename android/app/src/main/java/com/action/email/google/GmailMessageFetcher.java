@@ -58,8 +58,8 @@ public class GmailMessageFetcher {
         ids = MessageService.checkMessageIds(ids);
         Set<String> pending = new HashSet<>(ids);
         Log.d(TAG, "Total Count Set " + pending.size() + " total ids: "+ count);
-        Log.d(TAG, "Total Count in DB " + MessageService.readAll().size());
         if(pending.size()==0) return null;
+        Log.d(TAG, "Total Count in DB " + MessageService.readAll().size());
         List<Message> messages = new ArrayList<>();
         for (int attempt = 0; attempt < MAX_RETRIES && !pending.isEmpty(); attempt++) {
             Log.d(TAG, "Batch attempt #" + (attempt + 1) + " for " + pending.size() + " ids");
@@ -188,7 +188,7 @@ public class GmailMessageFetcher {
                         messages.add(msg);
                     }
                 } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
+                    FirebaseCrashlytics.getInstance().recordException(e);
                    e.printStackTrace();
                 }
 
