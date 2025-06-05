@@ -56,7 +56,7 @@ const ActivityView = ({ navigation }) => {
     ActivityModel.getAll().then(activities => {
       let all = [...activities];
       all.filter(x => !x.action).forEach(task => {
-
+       
         if (task.to_label === 'trash') {
           ActivityModel.updateObjectById(task.id, { action: 'trash' });
         } else if (task.from_label && task.to_label) {

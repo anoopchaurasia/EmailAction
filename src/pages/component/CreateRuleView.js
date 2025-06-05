@@ -1,77 +1,144 @@
-import { useState, useEffect } from "react";
-import { Text, TextInput, View } from "react-native";
-import MoveToLabelView from './MoveToLabelView'
-import ActivityService from './../../realm/ActivityService'
+import React, { useState } from "react";
+import { Text, TextInput, View, ScrollView, StyleSheet } from "react-native";
+import MoveToLabelView from './MoveToLabelView';
+import ActivityService from './../../realm/ActivityService';
 import { Button } from "react-native-paper";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MessageEvent from "../../event/MessageEvent";
 import MyText from './../component/MyText';
 import { useTheme } from '@react-navigation/native';
 
-
 export default CreateRuleView = ({ route, navigation }) => {
-    let [activity, setActivity] = useState({ ...{from_label:"INBOX",action: "move", title: `All emails from ${route.params.activity.from.join(", ").slice(0, 70)}`}, ...route.params.activity}); //
-    let colors = useTheme().colors;
-    function saveRule(activity) {
-        try {
-            if(activity.id) {
-                ActivityService.updateObjectById(activity.id, activity);
-            } else {
-                ActivityService.createObject(activity);
-            }
-            navigation.goBack();
-        } catch(e) {
-            console.error(e);
-        }
-    }
+  const { colors } = useTheme();
 
-    async function updateActivity(data) {
-        setActivity(act=> ({...act, ...data}))
-    }
-    
+  const [activity, setActivity] = useState({
+    from_label: "INBOX",
+    action: "move",
+    title: `All emails from ${route.params.activity.from.join(", ").slice(0, 70)}`,
+    ...route.params.activity
+  });
 
-    async function setSelectedLabel(label) {
-        updateActivity({to_label: label.id});
-        console.log('selected label', label);
-    }
-    console.log(activity);
-    return (
-        <View style={{padding: 10}}>
-            <View style={{flexDirection:"row", fontSize: 20, borderBottomWidth: 1, marginBottom: 5, paddingBottom: 5, borderColor:colors.border}}>
-                <Icon name="subtitles-outline" size={25} style={{height: 40, paddingTop:10, paddingRight: 30, paddingLeft: 20}} />
-                <TextInput onChangeText={text=>updateActivity({title: text}) } 
-                style={{borderColor:colors.border, borderWidth:.5, borderRadius: 5, flex:1, paddingLeft:10}} 
-                value={activity.title}/>
-            </View>
-            <View style={{flexDirection:"row", fontSize: 20, borderBottomWidth: 1, marginBottom: 5, paddingBottom: 5, borderColor:colors.border}}>
-                <Icon name="checkbox-outline" size={25} style={{height: 40,  paddingLeft: 20}} />
-                <View style={{}}>
-                    <MyText style={{marginBottom:0}}>From</MyText>
-                </View>
-                <View style={{flexDirection:"column"}}>
-                    {activity.from.map((x, i) => (
-                    <View key={i}>
-                        <TextInput
-                        style={{borderColor:colors.border, paddingHorizontal:10, paddingVertical:3,  borderWidth:.5, borderRadius: 5,   marginBottom: 5}}
+  const updateActivity = (data) => {
+    setActivity((prev) => ({ ...prev, ...data }));
+  };
 
-                        value={x}/>
-                        </View>))
-                    }
-                    </View>
-            </View>
-            
-            <View style={{flexDirection:"row", fontSize: 20, borderBottomWidth: 1, marginBottom: 5, paddingBottom: 5, borderColor:colors.border}}>
-                <Icon name="folder-move-outline" size={25} style={{height: 40, paddingTop:10, paddingRight: 30, paddingLeft: 20}} />
-                <View style={{flexDirection:"column", flex:1, height:100}}>
-                    <MyText> {activity.action=="copy"? 'Copy': "Move"} to</MyText>
-                    <MoveToLabelView   selectedLabelId={activity.to_label} setSelectedLabel={setSelectedLabel} />
-                </View>
-            </View>
-            <View style={{alignItems:"center", marginTop: 40}}>
-            <Button mode="contained" onPress={() => saveRule(activity)}>
-                Save Rule
-            </Button>
-            </View>
+  const saveRule = () => {
+    try {
+      if (activity.id) {
+        ActivityService.updateObjectById(activity.id, activity);
+      } else {
+        ActivityService.createObject(activity);
+      }
+      navigation.goBack();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const setSelectedLabel = (label) => {
+    updateActivity({ to_label: label.id });
+    console.log('selected label', label);
+  };
+
+  const styles = StyleSheet.create({
+    container: {
+      padding: 16,
+    },
+    section: {
+      marginBottom: 20,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+      paddingBottom: 10,
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    icon: {
+      marginRight: 16,
+      marginLeft: 4,
+    },
+    textInput: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      padding: 10,
+      color: colors.text,
+      backgroundColor: colors.card,
+    },
+    labelContainer: {
+      marginTop: 10,
+    },
+    fromInput: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      padding: 8,
+      marginBottom: 8,
+      backgroundColor: colors.card,
+      color: colors.text,
+    },
+    buttonContainer: {
+      alignItems: "center",
+      marginTop: 40,
+    },
+  });
+
+  return (
+    <ScrollView style={styles.container}>
+      {/* Title Section */}
+      <View style={styles.section}>
+        <View style={styles.row}>
+          <Icon name="subtitles-outline" size={24} style={styles.icon} color={colors.text} />
+          <TextInput
+            placeholder="Rule Title"
+            style={styles.textInput}
+            value={activity.title}
+            onChangeText={(text) => updateActivity({ title: text })}
+            placeholderTextColor={colors.text + '66'}
+          />
         </View>
-    )
+      </View>
+
+      {/* From Email Section */}
+      <View style={styles.section}>
+        <View style={styles.row}>
+          <Icon name="checkbox-outline" size={24} style={styles.icon} color={colors.text} />
+          <MyText>From</MyText>
+        </View>
+        <View style={styles.labelContainer}>
+          {activity.from.map((item, index) => (
+            <TextInput
+              key={index}
+              style={styles.fromInput}
+              value={item}
+              editable={false}
+            />
+          ))}
+        </View>
+      </View>
+
+      {/* Action Section */}
+      <View style={styles.section}>
+        <View style={styles.row}>
+          <Icon name="folder-move-outline" size={24} style={styles.icon} color={colors.text} />
+          <MyText>{activity.action === "copy" ? "Copy to" : "Move to"}</MyText>
+        </View>
+        <View style={styles.labelContainer}>
+          <MoveToLabelView
+            selectedLabelId={activity.to_label}
+            setSelectedLabel={setSelectedLabel}
+          />
+        </View>
+      </View>
+
+      {/* Save Button */}
+      <View style={styles.buttonContainer}>
+        <Button mode="contained" onPress={saveRule}>
+          Save Rule
+        </Button>
+      </View>
+    </ScrollView>
+  );
 };

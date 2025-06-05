@@ -1,163 +1,181 @@
-import React, { useEffect, useState } from 'react';
-import { View, TextInput, FlatList, Text, Button, Modal, StyleSheet } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  View,
+  TextInput,
+  FlatList,
+  Text,
+  Button,
+  Modal,
+  StyleSheet,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import LabelService from '../../realm/LabelService';
-import DataSync from './../../data/DataSync'
-import MyText from './../component/MyText'
+import DataSync from './../../data/DataSync';
+import MyText from './../component/MyText';
 import { useTheme } from '@react-navigation/native';
 
 const SearchName = ({ setSelectedLabel, selectedLabelId }) => {
-  let colors = useTheme().colors;
-  // State variables
+  const colors = useTheme().colors;
+  const inputRef = useRef(null);
+
   const [labels, setLabels] = useState([]);
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedLabelLocal, setSelectedLabelLocal] = useState({});
 
-  useEffect(x => {
-    LabelService.readAll().then(x => {
+  useEffect(() => {
+    LabelService.readAll().then((x) => {
       let list = [...x];
       setLabels(list);
       if (selectedLabelId) {
-        setSelectedLabelLocal(list.filter(x => x.id === selectedLabelId)[0])
+        const found = list.find((x) => x.id === selectedLabelId);
+        if (found) setSelectedLabelLocal(found);
       }
-      console.log(list.length, "label data")
     });
-
   }, []);
 
-  async function setSelected(label) {
+  useEffect(() => {
+    if (modalVisible && inputRef.current) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [modalVisible]);
+
+  const handleSelectLabel = async (label) => {
     if (label.id) {
       setModalVisible(false);
       setSelectedLabelLocal(label);
       return setSelectedLabel(label);
     }
-    let newLabel = await DataSync.createLabel(label.name).then(async x => await x.json());
-    newLabel.type = "user";
+    const newLabel = await DataSync.createLabel(label.name).then((x) => x.json());
+    newLabel.type = 'user';
     await LabelService.create(newLabel);
+    setLabels((prev) => [...prev, newLabel]);
     setModalVisible(false);
-    setLabels(l => {
-      return [...l, newLabel];
-    });
     setSelectedLabel(newLabel);
-    setSelectedLabelLocal(newLabel)
-  }
-
-  // Filter function
-  const filterlabels = (text) => {
-    return labels.filter(({ name }) => name == "inputbox" || name.toLowerCase().includes(text.toLowerCase()));
+    setSelectedLabelLocal(newLabel);
   };
 
-  // Render item function
-  const RenderItem = ({ item }) => {
-
-    return (
-      <MyText
-        style={{ padding: 10 }}
-        onPress={() => setSelected(item)}>
-        {item.name}
-      </MyText>
+  const filterLabels = (text) =>
+    labels.filter(({ name }) =>
+      name.toLowerCase().includes(text.toLowerCase())
     );
-  };
 
-  // Create new name function
-  const createNewName = () => {
+  const createNewLabel = () => {
     if (searchText.trim().length > 2) {
-      setSelected({ name: searchText });
+      handleSelectLabel({ name: searchText });
       setSearchText('');
     }
   };
 
+  const RenderItem = ({ item }) => {
+    const isSelected = selectedLabelLocal?.id === item.id;
+    return (
+      <Pressable
+        onPress={() => handleSelectLabel(item)}
+        style={[
+          styles.itemContainer,
+          isSelected && { backgroundColor: colors.primary + '22' },
+        ]}
+      >
+        <MyText style={{ color: colors.text }}>{item.name}</MyText>
+      </Pressable>
+    );
+  };
 
   const styles = StyleSheet.create({
-    inputView: {
-      shadowColor: colors.shadow,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      alignSelf: "stretch"
+    container: {
+      borderColor: colors.border,
+      borderWidth: 0.5,
+      borderRadius: 10,
+      marginHorizontal: 10,
+      marginVertical: 5,
     },
-    buttonView: {
-      marginBottom: -10
-
-    },
-    createLabelButton: {
-      alignSelf: "stretch",
-      width: "100%",
-    },
-    input: {
-      height: 40,
-      width: "100%",
-      padding: 10,
-      borderWidth: .2,
-      borderBottomWidth: .2
+    labelSelector: {
+      padding: 12,
+      borderRadius: 8,
+      backgroundColor: colors.card,
     },
     centeredView: {
-      alignItems: 'center',
-    },
-    listView: {
       flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#00000099',
     },
     modalView: {
-      flexDirection: 'column',
+      width: '85%',
+      maxHeight: '80%',
       backgroundColor: colors.background,
-      borderRadius: 5,
-      minWidth: 200,
-      alignItems: "flex-start",
-      shadowColor: colors.shadow,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
+      borderRadius: 12,
+      padding: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.25,
       shadowRadius: 4,
       elevation: 5,
-      paddingBottom: 10
-    }
+    },
+    input: {
+      borderColor: colors.border,
+      borderWidth: 1,
+      borderRadius: 8,
+      padding: 10,
+      marginBottom: 10,
+      color: colors.text,
+    },
+    itemContainer: {
+      padding: 12,
+      borderBottomWidth: 0.5,
+      borderColor: colors.border,
+    },
+    createButtonContainer: {
+      marginTop: 10,
+    },
   });
 
   return (
-    <View style={{ borderColor: colors.border, borderWidth: .5, margin: 10, marginLeft: 0 }}>
-      <MyText style={{ padding: 10 }} onPress={x => setModalVisible(true)}> {selectedLabelLocal.name || "Select Label"} </MyText>
-      <View style={{}}>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            setModalVisible(!modalVisible);
-          }}
-        >
-          <View style={{ ...styles.centeredView, marginTop: 130 }}>
-            <View style={styles.modalView}>
-              <View style={styles.inputView}>
-                <TextInput
-                  style={{ ...styles.input, borderColor: colors.border }}
-                  placeholder="Search Label"
-                  value={searchText}
-                  onChangeText={setSearchText}
-                />
+    <View style={styles.container}>
+      <Pressable onPress={() => setModalVisible(true)} style={styles.labelSelector}>
+        <MyText>{selectedLabelLocal.name || 'Select Label'}</MyText>
+      </Pressable>
 
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.centeredView}
+        >
+          <View style={styles.modalView}>
+            <TextInput
+              ref={inputRef}
+              style={styles.input}
+              placeholder="Search or create label"
+              value={searchText}
+              onChangeText={setSearchText}
+              placeholderTextColor={colors.text + '88'}
+            />
+
+            <FlatList
+              data={filterLabels(searchText)}
+              renderItem={({ item }) => <RenderItem item={item} />}
+              keyExtractor={(item) => item.id}
+              keyboardShouldPersistTaps="handled"
+            />
+
+            {searchText.length > 2 && (
+              <View style={styles.createButtonContainer}>
+                <Button title="Create New Label" onPress={createNewLabel} />
               </View>
-              <View style={styles.listView}>
-                <FlatList
-                  data={filterlabels(searchText)}
-                  renderItem={({ item }) => <RenderItem item={item} />}
-                  keyExtractor={(item) => item.id}
-                />
-              </View>
-              <View style={{ ...styles.inputView, ...styles.buttonView }}>
-                {searchText.length > 2 && <Button style={styles.createLabelButton} visible={false} title="Create New Label" onPress={createNewName} />}
-              </View>
-            </View>
+            )}
           </View>
-        </Modal>
-      </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 };
-
 
 export default SearchName;

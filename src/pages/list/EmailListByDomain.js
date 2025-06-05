@@ -111,18 +111,40 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
     }
 
 
-    function RenderItem({ item, selected = false, handleLongPress, hanldePress, active }) {
-        return (
-            <TouchableOpacity style={{ ...SenderListstyles.item, backgroundColor: selected ? colors.selected : colors.card, }} onLongPress={() => handleLongPress(item)} onPress={x => hanldePress(item)}>
-                <MyCheckbox onPress={() => handleLongPress(item)} selected={selected} />
-                <View style={SenderListstyles.details}>
-                    <MyText style={SenderListstyles.title}>{item.sender_name} {item.sender_domain} </MyText>
-                    <MyText style={{ ...SenderListstyles.label, borderColor: colors.border, backgroundColor: colors.border }}>{item.aggregate_count}: {item.count}</MyText>
-                    {/* <MyText style={SenderListstyles.email}> </MyText> */}
+ function RenderItem({ item, selected = false, handleLongPress, hanldePress, active }) {
+    return (
+        <TouchableOpacity
+            style={{
+                ...SenderListstyles.item,
+                backgroundColor: selected ? colors.selected : colors.card,
+            }}
+            onLongPress={() => handleLongPress(item)}
+            onPress={() => hanldePress(item)}
+        >
+            <MyCheckbox onPress={() => handleLongPress(item)} selected={selected} />
+            <View style={SenderListstyles.details}>
+                
+                <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+                    <MyText style={SenderListstyles.title}>
+                        {item.sender_name || ""} {item.sender_domain}
+                    </MyText>
+                    <View style={{ flex: 1 }} />
+                    <MyText
+                        style={{
+                            ...SenderListstyles.label,
+                            borderColor: colors.border,
+                            backgroundColor: colors.border,
+                        }}
+                    >
+                        {item.aggregate_count}
+                    </MyText>
                 </View>
-            </TouchableOpacity>
-        )
-    }
+            </View>
+        </TouchableOpacity>
+    );
+}
+
+
 
     // Define a function to handle text change
        const handleChangeText = (value) => {
@@ -181,21 +203,22 @@ const SenderListstyles = StyleSheet.create({
     },
 
 
-    details: {
-        padding: 5,
-        paddingLeft: 0,
-        paddingVertical: 13,
-        flexDirection: "row",
-        flex: 1
-    },
+  details: {
+    padding: 5,
+    paddingLeft: 0,
+    paddingVertical: 13,
+    flexDirection: "row",
+    flex: 1,
+    alignItems: "center" // added to vertically align icon + text
+},
     email: {
         fontSize: 12,
     },
-    title: {
-        fontSize: 14,
-        flex: 1
-
-    },
+title: {
+    fontSize: 14,
+    maxWidth: "70%", // prevent it from occupying entire row
+    overflow: 'hidden'
+},
     count: {
         fontSize: 11,
         textAlign: "right",
