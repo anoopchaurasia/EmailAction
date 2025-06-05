@@ -11,6 +11,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MessageAggregateModule extends ReactContextBaseJavaModule {
 
@@ -134,5 +135,24 @@ FirebaseCrashlytics.getInstance().recordException(e);
         WritableArray array = Arguments.createArray();
         for (MessageAggregate msga : messageAggregates) array.pushMap(msga.toMap());
         promise.resolve(array);
+    }
+
+    @ReactMethod
+    public void getPageForDomain(String sender, int page, int pageSize, Promise promise) {
+        try{
+            List<Map<MessageAggregate, Integer>> messageAggregates = MessageAggregateService.getPageForDomain(sender, page, pageSize);
+            WritableArray array = Arguments.createArray();
+            for(Map<MessageAggregate, Integer> map: messageAggregates) {
+                for (Map.Entry<MessageAggregate, Integer> entry : map.entrySet()) {
+                    WritableMap messageAggregate =  entry.getKey().toMap();
+                    messageAggregate.putInt("aggregate_count", entry.getValue());
+                    array.pushMap(messageAggregate);
+                }
+            }
+            promise.resolve(array);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }

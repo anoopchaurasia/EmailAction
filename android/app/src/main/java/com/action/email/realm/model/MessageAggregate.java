@@ -23,6 +23,7 @@ public class MessageAggregate extends RealmObject {
 
     private RealmSet<MessageAggregateLabel> labels;
 
+    @Index
     private int count;
 
     @Index

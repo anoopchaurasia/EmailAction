@@ -22,6 +22,7 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
     let [page, setPage] = useState(1);
     let [active, setActive] = useState(false);
     let [selectedList, setSelectedList] = useState({});
+     let [searchText, setSearchText] = useState('');
     // Declare a state variable to store the text input value
     const [text, setText] = useState('');
     let actionList = [{
@@ -72,28 +73,17 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
 
 
     function createList() {
-        MessageAggregateService.readMessage().then(list => {
-            console.log("List of domains: ", list.length);
-            let domains = {};
-            list.forEach(x => {
-                let domain = x.sender_domain;
-                if (!domains[domain]) {
-                    domains[domain] = { c: 0, sender_name: x.sender_name };
-                }
-                domains[domain].c += x.count;
-            });
-            list = Object.keys(domains).map(x => {
-                return {
-                    sender: x,
-                    sender_name: domains[x].sender_name,
-                    count: domains[x].c
-                }
-            });
-            setList(list);
+        MessageAggregateService.getPageForDomain(searchText, page, 20).then(x => {
+           
+             let map = {};
+            list.forEach(item => map[item.sender_domain] = 1);
+            x = x.filter(item => !map[item.sender_domain]);
+            console.log("MessageAggregateService.getPageForDomain ", list.length);
+             setList(l=>[...l, ...x]);
         });
     }
 
-    useEffect(createList, []);
+    useEffect(createList, [page, searchText]);
 
     useEffect(() => {
         if (Object.keys(selectedList).length === 0) setActive(false); else setActive(true);
@@ -120,21 +110,14 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
         navigation.navigate("EmailListView", { sender: item.sender, type: 'domain', show_bottom_bar: true, title: "Emails from sender " + item.sender })
     }
 
-    const filterItems = (value) => {
-        if (value === '') {
-            return list.slice(0, page * 20);
-        }
-        value = value.toLowerCase();
-        return list.filter((item) => item.sender.toLowerCase().includes(value)).slice(0, page * 20);
-    };
 
     function RenderItem({ item, selected = false, handleLongPress, hanldePress, active }) {
         return (
             <TouchableOpacity style={{ ...SenderListstyles.item, backgroundColor: selected ? colors.selected : colors.card, }} onLongPress={() => handleLongPress(item)} onPress={x => hanldePress(item)}>
                 <MyCheckbox onPress={() => handleLongPress(item)} selected={selected} />
                 <View style={SenderListstyles.details}>
-                    <MyText style={SenderListstyles.title}>{item.sender_name} ({item.sender}) </MyText>
-                    <MyText style={{ ...SenderListstyles.label, borderColor: colors.border, backgroundColor: colors.border }}>{item.count}</MyText>
+                    <MyText style={SenderListstyles.title}>{item.sender_name} {item.sender_domain} </MyText>
+                    <MyText style={{ ...SenderListstyles.label, borderColor: colors.border, backgroundColor: colors.border }}>{item.aggregate_count}: {item.count}</MyText>
                     {/* <MyText style={SenderListstyles.email}> </MyText> */}
                 </View>
             </TouchableOpacity>
@@ -142,9 +125,12 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
     }
 
     // Define a function to handle text change
-    const handleChangeText = (value) => {
+       const handleChangeText = (value) => {
+        if(page==1 && value.trim() === "") return; // Do not update if the text is same as previous
         // Update the state variable with the new value
-        setText(value);
+        setList([]);
+        setPage(1);
+        setSearchText(value);
         Object.keys(selectedList).length && setSelectedList({});
     };
 
@@ -156,7 +142,7 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
         <View style={{ flex: 1, flexDirection: "column", }}>
             <SearchPage onChangeText={handleChangeText} placeholder="Search Domain" value={text} name="magnify" />
             <FlatList
-                data={filterItems(text)}
+                data={list}
                 initialNumToRender={20}
                 onEndReached={handleEndReached}
                 onEndReachedThreshold={0.3}

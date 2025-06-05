@@ -1,6 +1,7 @@
 package com.action.email.realm.reactmodule;
 
 import com.action.email.data.ProcessRule;
+import com.action.email.realm.config.RealmManager;
 import com.action.email.realm.model.Activity;
 import com.action.email.realm.service.ActivityService;
 import com.facebook.react.bridge.Arguments;
@@ -13,6 +14,7 @@ import com.facebook.react.bridge.WritableArray;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class ActivityModule extends ReactContextBaseJavaModule {
 
@@ -27,16 +29,23 @@ public class ActivityModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void createObject(ReadableMap map, Promise promise) {
-        try {
-            Activity activity = Activity.fromMap(map);
-            Activity result = ActivityService.createObject(activity);
-            NativeNotifierModule.sendEvent(NativeNotifierModule.NEW_EMAIL_RULE_CREATED, result.getId());
-            promise.resolve(result.toMap());
-            ProcessRule.takeAction(result, this.getReactApplicationContext().getApplicationContext());
-        } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
-            promise.reject("CREATE_ERROR", e);
-        }
+
+        // move from main thread to other so that do not block UI
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                Activity activity = Activity.fromMap(map);
+                Activity result = ActivityService.createObject(activity);
+                NativeNotifierModule.sendEvent(NativeNotifierModule.NEW_EMAIL_RULE_CREATED, result.getId());
+                promise.resolve(result.toMap());
+                ProcessRule.takeAction(result, this.getReactApplicationContext().getApplicationContext());
+            } catch (Exception e) {
+                FirebaseCrashlytics.getInstance().recordException(e);
+                promise.reject("CREATE_ERROR", e);
+            } finally {
+                RealmManager.closeRealm();
+            }
+        });
+
     }
 
     @ReactMethod

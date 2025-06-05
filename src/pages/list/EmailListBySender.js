@@ -58,7 +58,10 @@ export default ListView = ({ navigation, removeFromList }) => {
 
     useEffect(() => {
         MessageAggregateService.getPage(searchText, page, 20).then(x => {
-            console.log("MessageAggregateService.readMessage 333333333333", x.length, searchText, page);
+            console.log("MessageAggregateService.readMessage ", x.length, searchText, page);
+            let map = {};
+            list.forEach(item => map[item.sender] = 1);
+            x = x.filter(item => !map[item.sender]);
             setList(l => [...l, ...x]);
         });
     }, [isFocused, page, searchText]);

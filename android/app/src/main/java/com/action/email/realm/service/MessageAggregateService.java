@@ -1,6 +1,7 @@
 package com.action.email.realm.service;
 
 
+import android.os.Build;
 import android.util.Log;
 
 import io.realm.Case;
@@ -10,11 +11,12 @@ import io.realm.Sort;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.action.email.realm.config.RealmManager;
-import com.action.email.realm.model.Message;
 import com.action.email.realm.model.MessageAggregate;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
@@ -184,5 +186,57 @@ FirebaseCrashlytics.getInstance().recordException(e);
                     .findFirst();
             logic.execute(r, agg);
         });
+    }
+    private static List<Map<MessageAggregate, Integer>> sortedDomainList;
+    public static List<Map<MessageAggregate, Integer>> getPageForDomain(String sender_domain, int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        // Step 1: Fetch all objects (or use a query if needed)
+        if(page==1 || sortedDomainList==null) {
+
+            Realm realm = RealmManager.getRealm();
+            List<MessageAggregate> messageAggregates;
+            if(sender_domain.trim().isEmpty()) {
+                messageAggregates = realm.where(MessageAggregate.class)
+                        .sort("count", Sort.DESCENDING)
+                        .findAll();
+            } else {
+                messageAggregates = realm.where(MessageAggregate.class)
+                        .contains("sender_domain", sender_domain, Case.INSENSITIVE)
+                        .sort("count", Sort.DESCENDING)
+                        .findAll();
+            }
+
+            // Step 2: Aggregate in memory
+            Map<String, Integer> domainToCountMap = new HashMap<>();
+            Map<String, MessageAggregate> first_entry = new HashMap<>();
+            for (MessageAggregate item : messageAggregates) {
+                String domain = item.getSender_domain();
+                int currentCount = item.getCount();
+                if(!first_entry.containsKey(domain)) {
+                    first_entry.put(domain, item);
+                }
+                if (domain != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        domainToCountMap.put(domain, domainToCountMap.getOrDefault(domain, 0) + currentCount);
+                    }
+                }
+            }
+            sortedDomainList = new ArrayList<Map<MessageAggregate, Integer>>();
+            // Step 3: Sort the map entries by count in descending order
+            ArrayList<Map.Entry<String, Integer>> result = new ArrayList<>(domainToCountMap.entrySet());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                result.sort((a, b) -> Integer.compare(b.getValue(), a.getValue())); // descending
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                result.forEach(x->{
+                    Map<MessageAggregate, Integer> map = new HashMap<>();
+                    map.put(first_entry.get(x.getKey()), x.getValue());
+                    sortedDomainList.add(map);
+                });
+            }
+        }
+        // Step 4: Take top 20 entries
+        List<Map<MessageAggregate, Integer>> top20Domains = sortedDomainList.subList(offset, Math.min(offset+pageSize, sortedDomainList.size()));
+        return top20Domains;
     }
 }

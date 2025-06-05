@@ -48,6 +48,9 @@ const MessageAggregateService = {
     updateCount: async(newData)=> {
         return await MessageServiceModule.updateCount(newData);
     },
+    getPageForDomain: async (domain, page, pageSize) => {
+        return await MessageServiceModule.getPageForDomain(domain, page, pageSize);
+    }
    
 }
 
