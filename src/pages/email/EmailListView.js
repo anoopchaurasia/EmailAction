@@ -67,6 +67,7 @@ const EmailList = ({ route, navigation }) => {
             });
         } else {
           MessageService.getBySender(route.params.sender, page, 10).then(messages => {
+            console.log("EmailListView", messages.length, messages[0]);
             setList(l => { l.push(...messages); return l; });
             setLoading(false);
           });

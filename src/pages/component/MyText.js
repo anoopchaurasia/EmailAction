@@ -6,6 +6,5 @@ export default function MyText(props) {
     const colors = useTheme().colors;
     props = {...props};
      props.style =  props.style || {};
-     props.style = { color: colors.text, ...props.style};
-    return <Text {...props} />
+    return <Text style = {[{ color: colors.text }, props.style]} {...props} />
 }

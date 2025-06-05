@@ -22,7 +22,7 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
     let [page, setPage] = useState(1);
     let [active, setActive] = useState(false);
     let [selectedList, setSelectedList] = useState({});
-     let [searchText, setSearchText] = useState('');
+    let [searchText, setSearchText] = useState('');
     // Declare a state variable to store the text input value
     const [text, setText] = useState('');
     let actionList = [{
@@ -45,7 +45,7 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
         let activity = await ActivityService.createObject({ from, type: "domain", to_label: "TRASH", action: "trash", from_label: "INBOX", title: `All emails from ${from.join(", ").slice(0, 70)}` }).catch(err => {
             console.error("Error creating activity for trashing domains: ", err);
         }).then(activity => {
-            if (!activity) return; 
+            if (!activity) return;
             MessageEvent.emit('message_aggregation_changed', activity);
         });
     }
@@ -74,12 +74,12 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
 
     function createList() {
         MessageAggregateService.getPageForDomain(searchText, page, 20).then(x => {
-           
-             let map = {};
+
+            let map = {};
             list.forEach(item => map[item.sender_domain] = 1);
             x = x.filter(item => !map[item.sender_domain]);
             console.log("MessageAggregateService.getPageForDomain ", list.length);
-             setList(l=>[...l, ...x]);
+            setList(l => [...l, ...x]);
         });
     }
 
@@ -107,48 +107,50 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
     function hanldePress(item) {
 
         //// goto pages/email/EmailListView'
-        navigation.navigate("EmailListView", { sender: item.sender, type: 'domain', show_bottom_bar: true, title: "Emails from sender " + item.sender })
+        navigation.navigate("EmailListView", { sender: item.sender_domain, type: 'domain', show_bottom_bar: true, title: "Emails from sender " + item.sender })
     }
 
 
- function RenderItem({ item, selected = false, handleLongPress, hanldePress, active }) {
-    return (
-        <TouchableOpacity
-            style={{
-                ...SenderListstyles.item,
-                backgroundColor: selected ? colors.selected : colors.card,
-            }}
-            onLongPress={() => handleLongPress(item)}
-            onPress={() => hanldePress(item)}
-        >
-            <MyCheckbox onPress={() => handleLongPress(item)} selected={selected} />
-            <View style={SenderListstyles.details}>
-                
-                <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
-                    <MyText style={SenderListstyles.title}>
-                        {item.sender_name || ""} {item.sender_domain}
-                    </MyText>
-                    <View style={{ flex: 1 }} />
-                    <MyText
-                        style={{
-                            ...SenderListstyles.label,
-                            borderColor: colors.border,
-                            backgroundColor: colors.border,
-                        }}
-                    >
-                        {item.aggregate_count}
-                    </MyText>
+    function RenderItem({ item, selected = false, handleLongPress, hanldePress, active }) {
+        return (
+            <TouchableOpacity
+                style={{
+                    ...SenderListstyles.item,
+                    backgroundColor: selected ? colors.selected : colors.card,
+                }}
+                onLongPress={() => handleLongPress(item)}
+                onPress={() => hanldePress(item)}
+            >
+                <MyCheckbox onPress={() => handleLongPress(item)} selected={selected} />
+                <View style={SenderListstyles.details}>
+
+                    <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+                        <MyText style={SenderListstyles.title}>
+                            {item.sender_name || ""} {item.sender_domain}
+                        </MyText>
+                        <View style={{ flex: 1 }} />
+                        <MyText
+                            style={{
+                                ...SenderListstyles.label,
+                                borderColor: colors.border,
+                                backgroundColor: colors.border,
+                            }}
+                        >
+                            {item.aggregate_count}
+                        </MyText>
+                    </View>
                 </View>
-            </View>
-        </TouchableOpacity>
+            </TouchableOpacity>
+        );
+    }
+
+    const renderSeparator = () => (
+        <View style={SenderListstyles.separator} />
     );
-}
-
-
 
     // Define a function to handle text change
-       const handleChangeText = (value) => {
-        if(page==1 && value.trim() === "") return; // Do not update if the text is same as previous
+    const handleChangeText = (value) => {
+        if (page == 1 && value.trim() === "") return; // Do not update if the text is same as previous
         // Update the state variable with the new value
         setList([]);
         setPage(1);
@@ -173,6 +175,7 @@ export default EmailListByDomain = ({ navigation, removeFromList }) => {
                 }
                 keyExtractor={(item) => item.sender}
                 contentContainerStyle={{ marginBottom: 50, margintop: 10 }}
+                ItemSeparatorComponent={renderSeparator}
             />
             <BottomBar visible={active} list={actionList} />
         </View>
@@ -191,6 +194,11 @@ const SenderListstyles = StyleSheet.create({
         height: 25,
         borderColor: "#ccc",
         borderRadius: 5,
+    }, separator: {
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: '#E0E0E0',
+        marginLeft: 50, // Aligns with the start of sender name, considering radio button and its margin
+        marginRight: 20, // Ensure it spans to the right edge if no horizontal list margin
     },
     item: {
         elevation: 0,
@@ -198,27 +206,26 @@ const SenderListstyles = StyleSheet.create({
         borderRadius: 0,
         flexDirection: "row",
         marginTop: 0,
-        borderBottomColor: "#ddd",
-        borderBottomWidth: 1,
+
     },
 
 
-  details: {
-    padding: 5,
-    paddingLeft: 0,
-    paddingVertical: 13,
-    flexDirection: "row",
-    flex: 1,
-    alignItems: "center" // added to vertically align icon + text
-},
+    details: {
+        padding: 5,
+        paddingLeft: 0,
+        paddingVertical: 13,
+        flexDirection: "row",
+        flex: 1,
+        alignItems: "center" // added to vertically align icon + text
+    },
     email: {
         fontSize: 12,
     },
-title: {
-    fontSize: 14,
-    maxWidth: "70%", // prevent it from occupying entire row
-    overflow: 'hidden'
-},
+    title: {
+        fontSize: 14,
+        maxWidth: "70%", // prevent it from occupying entire row
+        overflow: 'hidden'
+    },
     count: {
         fontSize: 11,
         textAlign: "right",

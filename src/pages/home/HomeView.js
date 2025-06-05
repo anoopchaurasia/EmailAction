@@ -16,8 +16,8 @@ export default function Home({ navigation }) {
                 <DomainSummary navigation={navigation} />
                 <SenderSummary navigation={navigation} />
                 <EmailSummary navigation={navigation} />
-                <QueriesSummary navigation={navigation} />
-                <TaskSummary navigation={navigation} />
+                 <QueriesSummary navigation={navigation} />
+                <TaskSummary navigation={navigation} /> 
             </View>
         </ScrollView>
     );

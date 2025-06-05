@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.action.email.realm.config.RealmManager;
 import com.action.email.realm.model.MessageAggregate;
+import com.facebook.react.bridge.WritableMap;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class MessageAggregateService {
@@ -204,8 +205,8 @@ FirebaseCrashlytics.getInstance().recordException(e);
             logic.execute(r, agg);
         });
     }
-    private static List<Map<MessageAggregate, Integer>> sortedDomainList;
-    public static List<Map<MessageAggregate, Integer>> getPageForDomain(String sender_domain, int page, int pageSize) {
+    private static List<Map<WritableMap, Integer>> sortedDomainList;
+    public static List<Map<WritableMap, Integer>> getPageForDomain(String sender_domain, int page, int pageSize) {
         int offset = (page - 1) * pageSize;
         // Step 1: Fetch all objects (or use a query if needed)
         if(page==1 || sortedDomainList==null) {
@@ -238,7 +239,7 @@ FirebaseCrashlytics.getInstance().recordException(e);
                     }
                 }
             }
-            sortedDomainList = new ArrayList<Map<MessageAggregate, Integer>>();
+            sortedDomainList = new ArrayList<Map<WritableMap, Integer>>();
             // Step 3: Sort the map entries by count in descending order
             ArrayList<Map.Entry<String, Integer>> result = new ArrayList<>(domainToCountMap.entrySet());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -246,14 +247,14 @@ FirebaseCrashlytics.getInstance().recordException(e);
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 result.forEach(x->{
-                    Map<MessageAggregate, Integer> map = new HashMap<>();
-                    map.put(first_entry.get(x.getKey()), x.getValue());
+                    Map<WritableMap, Integer> map = new HashMap<>();
+                    map.put(first_entry.get(x.getKey()).toMap(), x.getValue());
                     sortedDomainList.add(map);
                 });
             }
         }
         // Step 4: Take top 20 entries
-        List<Map<MessageAggregate, Integer>> top20Domains = sortedDomainList.subList(offset, Math.min(offset+pageSize, sortedDomainList.size()));
+        List<Map<WritableMap, Integer>> top20Domains = sortedDomainList.subList(offset, Math.min(offset+pageSize, sortedDomainList.size()));
         return top20Domains;
     }
 }

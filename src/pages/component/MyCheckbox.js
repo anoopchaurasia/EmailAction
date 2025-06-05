@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need
 
 export default function MyCheckbox({onPress, selected}) {
     return (
-        <TouchableHighlight style={{ width: 45, paddingHorizontal: 0, paddingHorizontal: 10}} onPress={onPress}>
+        <TouchableHighlight style={{ width: 45, paddingHorizontal: 10, marginTop:5}} onPress={onPress}>
         <Icon name="check-circle" size={25} style={{marginTop: 10, marginLeft: 0}}  color={selected? "green": "#ccc"} /> 
     </TouchableHighlight>
     )

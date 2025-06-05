@@ -1,31 +1,59 @@
-
 import React from 'react';
-import { View, TextInput } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // You need to install this library for icons
+import { View, TextInput, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '@react-navigation/native';
 import { Button } from 'react-native-paper';
 
-export default function Checkbox({name, placeholder, onChangeText}) {
-    let theme = useTheme();
-    let [value, setValue] = React.useState('');
-    let colors = theme.colors;
-    return (<View style={{ flexDirection: "row", height: 40, width: "100%", borderColor: colors.border, borderWidth: .2, marginHorizontal: 10}}>
+export default function SearchBar({ name = "magnify", placeholder, onChangeText }) {
+    const theme = useTheme();
+    const colors = theme.colors;
+    const [value, setValue] = React.useState('');
 
-        <Icon name={name} size={30} style={{ marginTop: 5, color: theme.dark ? "#eee" : "#333" }}  />
-        <TextInput
-            style={{ height: 40, flex: 1 }}
-            onChangeText={setValue}
-            placeholder={placeholder}
-            placeholderTextColor = {theme.dark ? "#eee" : "#333"}
-            value={value}
-        />
-        <Button
-            mode="contained"
-            onPress={() => onChangeText(value)}
-            style={{ marginLeft: 10, height: 40, alignSelf: "center" }}
-        >
-            Search
-        </Button>
-    </View>
-    )
+    return (
+        <View style={[styles.container, { borderColor: colors.border, backgroundColor: colors.card }]}>
+            <Icon name={name} size={24} color={colors.text} style={styles.icon} />
+            <TextInput
+                style={[styles.input, { color: colors.text }]}
+                placeholder={placeholder}
+                placeholderTextColor={theme.dark ? "#aaa" : "#666"}
+                value={value}
+                onChangeText={setValue}
+                returnKeyType="search"
+                onSubmitEditing={() => onChangeText(value)}
+            />
+            <Button
+                mode="contained"
+                onPress={() => onChangeText(value)}
+                style={styles.button}
+                contentStyle={{ height: 40 }}
+                labelStyle={{ fontSize: 14 }}
+            >
+                Search
+            </Button>
+        </View>
+    );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: "row",
+        alignItems: "center",
+        borderWidth: 1,
+        borderRadius: 10,
+        margin: 10,
+        paddingHorizontal: 10,
+        height: 48,
+    },
+    icon: {
+        marginRight: 8,
+    },
+    input: {
+        flex: 1,
+        fontSize: 16,
+        paddingVertical: 8,
+    },
+    button: {
+        marginLeft: 10,
+        borderRadius: 8,
+    },
+});

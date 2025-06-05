@@ -2,6 +2,7 @@ package com.action.email.realm.service;
 
 
 import android.os.Build;
+import android.util.Log;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -25,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MessageService {
+    private static final String TAG = "MessageService";
     private Realm realm;
 
     public MessageService() {
@@ -131,7 +133,7 @@ public class MessageService {
        Realm realm = RealmManager.getRealm();
         List<Message> messages =  realm.where(Message.class)
             .equalTo("sender", sender)
-            .equalTo("labels", "INBOX")
+//            .equalTo("labels", "INBOX")
             .sort("date", Sort.DESCENDING)
             .findAll();
         int totalCount = messages.size();
@@ -148,15 +150,16 @@ public class MessageService {
        Realm realm = RealmManager.getRealm();
         List<Message> messages = realm.where(Message.class)
                 .equalTo("sender_domain", domain)
-                .equalTo("labels", "INBOX")
+//                .equalTo("labels", "INBOX")
                 .sort("date", Sort.DESCENDING)
                 .findAll();
         int totalCount = messages.size();
+        Log.d(TAG, "total count: "+ totalCount +" page: "+ page + " domain: "+ domain);
         if(offset >= totalCount) {
             return new ArrayList<>(); // Return empty list if offset is out of bounds
         }  
         messages = realm.copyFromRealm(messages
-            .subList(offset, Math.min(messages.size(), offset+pageSize)));
+            .subList(offset, Math.min(totalCount, offset+pageSize)));
        
         return messages;
     }

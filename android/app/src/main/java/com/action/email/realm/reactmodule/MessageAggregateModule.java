@@ -146,11 +146,11 @@ public class MessageAggregateModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getPageForDomain(String sender, int page, int pageSize, Promise promise) {
         RunSafe.runSafelyWith(() -> {
-            List<Map<MessageAggregate, Integer>> messageAggregates = MessageAggregateService.getPageForDomain(sender, page, pageSize);
+            List<Map<WritableMap, Integer>> messageAggregates = MessageAggregateService.getPageForDomain(sender, page, pageSize);
             WritableArray array = Arguments.createArray();
-            for (Map<MessageAggregate, Integer> map : messageAggregates) {
-                for (Map.Entry<MessageAggregate, Integer> entry : map.entrySet()) {
-                    WritableMap messageAggregate = entry.getKey().toMap();
+            for (Map<WritableMap, Integer> map : messageAggregates) {
+                for (Map.Entry<WritableMap, Integer> entry : map.entrySet()) {
+                    WritableMap messageAggregate = entry.getKey();
                     messageAggregate.putInt("aggregate_count", entry.getValue());
                     array.pushMap(messageAggregate);
                 }

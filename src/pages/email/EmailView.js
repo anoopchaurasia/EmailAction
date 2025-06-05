@@ -10,6 +10,7 @@ export default EmailView = ({navigation, route}) => {
     let [email, setEmail] = useState("");
     let [html, setHTML] = useState("");
     useEffect(x=> {
+        console.log("EmailView useEffect", route.params?.message_id);
         DataSync.getMessagebById(route.params?.message_id).then(x=> {
             setEmail(x);
             extractMultipartFromJSON(x);
@@ -34,6 +35,11 @@ export default EmailView = ({navigation, route}) => {
            <WebView
             originWhitelist={['*']}
             source={{ html: html|| '<h1>loading...</h1>' }}
+              javaScriptEnabled={false}
+                scalesPageToFit={true}
+                domStorageEnabled={false}
+                startInLoadingState={true}
+                automaticallyAdjustContentInsets={false}
             />
     )
 
