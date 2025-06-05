@@ -28,75 +28,56 @@ public class LabelModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void create(ReadableMap labelMap, Promise promise) {
-        try {
-
+        RunSafe.runSafelyWith(() -> {
             Label label = Label.fromMap(labelMap);
             LabelService.create(label);
             promise.resolve("Label created");
-        } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
-            promise.reject("CREATE_LABEL_ERROR", e);
-        }
+        }, promise);
     }
 
     @ReactMethod
     public void updateById(String id, String newName, Promise promise) {
-        try {
+        RunSafe.runSafelyWith(() -> {
             LabelService.updateNameById(id, newName);
             promise.resolve("Label updated");
-        } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
-            promise.reject("UPDATE_LABEL_ERROR", e);
-        }
+        }, promise);
     }
 
     @ReactMethod
     public void deleteById(String id, Promise promise) {
-        try {
+        RunSafe.runSafelyWith(() -> {
             LabelService.deleteById(id);
             promise.resolve("Label deleted");
-        } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
-            promise.reject("DELETE_LABEL_ERROR", e);
-        }
+        }, promise);
     }
 
     @ReactMethod
     public void getById(String id, Promise promise) {
-        try {
+        RunSafe.runSafelyWith(() -> {
             Label label = LabelService.getById(id);
             if (label != null) {
                 promise.resolve(label.toMap());
             } else {
                 promise.resolve(null);
             }
-        } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
-            promise.reject("GET_LABEL_ERROR", e);
-        }
+        }, promise);
     }
 
     @ReactMethod
     public void readAll(Promise promise) {
-        try {
+        RunSafe.runSafelyWith(() -> {
             List<Label> labels = LabelService.readAll();
             WritableArray result = Arguments.createArray();
             for (Label label : labels) result.pushMap(label.toMap());
             promise.resolve(result);
-        } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
-            promise.reject("READ_ALL_LABELS_ERROR", e);
-        }
+        }, promise);
     }
 
     @ReactMethod
     public void deleteAll(Promise promise) {
-        try {
+        RunSafe.runSafelyWith(() -> {
             LabelService.deleteAll();
             promise.resolve("All labels deleted");
-        } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
-            promise.reject("DELETE_ALL_LABELS_ERROR", e);
-        }
+        }, promise);
     }
 }

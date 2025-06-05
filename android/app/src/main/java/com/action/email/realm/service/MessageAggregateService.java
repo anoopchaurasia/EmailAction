@@ -174,6 +174,23 @@ FirebaseCrashlytics.getInstance().recordException(e);
 
     }
 
+    public static int getCountByDomain() {
+        Realm realm = RealmManager.getRealm();
+        List<MessageAggregate> messageAggregates = realm.where(MessageAggregate.class)
+                .findAll();
+
+
+        // Step 2: Aggregate in memory
+        Map<String, MessageAggregate> first_entry = new HashMap<>();
+        for (MessageAggregate item : messageAggregates) {
+            String domain = item.getSender_domain();
+            if(!first_entry.containsKey(domain)) {
+                first_entry.put(domain, item);
+            }
+        }
+        return first_entry.size();
+    }
+
     public interface AggregateTransaction {
         void execute(Realm realm, MessageAggregate agg);
     }

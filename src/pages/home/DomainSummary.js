@@ -16,25 +16,9 @@ export default function DomainSummary({ navigation }) {
     });
 
     function fetchCount() {
-        MessageAggregateService.readAll().then(list => {
-
-            let domains = {};
-            list.forEach(x => {
-                let domain = x.sender_domain;
-                if (!domains[domain]) {
-                    domains[domain] = { c: 0, sender_name: x.sender_name };
-                }
-                domains[domain].c += x.count;
-            });
-            list = Object.keys(domains).map(x => {
-                return {
-                    sender: x,
-                    sender_name: domains[x].sender_name,
-                    count: domains[x].c
-                }
-            });
-            setCount(list.length);
-        });;
+        MessageAggregateService.getCountByDomain().then(c => {
+            setCount(c);
+        });
     }
 
     useEffect(() => {

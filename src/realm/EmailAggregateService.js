@@ -50,6 +50,9 @@ const MessageAggregateService = {
     },
     getPageForDomain: async (domain, page, pageSize) => {
         return await MessageServiceModule.getPageForDomain(domain, page, pageSize);
+    },
+    getCountByDomain: async () => {
+        return await MessageServiceModule.getCountByDomain();
     }
    
 }
