@@ -16,11 +16,8 @@ export default CreateRuleView = ({ route, navigation }) => {
         try {
             if(activity.id) {
                 ActivityService.updateObjectById(activity.id, activity);
-                MessageEvent.emit("updated_new_rule", activity);
             } else {
-                console.log("Creating new rule", activity);
                 ActivityService.createObject(activity);
-                MessageEvent.emit("created_new_rule", activity);
             }
             navigation.goBack();
         } catch(e) {

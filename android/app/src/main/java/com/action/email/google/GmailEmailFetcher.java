@@ -22,6 +22,7 @@ import com.action.email.data.TokenInfo;
 import com.action.email.realm.config.RealmManager;
 import com.action.email.realm.model.Attachment;
 import com.action.email.realm.model.Message;
+import com.action.email.realm.reactmodule.NativeNotifierModule;
 import com.action.email.realm.service.GmailSyncStateService;
 import com.action.email.realm.service.MessageAggregateService;
 import com.action.email.realm.service.MessageService;
@@ -34,6 +35,7 @@ public class GmailEmailFetcher {
     private static final String TAG = "GmailEmailFetcher";
     private static final String GMAIL_LIST_URL = "https://www.googleapis.com/gmail/v1/users/me/messages";
     private static final MediaType MEDIA_TYPE_TEXT = MediaType.parse("text/plain");
+    private static final int TRIGGER_EVENT_COUNT = 5;
 
     private final OkHttpClient client;
     private static final int MAX_RETRIES = 4;
@@ -65,6 +67,7 @@ public class GmailEmailFetcher {
                 int attempt = 0;
                 String query = "-in:trash -in:spam";
                 String pageToken = GmailSyncStateService.getPageToken();
+                int batch_number = 0;
                 do {
                     MessageList messageList = getMessageIDs(pageToken, query);
                     List<String> messageIds = messageList.getMessageIds();
@@ -76,11 +79,16 @@ public class GmailEmailFetcher {
                    }
                     gmailMessageFetcher.retryBatch(messageIds);
                     GmailSyncStateService.setPageToken(pageToken);
+                    batch_number++;
+                    if(batch_number%TRIGGER_EVENT_COUNT == 0 || batch_number==1) {
+                        NativeNotifierModule.sendEvent(NativeNotifierModule.NEW_MESSAGE_BATCH_ADDED, ""+batch_number);
+                    }
                 } while (pageToken != null);
                 GmailSyncStateService.setSyncState(GmailSyncStateService.SyncStatus.COMPLETED);
+                NativeNotifierModule.sendEvent(NativeNotifierModule.NEW_MESSAGE_BATCH_ADDED, ""+batch_number);
 
             } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
+                FirebaseCrashlytics.getInstance().recordException(e);
                 Log.e(TAG, "Inbox fetch failed", e);
             }
              finally {

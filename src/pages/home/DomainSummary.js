@@ -8,10 +8,14 @@ import MyText from './../component/MyText';
 
 export default function DomainSummary({ navigation }) {
     const [count, setCount] = useState(-1);
-    let [fetchCount, setFetchCount] = useState(0);
     const colors = useTheme().colors;
+    MessageEvent.onNativeEvent(MessageEvent.NEW_MESSAGE_ARRIVED, (data) => {
+        if (data && data.type == "email") {
+            setCount(count => count + 1);
+        }
+    });
 
-    useEffect(x => {
+    function fetchCount() {
         MessageAggregateService.readAll().then(list => {
 
             let domains = {};
@@ -31,11 +35,14 @@ export default function DomainSummary({ navigation }) {
             });
             setCount(list.length);
         });;
+    }
 
-    }, [fetchCount]);
-    useEffect(x => {
-        let rm1 = MessageEvent.on('new_message_received', x => setFetchCount(x => x + 1));
-        return x => { rm1(); };
+    useEffect(() => {
+        let rm2 = MessageEvent.onNativeEvent(MessageEvent.NEW_MESSAGE_BATCH_ADDED, (batch_number) => {
+            fetchCount();
+        });
+        fetchCount();
+        return () => {  rm2(); };
     }, []);
 
     return (

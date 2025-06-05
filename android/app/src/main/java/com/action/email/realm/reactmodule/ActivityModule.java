@@ -30,6 +30,7 @@ public class ActivityModule extends ReactContextBaseJavaModule {
         try {
             Activity activity = Activity.fromMap(map);
             Activity result = ActivityService.createObject(activity);
+            NativeNotifierModule.sendEvent(NativeNotifierModule.NEW_EMAIL_RULE_CREATED, result.getId());
             promise.resolve(result.toMap());
             ProcessRule.takeAction(result, this.getReactApplicationContext().getApplicationContext());
         } catch (Exception e) {
@@ -42,6 +43,7 @@ FirebaseCrashlytics.getInstance().recordException(e);
     public void deleteAll(Promise promise) {
         try {
             ActivityService.deleteAll();
+            NativeNotifierModule.sendEvent(NativeNotifierModule.EMAIL_RULE_DELETED, "");
             promise.resolve(true);
         } catch (Exception e) {
 FirebaseCrashlytics.getInstance().recordException(e);
@@ -98,6 +100,7 @@ FirebaseCrashlytics.getInstance().recordException(e);
     public void deleteObjectById(String id, Promise promise) {
         try {
             ActivityService.deleteObjectById(id);
+            NativeNotifierModule.sendEvent(NativeNotifierModule.EMAIL_RULE_DELETED, "");
             promise.resolve(true);
         } catch (Exception e) {
 FirebaseCrashlytics.getInstance().recordException(e);

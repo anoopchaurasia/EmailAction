@@ -22,6 +22,7 @@ import com.action.email.data.MessageAggregateData;
 import com.action.email.data.ProcessRule;
 import com.action.email.realm.model.Message;
 import com.action.email.realm.model.MessageAggregate;
+import com.action.email.realm.reactmodule.NativeNotifierModule;
 import com.action.email.realm.service.GmailSyncStateService;
 import com.action.email.realm.service.MessageService;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -176,6 +177,7 @@ FirebaseCrashlytics.getInstance().recordException(e);
 
            if(messages != null) {
                ProcessRule.takeActionOnNewMessages(messages, appContext);
+               NativeNotifierModule.sendEvent(NativeNotifierModule.NEW_MESSAGE_ARRIVED, ""+messages.size());
            }
         } catch (Exception e) {
 FirebaseCrashlytics.getInstance().recordException(e);

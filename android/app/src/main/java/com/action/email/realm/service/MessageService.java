@@ -34,7 +34,6 @@ public class MessageService {
      public static void create(Message message) {
        Realm realm = RealmManager.getRealm();
         realm.executeTransaction(r -> r.insert(message));
-       
     }
 
      public static List<Message> readMessage() {

@@ -7,18 +7,22 @@ import { useTheme } from '@react-navigation/native';
 
 
 export default function SenderSummary({navigation}) {
-    let [fetchCount, setFetchCount] = useState(0);
     let colors = useTheme().colors;
     const [count, setCount]=useState(-1);
-    useEffect(x => {
-        MessageAggregateService.count().then(c => {
+
+    function fetchCount() {
+         MessageAggregateService.count().then(c => {
             setCount(c);
         });
-    }, [fetchCount]);
+    }
 
-    useEffect(x=> {
-        MessageEvent.on('new_message_received', x=> setFetchCount(x=> x+1))
-    },[]);
+    useEffect(() => {
+          let rm2 = MessageEvent.onNativeEvent(MessageEvent.NEW_MESSAGE_BATCH_ADDED, (batch_number) => {
+              fetchCount();
+          });
+          fetchCount();
+          return () => {  rm2(); };
+      }, []);
 
     return (
         <TouchableHighlight underlayColor={colors.underlayColor} onPress={x => navigation.navigate("Sender")}>
