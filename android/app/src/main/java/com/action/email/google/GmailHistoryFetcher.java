@@ -1,5 +1,7 @@
 package com.action.email.google;
 
+import static java.lang.Thread.sleep;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -79,6 +81,10 @@ public class GmailHistoryFetcher {
                     if(response.code()==401) {
                         try {
                             AccessTokenHelper.getFreshToken(appContext);
+                            FirebaseCrashlytics.getInstance().log(TAG + " Authentication failure");
+                            sleep(1000);
+                             fetchHistoryAndSync();
+                            return;
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
