@@ -10,6 +10,7 @@ import { useTheme } from '@react-navigation/native';
 import SearchPage from './../component/SearchPage';
 import MyCheckbox from "../component/MyCheckbox";
 import LabelService from "../../realm/LabelService";
+import { useIsFocused } from '@react-navigation/native';
 
 
 export default ListView = ({ navigation, removeFromList }) => {
@@ -18,9 +19,11 @@ export default ListView = ({ navigation, removeFromList }) => {
     let [active, setActive] = useState(false);
     let [labelMap, setLabelMap] = useState({});
     let [selectedList, setSelectedList] = useState({});
+    let [searchText, setSearchText] = useState('');
     let colors = useTheme().colors;
     // Declare a state variable to store the text input value
     const [text, setText] = useState('');
+    const isFocused = useIsFocused();
     let actionList = [{
         name: "Trash",
         icon: "trash-can",
@@ -41,10 +44,7 @@ export default ListView = ({ navigation, removeFromList }) => {
         let rm1 = MessageEvent.on('message_aggregation_changed', x => {
             setActive(false);
             ///  setSelectedList({}); will create problem incase we fetch messages
-            MessageAggregateService.readMessage().then(x => {
-                console.log("MessageAggregateService.readMessage", x[0]);
-                setList(x);
-            });
+
 
         }, true);
         let rm2 = MessageEvent.on('email_list_view_trash', ({ sender, type }) => {
@@ -55,6 +55,13 @@ export default ListView = ({ navigation, removeFromList }) => {
         }, true);
         return x => { [rm1, rm2, rm3].forEach(x => x()) }
     }, []);
+
+    useEffect(() => {
+        MessageAggregateService.getPage(searchText, page, 20).then(x => {
+            console.log("MessageAggregateService.readMessage 333333333333", x.length, searchText, page);
+            setList(l => [...l, ...x]);
+        });
+    }, [isFocused, page, searchText]);
 
     function trashSelectedSenders(senders) {
         let from = senders || Object.keys(selectedList);
@@ -69,13 +76,6 @@ export default ListView = ({ navigation, removeFromList }) => {
     function createRuleForSelectedSenders(senders, action = "move") {
         navigation.navigate('CreateRuleView', { activity: { from: senders || Object.keys(selectedList), action, type: "sender" } })
     }
-
-    useEffect(x => {
-        MessageAggregateService.readMessage().then(x => {
-            console.log("MessageAggregateService.readMessage", x.length, x[0]);
-            setList(x);
-        });
-    }, []);
 
     useEffect(() => {
         if (Object.keys(selectedList).length === 0) setActive(false);
@@ -102,14 +102,6 @@ export default ListView = ({ navigation, removeFromList }) => {
         navigation.navigate("EmailListView", { sender: item.sender, show_bottom_bar: true })
     }
 
-    const filterItems = (value) => {
-        if (value === '') {
-            return list.slice(0, page * 20);
-        }
-        value = value.toLowerCase();
-        return list.filter((item) => item.sender.toLowerCase().includes(value)).slice(0, page * 20);
-    };
-
     function RenderItem({ item, selected = false, handleLongPress, hanldePress }) {
         return (
             <TouchableOpacity style={{ ...SenderListstyles.item, backgroundColor: selected ? colors.selected : colors.card, }} onLongPress={() => handleLongPress(item)} onPress={x => hanldePress(item)}>
@@ -132,8 +124,11 @@ export default ListView = ({ navigation, removeFromList }) => {
 
     // Define a function to handle text change
     const handleChangeText = (value) => {
+        if(page==1 && value.trim() === "") return; // Do not update if the text is same as previous
         // Update the state variable with the new value
-        setText(value);
+        setList([]);
+        setPage(1);
+        setSearchText(value);
         Object.keys(selectedList).length && setSelectedList({});
     };
 
@@ -146,7 +141,7 @@ export default ListView = ({ navigation, removeFromList }) => {
         <View style={{ flex: 1, flexDirection: "column" }}>
             <SearchPage onChangeText={handleChangeText} placeholder="Search Sender" value={text} name="magnify" />
             <FlatList
-                data={filterItems(text)}
+                data={list}
                 initialNumToRender={20}
                 onEndReached={handleEndReached}
                 onEndReachedThreshold={0.3}

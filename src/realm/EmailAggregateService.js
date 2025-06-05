@@ -26,6 +26,10 @@ const MessageAggregateService = {
         return await MessageServiceModule.readMessage();
     },
 
+    getPage: async (sender, page, pageSize) => {
+        return await MessageServiceModule.getPage(sender, page, pageSize);
+    },
+
     readAll: async () => {
         return await MessageServiceModule.readAll();
     },

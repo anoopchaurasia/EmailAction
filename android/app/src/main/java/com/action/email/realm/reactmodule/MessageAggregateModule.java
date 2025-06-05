@@ -2,8 +2,10 @@ package com.action.email.realm.reactmodule;
 
 import androidx.annotation.NonNull;
 
+import com.action.email.realm.model.Message;
 import com.action.email.realm.model.MessageAggregate;
 import com.action.email.realm.service.MessageAggregateService;
+import com.action.email.realm.service.MessageService;
 import com.facebook.react.bridge.*;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
@@ -126,5 +128,11 @@ FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 
-
+    @ReactMethod
+    public void getPage(String sender, int page, int pageSize, Promise promise) {
+        List<MessageAggregate> messageAggregates = MessageAggregateService.getPage(sender, page, pageSize);
+        WritableArray array = Arguments.createArray();
+        for (MessageAggregate msga : messageAggregates) array.pushMap(msga.toMap());
+        promise.resolve(array);
+    }
 }

@@ -2,18 +2,25 @@ package com.action.email.realm.service;
 
 
 import android.util.Log;
+
+import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.action.email.realm.config.RealmManager;
+import com.action.email.realm.model.Message;
 import com.action.email.realm.model.MessageAggregate;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class MessageAggregateService {
+
+    private static final String TAG = "MessageAggregateService";
 
     public static void create(final MessageAggregate data) {
        Realm realm = RealmManager.getRealm();
@@ -134,6 +141,35 @@ FirebaseCrashlytics.getInstance().recordException(e);
         
        // MessageEvent.emit("message_aggregation_changed", "update");
         return result.get();
+    }
+
+    public static List<MessageAggregate> getPage(String sender, int page, int pageSize) {
+
+
+        Realm realm = RealmManager.getRealm();
+        int offset = (page - 1) * pageSize;
+
+        List<MessageAggregate> messageAggregates;
+        if(sender.trim().isEmpty()) {
+            messageAggregates = realm.where(MessageAggregate.class)
+                    .sort("count", Sort.DESCENDING)
+                    .findAll();
+        } else {
+            messageAggregates = realm.where(MessageAggregate.class)
+                    .contains("sender", sender, Case.INSENSITIVE)
+                    .sort("count", Sort.DESCENDING)
+                    .findAll();
+        }
+        int totalCount = messageAggregates.size();
+        Log.d(TAG, "Total count: "+ totalCount);
+        if(offset >= totalCount) {
+            return new ArrayList<>(); // Return empty list if offset is out of bounds
+        }
+        messageAggregates = realm.copyFromRealm(messageAggregates .subList(offset, Math.min(offset + pageSize, messageAggregates.size()) ));
+        Log.d(TAG, "sender: "+ sender + " page: "+ page + " messsage aggregate count: "+ messageAggregates.size());
+
+        return messageAggregates;
+
     }
 
     public interface AggregateTransaction {
