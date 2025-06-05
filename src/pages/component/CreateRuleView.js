@@ -39,15 +39,27 @@ export default CreateRuleView = ({ route, navigation }) => {
         <View style={{padding: 10}}>
             <View style={{flexDirection:"row", fontSize: 20, borderBottomWidth: 1, marginBottom: 5, paddingBottom: 5, borderColor:colors.border}}>
                 <Icon name="subtitles-outline" size={25} style={{height: 40, paddingTop:10, paddingRight: 30, paddingLeft: 20}} />
-                <TextInput onChangeText={text=>updateActivity({title: text}) } style={{borderColor:colors.border, borderWidth:.5, borderRadius: 5, flex:1, paddingLeft:10}} value={activity.title}/>
+                <TextInput onChangeText={text=>updateActivity({title: text}) } 
+                style={{borderColor:colors.border, borderWidth:.5, borderRadius: 5, flex:1, paddingLeft:10}} 
+                value={activity.title}/>
             </View>
             <View style={{flexDirection:"row", fontSize: 20, borderBottomWidth: 1, marginBottom: 5, paddingBottom: 5, borderColor:colors.border}}>
-                <Icon name="checkbox-outline" size={25} style={{height: 40, paddingTop:10, paddingRight: 30, paddingLeft: 20}} />
-                <View style={{flexDirection:"column", flex:1, height:70}}>
-                    <MyText style={{marginBottom:10}}>From</MyText>
-                    <TextInput onChangeText={text=> updateActivity({from: text.split(";").map(x=>x.trim())})} style={{borderColor:colors.border, borderWidth:.5, paddingLeft:10, borderRadius: 5, flex:1}} value={activity.from.join("; ")}/>
+                <Icon name="checkbox-outline" size={25} style={{height: 40,  paddingLeft: 20}} />
+                <View style={{}}>
+                    <MyText style={{marginBottom:0}}>From</MyText>
                 </View>
+                <View style={{flexDirection:"column"}}>
+                    {activity.from.map((x, i) => (
+                    <View key={i}>
+                        <TextInput
+                        style={{borderColor:colors.border, paddingHorizontal:10, paddingVertical:3,  borderWidth:.5, borderRadius: 5,   marginBottom: 5}}
+
+                        value={x}/>
+                        </View>))
+                    }
+                    </View>
             </View>
+            
             <View style={{flexDirection:"row", fontSize: 20, borderBottomWidth: 1, marginBottom: 5, paddingBottom: 5, borderColor:colors.border}}>
                 <Icon name="folder-move-outline" size={25} style={{height: 40, paddingTop:10, paddingRight: 30, paddingLeft: 20}} />
                 <View style={{flexDirection:"column", flex:1, height:100}}>
