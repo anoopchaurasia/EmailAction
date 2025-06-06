@@ -10,6 +10,7 @@ import { useTheme } from '@react-navigation/native';
 
 export default AttachementView = ({ selectedEmail, password, getNext, getPrev, onClose }) => {
     const colors = useTheme().colors;
+    console.log("AttachementView", selectedEmail);
     let [selected, setSelected] = useState(selectedEmail);
     let [selectedFile, setSelectedFile] = useState(selectedEmail.attachments[0]);
     let [loadAttachmentData, setLoadAttachmentData] = useState(null);

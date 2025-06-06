@@ -225,9 +225,20 @@ public class MessageModule extends ReactContextBaseJavaModule {
 
             for (int i = 0; i < messageIds.size(); i++)
                 ids.add(messageIds.getString(i));
-            List<String> pending = MessageService.checkMessageIds(ids);
+            List<String> pending = MessageService.missingMessages(ids, MessageService.checkMessageIds(ids));
             WritableArray array = Arguments.createArray();
             for (String id : pending) array.pushString(id);
+            promise.resolve(array);
+        }, promise);
+    }
+
+    @ReactMethod
+    public void getMessageByLabel(String label_id, int page, int pageSize, Promise promise) {
+        RunSafe.runSafelyWith(() -> {
+            List<Message> messages = MessageService.getMessageByLabel(label_id, page, pageSize);
+
+            WritableArray array = Arguments.createArray();
+            for (Message msg : messages) array.pushMap(msg.toMap());
             promise.resolve(array);
         }, promise);
     }
@@ -237,6 +248,20 @@ public class MessageModule extends ReactContextBaseJavaModule {
         RunSafe.runSafelyWith(() -> {
             MessageService.resyncData();
             promise.resolve(null);
+        }, promise);
+    }
+
+    @ReactMethod
+    public void getMessagesByIds(ReadableArray message_ids,  Promise promise) {
+        RunSafe.runSafelyWith(() -> {
+            List<String> list = new ArrayList<>();
+            for (int i = 0; i < message_ids.size(); i++) {
+                list.add(message_ids.getString(i));
+            }
+            List<Message> messages = MessageService.getMessagesByIds(list);
+            WritableArray array = Arguments.createArray();
+            for (Message msg : messages) array.pushMap(msg.toMap());
+            promise.resolve(array);
         }, promise);
     }
 }

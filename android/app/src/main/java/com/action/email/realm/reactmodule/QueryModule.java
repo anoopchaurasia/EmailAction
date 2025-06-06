@@ -1,21 +1,28 @@
 package com.action.email.realm.reactmodule;
 
 
+import android.util.Log;
+
+import com.action.email.data.MessageList;
+import com.action.email.google.GmailEmailFetcher;
+import com.action.email.google.GmailMessageFetcher;
 import com.action.email.realm.model.Label;
+import com.action.email.realm.model.Message;
 import com.action.email.realm.model.Query;
 import com.action.email.realm.service.QueryService;
 import com.facebook.react.bridge.*;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.List;
+import java.util.Map;
 
 public class QueryModule extends ReactContextBaseJavaModule {
 
     private final QueryService queryService;
-
+    private static final String TAG = "QueryModule";
     public QueryModule(ReactApplicationContext reactContext) {
         super(reactContext);
-        this.queryService = new QueryService(reactContext);
+        this.queryService = new QueryService();
     }
 
     @Override
@@ -30,7 +37,7 @@ public class QueryModule extends ReactContextBaseJavaModule {
             queryService.create(Query.fromMap(query));
             promise.resolve(null);
         } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("CREATE_QUERY_ERROR", e);
         }
     }
@@ -41,7 +48,7 @@ FirebaseCrashlytics.getInstance().recordException(e);
             queryService.deleteAll();
             promise.resolve(null);
         } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("DELETE_ALL_ERROR", e);
         }
     }
@@ -52,7 +59,7 @@ FirebaseCrashlytics.getInstance().recordException(e);
             queryService.update(Query.fromMap(query));
             promise.resolve(null);
         } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("UPDATE_QUERY_ERROR", e);
         }
     }
@@ -63,7 +70,7 @@ FirebaseCrashlytics.getInstance().recordException(e);
             queryService.delete(id);
             promise.resolve(null);
         } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("DELETE_QUERY_ERROR", e);
         }
     }
@@ -76,8 +83,26 @@ FirebaseCrashlytics.getInstance().recordException(e);
             for (Query query : queries) result.pushMap(query.toMap());
             promise.resolve(result);
         } catch (Exception e) {
-FirebaseCrashlytics.getInstance().recordException(e);
+            FirebaseCrashlytics.getInstance().recordException(e);
             promise.reject("GET_ALL_QUERIES_ERROR", e);
         }
+    }
+
+    @ReactMethod
+    public void fetchMessages(String query, String pageToken, Promise promise) {
+        RunSafe.runSafelyWith(() -> {
+            Log.d(TAG, "query: "+ query + " pagetoken: "+ (pageToken==null));
+            GmailEmailFetcher gmailEmailFetcher = new GmailEmailFetcher(getReactApplicationContext().getApplicationContext());
+            GmailMessageFetcher gmailMessageFetcher = new GmailMessageFetcher(getReactApplicationContext().getApplicationContext());
+            MessageList messageList = gmailEmailFetcher.getMessageIDs(pageToken, query);
+            List<Message> messages = gmailMessageFetcher.retryBatch(messageList.getMessageIds());
+            WritableArray array = Arguments.createArray();
+            for (Message msg : messages) array.pushMap(msg.toMap());
+            WritableMap map = Arguments.createMap();
+            map.putString("nextPageToken", messageList.getPageToken());
+            map.putArray("messages", array);
+            promise.resolve(map);
+            }, promise);
+
     }
 }

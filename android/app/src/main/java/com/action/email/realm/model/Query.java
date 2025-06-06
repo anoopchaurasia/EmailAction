@@ -48,6 +48,8 @@ public class Query extends RealmObject {
     public static Query fromMap(ReadableMap map) {
         Query query = new Query();
 
+        query.setId(map.getString("id"));
+
         if (map.hasKey("name") && !map.isNull("name")) {
             query.setName(map.getString("name"));
         }
@@ -84,6 +86,7 @@ public class Query extends RealmObject {
     public WritableMap toMap( ) {
         WritableMap map = Arguments.createMap();
         Query query = this;
+        map.putString("id", query.getId());
         map.putString("name", query.getName());
         map.putString("pdf_password", query.getPdf_password());
 

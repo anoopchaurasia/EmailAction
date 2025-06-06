@@ -20,8 +20,7 @@ public class QueryService {
 
     private static final String TAG = "QueryService" ;
 
-    public QueryService(Context context) {
-        Realm.init(context);
+    public QueryService( ) {
 
     }
 
@@ -48,6 +47,7 @@ FirebaseCrashlytics.getInstance().recordException(e);
             if (query.getId() == null || query.getId().isEmpty()) {
                 query.setId(UUID.randomUUID().toString());
             }
+            Log.d(TAG, "query: "+ query.getId());
             realm.executeTransaction(r -> r.insertOrUpdate(query));
             return true;
         } catch (Exception e) {

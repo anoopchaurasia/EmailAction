@@ -116,7 +116,7 @@ public class GmailEmailFetcher {
         Response response = client.newCall(listRequest).execute();
         if (!response.isSuccessful()) {
             Log.e(TAG, "Failed to list messages: " + response.code() + " retry # ");
-            return null;
+            return new MessageList(null, pageToken);
         }
         String responseBody = response.body().string();
         JSONObject json = new JSONObject(responseBody);

@@ -31,13 +31,8 @@ const App = ({ navigation }) => {
   let [openSearch, setOpenSearch] = useState(false);
   let [editQuery, setEditQuery] = useState(null);
   useEffect(x => {
-   QueryService.getAll().then(x => {
+    QueryService.getAll().then(x => {
       console.log("QueryService.getAll", x.map(q => q.id));
-      let i = 0;
-      x.forEach(element => {
-        console.log("element", element.id, i);
-        element.id = i++;
-      });
       setList(x);
     });
   }, [])
@@ -48,6 +43,7 @@ const App = ({ navigation }) => {
   }
 
   function onDelete(item) {
+    console.log(item);
     QueryService.delete(item.id);
     let index = list.indexOf(item);
     index != -1 && list.splice(index, 1);
@@ -93,7 +89,7 @@ const App = ({ navigation }) => {
           query.message_ids = [];
           query.completed = false;
           cleanQuery(query.query);
-          if(query.id === undefined) {
+          if (query.id === undefined) {
             QueryService.create(query).then(x => {
               if (x) {
                 QueryService.getAll().then(x => {
@@ -103,13 +99,13 @@ const App = ({ navigation }) => {
             });
           } else {
             QueryService.update(query).then(x => {
-          
-            QueryService.getAll().then(x => {
-              setList(x);
+
+              QueryService.getAll().then(x => {
+                setList(x);
+              });
             });
-          });
           }
-          
+
 
           setOpenSearch(false);
         }} />

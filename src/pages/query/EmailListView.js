@@ -27,7 +27,7 @@ export default AttachementView = ({ navigation, route }) => {
     let [loading, setLoading] = useState(0);
     let [selectedEmail, setSelectedEamil] = useState(null);
     useEffect(x => {
-        if(query.message_ids.length == 0) {
+        if (query.message_ids.length == 0) {
             loaddata("");
         } else {
             loadLatestData()
@@ -37,36 +37,40 @@ export default AttachementView = ({ navigation, route }) => {
     }, []);
 
     async function loadLatestData() {
+
         console.log("fetching new messages")
         try {
             setLoading(true)
             if (query && query.query) {
                 do {
                     ///get List porcess only newly added messages
+                    // var { message_ids, nextPageToken } = await DataSync.fetchMessages(QueryService.getQueryString(query.query), nextPageToken);
+                    // let length = message_ids.length;
+                    // message_ids = message_ids.filter(message_id => query.message_ids.includes(message_id) == false);
 
-                    var { message_ids, nextPageToken } = await DataSync.fetchMessages(QueryService.getQueryString(query.query), nextPageToken);
-                    let length = message_ids.length;
-                    message_ids = message_ids.filter(message_id => query.message_ids.includes(message_id) == false);
-                    if (length !== message_ids.length) nextPageToken = undefined;
-                    var messages = [];
-                    let nonstored_message_ids = message_ids.filter(id=> MessageService.checkMessageId(id) == false)
-                    if (nonstored_message_ids.length) {
-                        messages = await DataSync.fetchMessageMeta(nonstored_message_ids);
-                     //   await Activity.newMessages(messages);
-                        messages.map(x => { try { MessageService.update(x) } catch (e) { console.error(e, "update failed getList", x) } });
-                    }
-                    message_ids.filter(mid=> MessageService.update({message_id:mid, has_attachement: true}));
-                    setQuery(z => {
-                        z.message_ids.unshift(...(message_ids));
-                        return z;
-                    });
-                    QueryService.update(query);
-                    setList(msgs=> {
-                        msgs.push(...(message_ids.map(mid=> MessageService.getById(mid))));
-                        msgs.sort((a,b)=> a.date>b.date?-1:1);
-                        return msgs.filter(x=>x);
-                    });
-                } while (nextPageToken);
+                    // if (length !== message_ids.length) nextPageToken = undefined;
+                    // var messages = [];
+                    // let nonstored_message_ids = message_ids.filter(id => MessageService.checkMessageId(id) == false)
+                    // if (nonstored_message_ids.length) {
+                    //     messages = await DataSync.fetchMessageMeta(nonstored_message_ids);
+                    //  //   await Activity.newMessages(messages);
+                    //     messages.map(x => { try { MessageService.update(x) } catch (e) { console.error(e, "update failed getList", x) } });
+                    // }
+                    // message_ids.filter(mid=> MessageService.update({message_id:mid, has_attachement: true}));
+                    // setQuery(z => {
+                    //     z.message_ids.unshift(...(message_ids));
+                    //     return z;
+                    // });
+                    // QueryService.update(query);
+                    MessageService.getMessagesByIds(query.message_ids).then(messages => {
+                        setList(msgs => {
+                            msgs.push(...messages);
+                            msgs.sort((a, b) => a.date > b.date ? -1 : 1);
+                            return msgs.filter(x => x);
+                        });
+                    })
+
+                } while (false);
             }
             setLoading(false);
         } catch (e) {
@@ -76,28 +80,37 @@ export default AttachementView = ({ navigation, route }) => {
 
 
     async function loaddata() {
-        if((query.nextPageToken==null && query.message_ids.length>0) || query.completed) return console.log("All files already loaded")
+        if ((query.nextPageToken == null && query.message_ids.length > 0) || query.completed) return console.log("All files already loaded")
         try {
+            if (loading) return console.log("Already loading data");
             setLoading(true)
             if (query && query.query) {
                 //TODO: hanlde own loop for data fetch
-                let { message_ids, nextPageToken: pageToken } = await DataSync.fetchMessages(QueryService.getQueryString(query.query), query.nextPageToken);
-                console.log(message_ids, query.query);
-                setQuery(z => {
-                    z.message_ids.push(...message_ids);
+                console.log(query.message_ids.length, query.nextPageToken, QueryService.getQueryString(query.query), "99999999999999message_ids, pageToken");
+                let { messages, nextPageToken: pageToken } = await QueryService.fetchMessages(QueryService.getQueryString(query.query), query.nextPageToken);
+                console.log(messages.length, pageToken, "message_ids, pageToken");
+                setQuery(query => {
+                    let z = { ...query };
+                    let messageIds = [...(query.message_ids || [])]; // clone message_ids safely
+                    messageIds.push(...messages.map(m => m.message_id));
                     let has = {};
-                    z.message_ids = z.message_ids.filter(r => { return has[r] ? false : (has[r] = 1) })
+                    messageIds = messageIds.filter(r => { return has[r] ? false : (has[r] = 1) });
+                    z.message_ids = messageIds;
+                    
                     z.nextPageToken = pageToken;
-                    z.completed = pageToken==null
+                    z.completed = pageToken == null;
                     return z;
                 });
-                setList(msgs=> {
-                    msgs.push(...(message_ids.map(message_id => MessageService.getById(message_id))))
-                    msgs.sort((a,b)=> a.date>b.date?-1:1);
-                    return msgs.filter(x=>x);
+
+                setList(msgs => {
+                    msgs.push(...messages)
+                    let has ={};
+                    msgs = msgs.filter(x => x).filter(r => { return has[r.message_id] ? false : (has[r.message_id] = 1) });
+                    msgs.sort((a, b) => a.date > b.date ? -1 : 1);
+                    return msgs;
                 });
-                message_ids.filter(mid=> MessageService.update({message_id:mid, has_attachement: true}));
-               // await fetchBody(message_ids);
+                // message_ids.filter(mid => MessageService.update({ message_id: mid, has_attachement: true }));
+                // // await fetchBody(message_ids);
 
                 QueryService.update(query);
                 console.log(query.message_ids.length);
@@ -109,55 +122,56 @@ export default AttachementView = ({ navigation, route }) => {
         }
     }
 
-    useEffect(x => {
-        let messages = query.message_ids.map(message_id => MessageService.getById(message_id));
-        console.log(query.message_ids.length, messages.length, "messages.length", messages[20]);
-        setList(msgs => { msgs.push(...messages); msgs.sort((a,b)=> a.date>b.date?-1:1); return msgs.filter(x=>x) });
-    }, []);
+    // useEffect(x => {
+    //     let messages = query.message_ids.map(message_id => MessageService.getById(message_id));
+    //     console.log(query.message_ids.length, messages.length, "messages.length", messages[20]);
+    //     setList(msgs => { msgs.push(...messages); msgs.sort((a, b) => a.date > b.date ? -1 : 1); return msgs.filter(x => x) });
+    // }, []);
 
     async function fetchBody(message) {
-        if(!message) return console.log("no message");
-        if(message.attachments && message.attachments.length>0)  {
+        if (!message) return console.log("no message");
+        if (message.attachments && message.attachments.length > 0) {
             console.log("has attachement")
             setOpenSearch(true);
             return
         }
-        console.log("fetch body", );
+        console.log("fetch body",);
         //fetch single item 
         let data = (await DataSync.fetchData([message.message_id]))[0];
-        MessageService.update(data);
-//        let messages = message_ids.map(message_id => MessageService.getById(message_id)).filter(x => x && x.attachments && (x.attachments.filter(r => r.name.match(/pdf$/i)).length));
-        
-        setList(msgs => { 
+       // MessageService.update(data);
+        //        let messages = message_ids.map(message_id => MessageService.getById(message_id)).filter(x => x && x.attachments && (x.attachments.filter(r => r.name.match(/pdf$/i)).length));
+
+        setList(msgs => {
             let index = list.indexOf(message);
-            index!=-1 && (msgs[index] = data)
+            index != -1 && (msgs[index] = data)
             return msgs
         });
+        console.log(message, selectedEmail, !!list[selectedEmail]);
         setOpenSearch(true);
     }
 
     async function getNext() {
-        let _selectedEmail = selectedEmail+1;
+        let _selectedEmail = selectedEmail + 1;
         if (!list[_selectedEmail]) {
-            await loaddata("next");
-            if(!list[_selectedEmail]) {
+            // await loaddata("next");
+            if (!list[_selectedEmail]) {
                 console.log("no message for index", _selectedEmail);
                 return list[--_selectedEmail];
             }
         }
         await fetchBody(list[_selectedEmail]);
-        fetchBody(list[_selectedEmail+1]);
+        fetchBody(list[_selectedEmail + 1]);
         setSelectedEamil(_selectedEmail);
         return list[_selectedEmail];
     }
 
     async function getPrev() {
-        let _selectedEmail = selectedEmail-1;
+        let _selectedEmail = selectedEmail - 1;
         if (!list[_selectedEmail]) {
             return list[0];
         }
         await fetchBody(list[_selectedEmail]);
-        fetchBody(list[_selectedEmail-1]);
+        fetchBody(list[_selectedEmail - 1]);
         setSelectedEamil(_selectedEmail);
         return list[_selectedEmail];
     }
@@ -175,6 +189,8 @@ export default AttachementView = ({ navigation, route }) => {
         loaddata("last page");
     };
 
+    console.log("Flatlist", list.length);
+
     return (
         <View style={{ flex: 1, flexDirection: "column" }}>
 
@@ -182,8 +198,8 @@ export default AttachementView = ({ navigation, route }) => {
                 data={list}
                 style={{ flex: 1, marginBottom: 10 }}
                 renderItem={({ item, index }) => <RenderItem
-                colors={colors}
-                    item={item} index={index} openModal={x => { setSelectedEamil(index); fetchBody(list[index]) }} />}
+                    colors={colors}
+                    item={item} index={index} openModal={x => {  setSelectedEamil(index),  fetchBody(list[index]) }} />}
                 keyExtractor={(item, i) => item.sender + i}
                 contentContainerStyle={{ marginBottom: 50, margintop: 10 }}
                 ListFooterComponent={renderFooter}
@@ -207,11 +223,11 @@ export default AttachementView = ({ navigation, route }) => {
 
 const RenderItem = ({ item, openModal, colors }) => {
     return (
-        <TouchableOpacity onPress={openModal} style={{ padding: 10, borderBottomWidth: 1, borderColor: colors.border}}>
+        <TouchableOpacity onPress={openModal} style={{ padding: 10, borderBottomWidth: 1, borderColor: colors.border }}>
             <MyText>{item.sender_name}</MyText>
             <MyText style={{ fontWeight: 'bold' }}>{item.subject}</MyText>
-            <MyText>{formatDate(item.date)}</MyText>
-            <MyText>{item.labels.join(', ')}</MyText>
+            {/* <MyText>{formatDate(item.date)}</MyText> */}
+            {/* <MyText>{item.labels.join(', ')}</MyText> */}
         </TouchableOpacity>
     );
 };

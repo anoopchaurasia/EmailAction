@@ -30,6 +30,7 @@ import Gmail from '../google/Gmail';
     static fetchData = async (messageIds) => {
         const batchRequests = await Gmail.createBatchRequest(messageIds, '');
         const result = await Gmail.callBatch(batchRequests);
+        console.log(batchRequests, result, "----------------------------------------batchRequests, result");
         return await Gmail.formatBody(result);
     }
  

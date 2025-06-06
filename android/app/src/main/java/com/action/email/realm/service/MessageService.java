@@ -14,6 +14,7 @@ import com.action.email.realm.model.Attachment;
 import com.action.email.realm.model.Message;
 import com.action.email.realm.model.MessageAggregate;
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.WritableMap;
 
 import java.util.ArrayList;
@@ -223,31 +224,28 @@ public class MessageService {
     }
 
 
-     public static List<String> checkMessageIds(List<String> messageIds) {
+     public static List<Message> checkMessageIds(List<String> messageIds) {
        Realm realm = RealmManager.getRealm();
-        List<String> pending = new ArrayList<>();
-//        for (int i=0; i<messageIds.size(); i++) {
-//            if(getById(messageIds.get(i)) == null) {
-//                pending.add(messageIds.get(i));
-//            }
-//        }
-
-         RealmResults<Message> foundMessages = realm.where(Message.class)
+         List<Message> foundMessages = realm.where(Message.class)
                  .in("message_id", messageIds.toArray(new String[0]))
                  .findAll();
+        return foundMessages;
 
-// Convert found IDs to a Set
-         Set<String> foundIds = new HashSet<>();
-         for (Message m : foundMessages) {
-             foundIds.add(m.getMessage_id());
-         }
+    }
 
-// Now collect those not in DB
-         for (String id : messageIds) {
-             if (!foundIds.contains(id)) {
-                 pending.add(id);
-             }
-         }
+    public static List<String> missingMessages(List<String> message_ids, List<Message> messages) {
+        // Convert found IDs to a Set
+        Set<String> foundIds = new HashSet<>();
+        List<String> pending = new ArrayList<>();
+        for (Message m : messages) {
+            foundIds.add(m.getMessage_id());
+        }
+
+        for (String id : message_ids) {
+            if (!foundIds.contains(id)) {
+                pending.add(id);
+            }
+        }
         return pending;
     }
 
@@ -272,6 +270,30 @@ public class MessageService {
 
     public static void resyncData() {
         GmailSyncStateService.setSyncState(GmailSyncStateService.SyncStatus.INPROGRESS);
+
+    }
+
+    public static List<Message> getMessageByLabel(String label_id, int page, int pageSize) {
+        Realm realm = RealmManager.getRealm();
+        int offset = (page - 1) * pageSize;
+        List<Message> messages =  realm.where(Message.class)
+                .contains("labels", label_id)
+                .findAll()
+                ;
+        int totalCount = messages.size();
+        if(offset >= totalCount) {
+            return new ArrayList<>(); // Return empty list if offset is out of bounds
+        }
+        messages = realm.copyFromRealm(messages .subList(offset, Math.min(offset + pageSize, messages.size()) ));
+
+        return messages;
+    }
+
+    public static List<Message> getMessagesByIds(List<String> message_ids) {
+        Realm realm = RealmManager.getRealm();
+        return realm.where(Message.class)
+                .in("message_id", message_ids.toArray(new String[0]))
+                .findAll();
 
     }
 }

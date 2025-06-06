@@ -79,6 +79,13 @@ const MessageService = {
      resyncData: async () => {
         return await MessageServiceModule.resyncData();
     },
+
+    getMessageByLabel: async (label, page, pageSize) => {
+        return await MessageServiceModule.getMessageByLabel(label, page, pageSize);
+    },
+    getMessagesByIds: async (message_ids) => {
+        return await MessageServiceModule.getMessagesByIds(message_ids);
+    }
 };
 
 export default MessageService;

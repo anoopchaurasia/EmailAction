@@ -3,6 +3,7 @@ import DataSync from '../../data/DataSync';
 import { View, Text } from "react-native";
 import base64 from 'react-native-base64';
 import { WebView } from 'react-native-webview';
+import extractDetailsFromHTML from "./../../utility/AI"
 
 
 export default EmailView = ({navigation, route}) => {
@@ -28,9 +29,12 @@ export default EmailView = ({navigation, route}) => {
 
         let html = base64.decode(text.replace(/\-/g, '+').replace(/_/g, '/') + '=='.substring(0, (3 * text.length) % 4));
         setHTML(html);
+     //   extractDetailsFromHTML(html, email.sender);
         return html;
     }
-
+    if(html){
+        html = addUtf8Meta(html);
+    }
     return (
            <WebView
             originWhitelist={['*']}
@@ -45,3 +49,22 @@ export default EmailView = ({navigation, route}) => {
 
 }
 
+function addUtf8Meta(html) {
+  const metaTag = '<meta charset="UTF-8">';
+  
+  if (/<head[^>]*>/i.test(html)) {
+    // If <head> exists, inject the meta tag right after it
+    return html.replace(/<head[^>]*>/i, match => `${match}\n  ${metaTag}`);
+  } else if (/<html[^>]*>/i.test(html)) {
+    // If only <html> exists, inject <head> with meta
+    return html.replace(/<html[^>]*>/i, match => `${match}\n<head>${metaTag}</head>`);
+  } else {
+    // If neither <html> nor <head>, wrap with full HTML
+    return `
+      <html>
+        <head>${metaTag}</head>
+        <body>${html}</body>
+      </html>
+    `;
+  }
+}

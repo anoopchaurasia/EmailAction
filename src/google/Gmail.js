@@ -41,6 +41,7 @@ export default class Gmail extends Email{
     options.headers.Authorization = `Bearer ${accessToken}`
     try {
         return fetch(url, options).then(async x => {
+          console.log("fetch response", x.status, x.statusText, x.url);
           if (x.status == '401') {
             await GoogleSignin.clearCachedAccessToken(accessToken);
             console.log(x, x.status, "re trying");
@@ -103,12 +104,14 @@ export default class Gmail extends Email{
   }
 
   static createBatchRequest = async (message_ids, params, method = "GET", body) => {
+    let accessToken = await Gmail.getAccessToken();
     return message_ids.map((messageId) => {
       return {
         method: method,
         headers: {
           "Accept-Type": "application/json",
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Authorization : `Bearer ${accessToken}`
         },
         body: JSON.stringify(body),
         path: `${base_gmail_url}messages/${messageId}${params}`,

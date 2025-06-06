@@ -32,6 +32,7 @@ const QueryService = {
   },
   async delete(id) {
     try {
+      console.log(id);
       await QueryModule.delete(id);
       return true;
     } catch (error) {
@@ -57,6 +58,11 @@ const QueryService = {
       setValue('has', query.has?'attachment':"", true),
       setValue('after', query.after && query.after.toISOString().split("T")[0].replace(/-/igm, "/"), true),
       setValue('before',query.before && query.before.toISOString().split("T")[0].replace(/-/gm, "/"), true)].filter(x=>x).join (" ");
+  },
+
+  async fetchMessages(query, pageToken) {
+    if(pageToken =="null") pageToken = undefined;
+    return await QueryModule.fetchMessages(query, pageToken);
   }
 };
 

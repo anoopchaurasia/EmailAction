@@ -54,13 +54,14 @@ public class GmailMessageFetcher {
     }
 
     public List<Message> retryBatch(List<String> ids) throws Exception {
+        if(ids==null) throw new Exception("Ids are null");
         count += ids.size();
-        ids = MessageService.checkMessageIds(ids);
+        List<Message> messages = MessageService.checkMessageIds(ids);
+        ids = MessageService.missingMessages(ids,  messages);
+        Log.d(TAG, "Total Count Set " + ids.size() + " total ids: "+ count);
+        if(ids.isEmpty()) return messages;
         Set<String> pending = new HashSet<>(ids);
-        Log.d(TAG, "Total Count Set " + pending.size() + " total ids: "+ count);
-        if(pending.size()==0) return null;
         Log.d(TAG, "Total Count in DB " + MessageService.readAll().size());
-        List<Message> messages = new ArrayList<>();
         for (int attempt = 0; attempt < MAX_RETRIES && !pending.isEmpty(); attempt++) {
             Log.d(TAG, "Batch attempt #" + (attempt + 1) + " for " + pending.size() + " ids");
             MessageResponse messageResponse = fetchBatch(new ArrayList<>(pending));
